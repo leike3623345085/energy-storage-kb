@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WASM数据分析与业绩计算综合平台 - ExcelJS版</title>
+    <style>
+        :root{
+            --bg-primary:#0a0e17;--bg-secondary:#111827;--bg-tertiary:#1f2937;
+            --excel:#217346;--excel-light:#2e8b57;--text:#f3f4f6;
+            --text-muted:#9ca3af;--border:rgba(255,255,255,0.1);
+            --accent-blue:#3b82f6;--warning:#f59e0b;--danger:#ef4444;--success:#10b981;
+            --collab-bg:rgba(245, 158, 11, 0.15);--collab-border:#f59e0b;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text);height:100vh;overflow:hidden;font-size:13px;}
+        .app-container{display:grid;grid-template-columns:380px 1fr;grid-template-rows:50px 40px 1fr;height:100vh;gap:1px;background:var(--border);}
+        header{grid-column:1/-1;background:var(--bg-secondary);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;border-bottom:1px solid var(--border);}
+        .logo{font-size:1.1rem;font-weight:700;color:var(--excel);display:flex;align-items:center;gap:0.5rem;}
+        .mode-switcher{display:flex;background:var(--bg-primary);border-radius:0.375rem;padding:0.25rem;gap:0.25rem;}
+        .mode-btn{padding:0.4rem 1rem;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-radius:0.25rem;font-size:0.85rem;transition:all 0.2s;}
+        .mode-btn.active{background:var(--excel);color:white;}
+        .sub-header{grid-column:1/-1;background:var(--bg-secondary);display:flex;align-items:center;padding:0 1rem;border-bottom:1px solid var(--border);gap:2rem;}
+        .btn{padding:0.5rem 0.75rem;border:none;border-radius:0.375rem;font-size:0.8rem;cursor:pointer;transition:all 0.2s;background:var(--bg-tertiary);color:var(--text);border:1px solid var(--border);display:inline-flex;align-items:center;gap:0.25rem;}
+        .btn:hover{border-color:var(--text-muted);}
+        .btn-excel{background:var(--excel);color:white;border-color:var(--excel);}
+        .btn-excel:hover{background:var(--excel-light);}
+        .btn-primary{background:var(--accent-blue);color:white;border-color:var(--accent-blue);}
+        .btn-success{background:var(--excel);color:white;}
+        .btn-danger{background:var(--danger);color:white;}
+        .btn-sm{padding:0.35rem 0.5rem;font-size:0.75rem;}
+        .sidebar-left{background:var(--bg-secondary);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:1rem;}
+        .panel{background:var(--bg-tertiary);border-radius:0.5rem;padding:0.75rem;border:1px solid var(--border);}
+        .panel-title{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:0.75rem;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+        .form-group{margin-bottom:0.75rem;}
+        .form-group label{display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;}
+        .form-control{width:100%;padding:0.4rem 0.5rem;background:var(--bg-primary);border:1px solid var(--border);border-radius:0.375rem;color:var(--text);font-size:0.8rem;}
+        .form-control:focus{outline:none;border-color:var(--excel);}
+        .match-config{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:0.5rem;padding:0.75rem;margin-bottom:0.5rem;}
+        .match-config-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;}
+        .match-title{font-size:0.8rem;font-weight:600;color:var(--accent-blue);}
+        .match-row{display:grid;grid-template-columns:1fr 30px 1fr;gap:0.5rem;align-items:center;margin-bottom:0.25rem;}
+        .match-equals{text-align:center;color:var(--text-muted);font-weight:bold;}
+        .similarity-row{grid-column: 1 / -1;display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid rgba(59,130,246,0.2);}
+        .similarity-slider{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--bg-secondary);border-radius:2px;outline:none;}
+        .similarity-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;background:var(--excel);border-radius:50%;cursor:pointer;}
+        .similarity-slider::-moz-range-thumb{width:14px;height:14px;background:var(--excel);border-radius:50%;cursor:pointer;border:none;}
+        .similarity-label{font-size:0.75rem;min-width:2.5rem;text-align:right;color:var(--excel);font-weight:600;}
+        .main-content{background:var(--bg-primary);display:flex;flex-direction:column;overflow:hidden;}
+        .toolbar{padding:0.5rem;background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;}
+        .data-grid{flex:1;overflow:auto;padding:0.5rem;}
+        table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+        th{background:var(--bg-tertiary);padding:0.5rem;text-align:left;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:10;}
+        td{padding:0.4rem 0.5rem;border-bottom:1px solid var(--border);}
+        tr:hover td{background:rgba(33,115,70,0.1);}
+        .num-cell{text-align:right;font-family:monospace;color:#60a5fa;}
+        .column-select-list{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:0.375rem;padding:0.5rem;background:var(--bg-primary);}
+        .column-item{display:flex;align-items:center;gap:0.5rem;padding:0.35rem;border-radius:0.25rem;cursor:pointer;font-size:0.8rem;}
+        .column-item:hover{background:rgba(255,255,255,0.05);}.column-item.selected{background:rgba(33,115,70,0.2);}
+        .sortable-list{display:flex;flex-direction:column;gap:0.25rem;}
+        .sortable-item{display:flex;align-items:center;gap:0.5rem;padding:0.5rem;background:var(--bg-primary);border:1px solid var(--border);border-radius:0.375rem;cursor:move;font-size:0.8rem;transition:all 0.2s;}
+        .sortable-item.dragging{opacity:0.5;border-color:var(--excel);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+        .drag-handle{color:var(--text-muted);cursor:move;}
+        .badge{display:inline-flex;align-items:center;padding:0.15rem 0.4rem;border-radius:0.25rem;font-size:0.7rem;font-weight:600;}
+        .badge-primary{background:rgba(59,130,246,0.2);color:var(--accent-blue);}
+        .badge-success{background:rgba(33,115,70,0.2);color:var(--excel);}
+        .badge-warning{background:rgba(245,158,11,0.2);color:var(--warning);}
+        .info-text{font-size:0.75rem;color:var(--text-muted);line-height:1.4;}
+        .empty-state{padding:3rem;text-align:center;color:var(--text-muted);}
+        .progress-bar{display:none;height:4px;background:var(--bg-tertiary);border-radius:2px;overflow:hidden;margin:1rem 0;}
+        .progress-bar.show{display:block;}
+        .progress-fill{height:100%;background:var(--excel);width:0%;transition:width 0.3s;}
+        .warning-box{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:var(--warning);padding:0.5rem;border-radius:0.375rem;font-size:0.75rem;margin-bottom:0.75rem;}
+        .success-box{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--success);padding:0.5rem;border-radius:0.375rem;font-size:0.75rem;margin-bottom:0.75rem;}
+        .hidden{display:none!important}
+        .config-grid{display:flex;flex-direction:column;gap:0.75rem;max-height:300px;overflow-y:auto;}
+        .config-item{background:var(--bg-primary);border-radius:0.5rem;padding:0.75rem;border:1px solid var(--border);}
+        .config-item h4{font-size:0.85rem;margin-bottom:0.5rem;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:0.5rem;}
+        .config-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;font-size:0.75rem;}
+        .config-row input{width:80px;padding:0.3rem 0.5rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:0.25rem;color:var(--text);text-align:right;font-size:0.8rem;}
+        .tier-list{margin-top:0.5rem;padding-top:0.5rem;border-top:1px dashed var(--border);}
+        .tier-item{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;font-size:0.75rem;}
+        .tier-item input{width:60px;}
+        .tabs{display:flex;gap:0.25rem;margin-bottom:0.75rem;border-bottom:1px solid var(--border);}
+        .tab{padding:0.4rem 0.8rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:0.8rem;color:var(--text-muted);}
+        .tab.active{color:var(--accent-blue);border-bottom-color:var(--accent-blue);}
+        .tab-content{display:none;}.tab-content.active{display:block;}
+        .summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-bottom:1rem;}
+        .summary-card{background:linear-gradient(135deg,var(--excel) 0%,var(--excel-light) 100%);color:white;padding:1rem;border-radius:0.5rem;text-align:center;}
+        .summary-card .value{font-size:1.2rem;font-weight:700;margin-top:0.25rem;}
+        .collab-cell{background:var(--collab-bg)!important;border-left:2px solid var(--collab-border);}
+        .star-mark{color:var(--warning);font-weight:bold;margin-left:0.25rem;}
+        .collab-badge{display:inline-block;padding:0.1rem 0.4rem;background:var(--collab-border);color:white;border-radius:0.25rem;font-size:0.7rem;margin-left:0.5rem;}
+        .result-total{background:rgba(59,130,246,0.1)!important;font-weight:600;}
+        .upload-zone{border:2px dashed var(--border);border-radius:0.5rem;padding:1.5rem;text-align:center;background:var(--bg-primary);cursor:pointer;transition:all 0.3s;margin-bottom:0.5rem;}
+        .upload-zone:hover{border-color:var(--excel);background:rgba(33,115,70,0.05);}
+        .file-status-box{background:var(--bg-primary);border:1px solid var(--border);border-radius:0.375rem;padding:0.5rem;margin-bottom:0.75rem;font-size:0.8rem;display:flex;align-items:center;justify-content:space-between;}
+        .file-status-box .file-name{color:var(--excel);font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .rule-box{background:rgba(59,130,246,0.1);border-left:3px solid var(--accent-blue);padding:0.75rem;margin-bottom:0.75rem;border-radius:0 0.375rem 0.375rem 0;font-size:0.75rem;}
+        .step-indicator{display:flex;gap:0.5rem;margin-bottom:0.5rem;}
+        .step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+        .step-dot.active{background:var(--excel);}.step-dot.completed{background:var(--success);}
+        .nav-buttons{display:flex;gap:0.5rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);}
+        .divider{height:1px;background:var(--border);margin:0.5rem 0;}
+        .free-badge{background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:white;padding:0.1rem 0.4rem;border-radius:1rem;font-size:0.65rem;font-weight:700;margin-left:0.5rem;}
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <header>
+        <div class="logo">
+            🔗 WASM数据分析与业绩计算平台
+            <span class="free-badge">ExcelJS 免费版</span>
+        </div>
+        <div class="mode-switcher">
+            <button class="mode-btn active" onclick="switchMode('join')" id="mode-join">数据关联</button>
+            <button class="mode-btn" onclick="switchMode('map')" id="mode-map">字段映射</button>
+            <button class="mode-btn" onclick="switchMode('performance')" id="mode-performance">业绩计算</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;">
+            <span style="color:var(--text-muted);font-size:0.8rem;" id="current-mode-text">当前模式：数据关联提取</span>
+        </div>
+    </header>
+    <div class="sub-header">
+        <div id="join-step-info" style="display:flex;align-items:center;gap:0.5rem;">
+            <span style="color:var(--text-muted);font-size:0.8rem;">ExcelJS：完全免费，保留格式、样式、公式</span>
+        </div>
+        <div id="perf-step-indicator" class="step-indicator hidden">
+            <div class="step-dot active" id="pdot1"></div>
+            <div class="step-dot" id="pdot2"></div>
+            <div class="step-dot" id="pdot3"></div>
+            <div class="step-dot" id="pdot4"></div>
+        </div>
+    </div>
+    <aside class="sidebar-left" id="join-sidebar">
+        <div class="panel">
+            <div class="panel-title">
+                <span>📂 文件上传</span>
+                <span class="badge badge-success" id="join-file-badge" style="display:none">已加载</span>
+            </div>
+            <div id="join-upload-area">
+                <div class="upload-zone" onclick="document.getElementById('joinFileInput').click()">
+                    <div style="font-size:1.5rem;margin-bottom:0.5rem;">📁</div>
+                    <div style="font-size:0.8rem;">点击上传 Excel 文件</div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem;">ExcelJS：保留原格式免费方案</div>
+                </div>
+                <input type="file" id="joinFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleJoinFile(event)">
+            </div>
+            <div id="join-file-status" class="file-status-box" style="display:none;">
+                <span class="file-name" id="join-file-name"></span>
+                <button class="btn btn-sm" onclick="clearJoinFile()" title="清除文件">×</button>
+            </div>
+        </div>
+        <div class="panel" id="join-data-panel" style="display:none">
+            <div class="panel-title">
+                <span>🎯 主数据表</span>
+                <span class="badge badge-primary" id="primary-badge" style="display:none">已选</span>
+            </div>
+            <div class="form-group">
+                <select class="form-control" id="primarySheet" onchange="onPrimarySheetChange()">
+                    <option value="">-- 选择主表 --</option>
+                </select>
+            </div>
+            <div class="info-text" id="primary-info">选择包含主要数据的表格</div>
+        </div>
+        <div class="panel" id="match-panel" style="display:none">
+            <div class="panel-title">
+                <span>🔗 关联条件</span>
+                <button class="btn btn-sm btn-primary" onclick="addMatchCondition()">+ 添加</button>
+            </div>
+            <div id="matchConfigList"></div>
+            <button class="btn btn-success" style="width:100%;margin-top:0.75rem" onclick="executeQuery()" id="queryBtn">
+                🔍 执行查询
+            </button>
+        </div>
+        <div class="panel" id="column-panel" style="display:none">
+            <div class="panel-title">
+                <span>📋 选择输出列</span>
+                <div style="display:flex;gap:0.25rem">
+                    <button class="btn btn-sm" onclick="selectAllColumns()">全选</button>
+                    <button class="btn btn-sm" onclick="deselectAllColumns()">全不选</button>
+                </div>
+            </div>
+            <div class="column-select-list" id="columnList"></div>
+        </div>
+        <div class="panel" id="sort-panel" style="display:none">
+            <div class="panel-title">🔀 列排序 (拖拽调整)</div>
+            <div class="sortable-list" id="sortableList"></div>
+        </div>
+        <div class="panel" id="output-panel" style="display:none">
+            <div class="panel-title">⚙️ 输出配置 <span class="free-badge">保留格式</span></div>
+            <div class="warning-box" style="font-size:0.7rem;">
+                ExcelJS：完全保留原文件格式、字体、颜色、边框、公式
+            </div>
+            <div class="form-group">
+                <label>输出模式</label>
+                <select class="form-control" id="outputMode" onchange="onOutputModeChange()">
+                    <option value="new">📄 新建工作表</option>
+                    <option value="existing">📝 填充到现有表（保留格式）</option>
+                </select>
+            </div>
+            <div id="new-sheet-config">
+                <div class="form-group">
+                    <label>新表名称</label>
+                    <input type="text" class="form-control" id="newSheetName" value="关联结果">
+                </div>
+            </div>
+            <div id="existing-sheet-config" style="display:none">
+                <div class="form-group">
+                    <label>目标文件（文件C）</label>
+                    <div class="upload-zone" id="targetFileUploadZone" onclick="document.getElementById('targetFileInput').click()" style="padding:0.75rem;margin-bottom:0.5rem;">
+                        <div style="font-size:1.2rem;margin-bottom:0.25rem;">📁</div>
+                        <div style="font-size:0.75rem;">点击上传目标文件</div>
+                    </div>
+                    <input type="file" id="targetFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleTargetFile(event)">
+                    <div id="target-file-status" class="file-status-box" style="display:none;">
+                        <span class="file-name" id="target-file-name"></span>
+                        <button class="btn btn-sm" onclick="clearTargetFile()" title="清除文件">×</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>目标工作表</label>
+                    <select class="form-control" id="targetSheet" onchange="onTargetSheetChange()"></select>
+                </div>
+                <div class="form-group">
+                    <label>目标表表头行</label>
+                    <input type="number" class="form-control" id="targetHeaderRow" value="1" min="1" onchange="onTargetHeaderRowChange()">
+                    <div class="info-text">指定目标表的表头所在行，系统将自动匹配列</div>
+                </div>
+                <div id="columnMappingPanel" style="display:none;margin-top:0.5rem;">
+                    <div class="panel-title" style="font-size:0.8rem;margin-bottom:0.5rem;">🔗 自动列映射</div>
+                    <div id="columnMappingResult" class="success-box" style="font-size:0.75rem;padding:0.5rem;"></div>
+                </div>
+                <div class="form-group">
+                    <label>数据起始行</label>
+                    <input type="number" class="form-control" id="startRow" value="6" min="1">
+                </div>
+                <div class="form-group">
+                    <label>数据结束行（空行）</label>
+                    <input type="number" class="form-control" id="endRow" value="15" min="1">
+                </div>
+                <div class="form-group">
+                    <label>汇总公式行</label>
+                    <input type="number" class="form-control" id="summaryRow" value="16" min="1">
+                </div>
+            </div>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <button class="btn btn-success" style="width:100%" onclick="exportResults()" id="exportResultBtn" disabled>
+                💾 导出结果（保留格式）
+            </button>
+        </div>
+    </aside>
+    
+    <!-- 字段映射侧边栏 -->
+    <aside class="sidebar-left hidden" id="map-sidebar">
+        <div class="panel">
+            <div class="panel-title">
+                <span>📂 文件上传</span>
+                <span class="badge badge-success" id="map-file-badge" style="display:none">已加载</span>
+            </div>
+            <div id="map-upload-area">
+                <div class="upload-zone" onclick="document.getElementById('mapFileInput').click()">
+                    <div style="font-size:1.5rem;margin-bottom:0.5rem;">📁</div>
+                    <div style="font-size:0.8rem;">点击上传 Excel 文件</div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem;">ExcelJS：保留原格式免费方案</div>
+                </div>
+                <input type="file" id="mapFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleMapFile(event)">
+            </div>
+            <div id="map-file-status" class="file-status-box" style="display:none;">
+                <span class="file-name" id="map-file-name"></span>
+                <button class="btn btn-sm" onclick="clearMapFile()" title="清除文件">×</button>
+            </div>
+        </div>
+        <div class="panel" id="map-sheet-panel" style="display:none">
+            <div class="panel-title">
+                <span>📄 工作表选择</span>
+            </div>
+            <div class="form-group">
+                <label>源工作表（Sheet1）</label>
+                <select class="form-control" id="map-source-sheet" onchange="onMapSourceSheetChange()">
+                    <option value="">-- 选择源表 --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>目标工作表（Sheet2）</label>
+                <select class="form-control" id="map-target-sheet" onchange="onMapTargetSheetChange()">
+                    <option value="">-- 选择目标表 --</option>
+                </select>
+            </div>
+        </div>
+        <div class="panel" id="map-config-panel" style="display:none">
+            <div class="panel-title">
+                <span>🔗 字段映射</span>
+                <button class="btn btn-sm btn-success" onclick="autoMatchFields()">🔄 自动匹配</button>
+            </div>
+            <div class="info-text" style="margin-bottom:0.5rem;">自动匹配 Sheet1 表头与 Sheet2 字段名</div>
+            <div id="mapConfigList" style="display:none;"></div>
+            <div id="autoMatchResult" class="success-box" style="display:none;margin-top:0.5rem;"></div>
+        </div>
+        <div class="panel" id="map-row-panel" style="display:none">
+            <div class="panel-title">
+                <span>📋 生成说明</span>
+            </div>
+            <div class="info-text">
+                系统将自动为 Sheet1 的每一行数据生成一张新表<br>
+                新表以 Sheet2 为模板，表名为序号（1, 2, 3...）
+            </div>
+        </div>
+        <div class="panel" id="map-execute-panel" style="display:none">
+            <div class="panel-title">
+                <span>🚀 执行映射</span>
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="executeMap()" id="executeMapBtn">
+                💾 执行字段映射
+            </button>
+            <div id="map-result" class="success-box" style="display:none;margin-top:0.5rem;"></div>
+        </div>
+    </aside>
+    
+    <!-- 业绩计算侧边栏 -->
+    <aside class="sidebar-left hidden" id="perf-sidebar">
+        <div class="panel" id="perf-file-panel">
+            <div class="panel-title">
+                <span>📂 业绩数据上传</span>
+                <span class="badge badge-success" id="perf-file-badge" style="display:none">已加载</span>
+            </div>
+            <div id="perf-upload-area">
+                <div class="upload-zone" onclick="document.getElementById('perfFileInput').click()">
+                    <div style="font-size:1.5rem;margin-bottom:0.5rem;">📊</div>
+                    <div style="font-size:0.8rem;">点击上传业绩数据</div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem;">自动识别 * 号协同标记</div>
+                </div>
+                <input type="file" id="perfFileInput" accept=".xlsx,.xls" style="display:none" onchange="handlePerfFile(event)">
+            </div>
+            <div id="perf-file-status" class="file-status-box" style="display:none;">
+                <span class="file-name" id="perf-file-name"></span>
+                <button class="btn btn-sm" onclick="clearPerfFile()" title="清除文件">×</button>
+            </div>
+            <div class="success-box" id="collab-info" style="display:none;margin-top:0.5rem;margin-bottom:0;">
+                已识别 <span id="collab-count" style="font-weight:bold;">0</span> 个协同标记 (*)
+            </div>
+        </div>
+        <div class="panel" id="perf-preview-nav" style="display:none">
+            <div class="info-text" style="margin-bottom:0.5rem;">
+                数据已加载，共 <span id="perf-row-count" style="color:var(--excel);font-weight:600;">0</span> 行
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="perfGoToConfig()">
+                下一步：配置规则 →
+            </button>
+        </div>
+        <div class="panel" id="perf-config-panel" style="display:none">
+            <div class="panel-title">
+                <span>⚙️ 业绩规则配置</span>
+                <button class="btn btn-sm btn-primary" onclick="savePerfConfig()">保存</button>
+            </div>
+            <div class="tabs">
+                <div class="tab active" onclick="switchPerfTab('prices')">单价</div>
+                <div class="tab" onclick="switchPerfTab('tiers')">阶梯</div>
+            </div>
+            <div class="tab-content active" id="perf-tab-prices">
+                <div class="config-grid" id="priceConfig"></div>
+            </div>
+            <div class="tab-content" id="perf-tab-tiers">
+                <div class="config-grid" id="tierConfig"></div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-sm" onclick="perfBack()">← 返回</button>
+                <button class="btn btn-sm btn-success" onclick="calculatePerformance()" style="margin-left:auto;">
+                    🧮 开始计算
+                </button>
+            </div>
+        </div>
+        <div class="panel" id="perf-result-panel" style="display:none">
+            <div class="panel-title">计算操作</div>
+            <button class="btn btn-primary" style="width:100%;margin-bottom:0.5rem" onclick="exportPerfResult()" id="exportPerfBtn" disabled>
+                💾 导出结果
+            </button>
+            <button class="btn btn-sm" style="width:100%" onclick="perfBack()">
+                ← 返回配置
+            </button>
+        </div>
+        <div class="panel" id="perf-help-panel">
+            <div class="panel-title">ℹ️ 计算说明</div>
+            <div class="info-text" style="margin-bottom:0.5rem;">
+                <p style="margin-bottom:0.5rem;"><strong>计算逻辑：</strong></p>
+                <p>1. 自动识别带*号数据为协同营销</p>
+                <p>2. 基础单价 vs 协同单价分别计算</p>
+                <p>3. 支持阶梯折扣和超额倍数</p>
+            </div>
+        </div>
+    </aside>
+    
+    <main class="main-content">
+        <div id="join-view" class="data-grid">
+            <div class="toolbar">
+                <span style="font-weight:600;color:var(--accent-blue)">数据关联提取模式 <span class="free-badge">ExcelJS</span></span>
+                <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center">
+                    <span class="badge badge-success" id="match-count" style="display:none">0 条匹配</span>
+                </div>
+            </div>
+            <div id="join-placeholder" class="empty-state">
+                <div style="font-size:3rem;margin-bottom:1rem">📗</div>
+                <div>请上传 Excel 文件（ExcelJS保留格式）</div>
+                <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">免费方案，支持样式、公式、合并单元格</div>
+            </div>
+            <div id="join-results" style="display:none;height:100%;flex-direction:column;padding:0.5rem;">
+                <div style="margin-bottom:0.5rem;display:flex;gap:1rem;align-items:center">
+                    <span style="font-size:0.9rem;font-weight:600">查询结果预览</span>
+                    <span style="font-size:0.75rem;color:var(--text-muted)" id="result-stats"></span>
+                </div>
+                <div id="join-table-container" style="flex:1;overflow:auto"></div>
+            </div>
+        </div>
+        <div id="map-view" class="data-grid hidden">
+            <div class="toolbar">
+                <span style="font-weight:600;color:var(--accent-blue)">字段映射模式 <span class="free-badge">ExcelJS</span></span>
+            </div>
+            <div id="map-placeholder" class="empty-state">
+                <div style="font-size:3rem;margin-bottom:1rem">🔗</div>
+                <div>请上传 Excel 文件进行字段映射</div>
+                <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">将Sheet1字段映射到Sheet2指定行的右侧单元格</div>
+            </div>
+            <div id="map-preview" style="display:none;height:100%;flex-direction:column;padding:0.5rem;">
+                <div style="margin-bottom:0.5rem;display:flex;gap:1rem;align-items:center">
+                    <span style="font-size:0.9rem;font-weight:600">映射预览</span>
+                    <span style="font-size:0.75rem;color:var(--text-muted)" id="map-preview-stats"></span>
+                </div>
+                <div id="map-table-container" style="flex:1;overflow:auto"></div>
+            </div>
+        </div>
+        <div id="perf-view" class="data-grid hidden">
+            <div class="toolbar">
+                <span style="font-weight:600;color:var(--warning)">业绩计算模式</span>
+                <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted)">带 * 号标记为协同营销</span>
+            </div>
+            <div id="perf-placeholder" class="empty-state">
+                <div style="font-size:3rem;margin-bottom:1rem">📊</div>
+                <div>请在左侧上传业绩数据</div>
+            </div>
+            <div id="perf-preview-step" style="display:none;height:100%;flex-direction:column;padding:0.5rem;">
+                <div style="margin-bottom:0.5rem;display:flex;gap:1rem;align-items:center">
+                    <span style="font-size:0.9rem;font-weight:600">数据预览</span>
+                    <span class="badge badge-warning" id="preview-collab-badge">0 个协同</span>
+                </div>
+                <div id="perf-preview-container" style="flex:1;overflow:auto"></div>
+            </div>
+            <div id="perf-result-step" style="display:none;height:100%;flex-direction:column;padding:0.5rem;">
+                <div class="summary-grid" id="summaryCards"></div>
+                <div style="flex:1;overflow:auto">
+                    <table class="data-table" id="perfResultTable"></table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ★★★ 使用 ExcelJS（免费，支持格式）★★★ -->
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+
+<script>

@@ -1,0 +1,96 @@
+{
+  "timestamp": "2026-03-04T00:00:00+08:00",
+  "task": "储能行业资讯搜索-深夜",
+  "categories": {
+    "us_stocks": {
+      "title": "美股储能相关公司动态",
+      "companies": [
+        {
+          "name": "Tesla",
+          "ticker": "TSLA",
+          "highlights": [
+            "2025年部署46.7 GWh储能产品，同比增长48%，创历史新高",
+            "储能业务毛利率达29.8%，几乎是汽车业务的两倍",
+            "2026年预计确认49.6亿美元递延收入",
+            "与SPIE签署多年框架协议，在欧洲法/比/荷部署Megapack",
+            "荷兰1.4 GWh 'Project Mufasa'项目进行中，预计2026年Q3投运",
+            "休斯顿Megapack工厂2026年投产，年产能50 GWh",
+            "向xAI出售4.3亿美元Megapack产品"
+          ],
+          "sources": [
+            {"title": "Tesla Energy 2026: Megapack outperforming Model Y", "date": "2026-02-12", "url": "https://www.teslaacessories.com/blogs/news/tesla-energy-2026-why-the-megapack-is-outperforming-the-model-y-in-growth-and-margin"},
+            {"title": "Tesla's energy storage business growing faster than any other part", "date": "2026-01-29", "url": "https://techcrunch.com/2026/01/29/teslas-energy-storage-business-is-growing-faster-than-any-other-part-of-the-company/"},
+            {"title": "Tesla sold $430M Megapack to xAI", "date": "2026-01-29", "url": "https://www.cnbc.com/2026/01/29/tesla-sold-430-million-worth-of-its-megapack-backup-batteries-to-xai-in-2025.html"}
+          ]
+        },
+        {
+          "name": "Fluence Energy",
+          "ticker": "FLNC",
+          "highlights": [
+            "Q1 2026营收4.75亿美元，同比增长154.4%",
+            "订单 backlog创历史新高，达55亿美元",
+            "本季度签署7.5亿美元订单，其中超5亿来自美国",
+            "项目管道(pipeline)增长30%，达300亿美元",
+            "与数据中心相关的储能项目讨论中容量达36 GWh",
+            "长时储能项目早期洽谈中容量达34 GWh（主要在欧美）",
+            "2026财年营收指引32-36亿美元，EBITDA指引4000-6000万美元"
+          ],
+          "sources": [
+            {"title": "Fluence Q1 2026 Earnings Call Highlights", "date": "2026-02-05", "url": "https://finance.yahoo.com/news/fluence-energy-inc-flnc-q1-210422948.html"},
+            {"title": "Fluence Revenue Jumps 154% to $475.2M in Q1 FY2026", "date": "2026-02-09", "url": "https://www.mercomindia.com/fluence-energys-revenue-jumps-154-to-475-2-million-in-q1-fy2026"}
+          ]
+        }
+      ]
+    },
+    "europe_market": {
+      "title": "欧洲储能市场新闻",
+      "highlights": [
+        "TotalEnergies出售德国789MW储能项目50%股权给AllianzGI（2026-03-03）",
+        "KNESS与海辰储能(Hithium)签署乌克兰2GWh合作协议",
+        "英国规划审批障碍可能阻碍储能市场增长势头",
+        "爱沙尼亚1.1GWh区域供热储能系统、立陶宛Nidec PCS变压器交易",
+        "荷兰Ore Energy在法国EDF实验室完成100小时铁空气长时储能试点",
+        "德国RWE、Masdar、Zenobe等公司扩大储能市场合作",
+        "欧洲储能市场预计2026-2033年CAGR达26.8%",
+        "欧洲家庭储能市场预计从2022年44亿美元增长至2033年131亿美元"
+      ],
+      "sources": [
+        {"title": "TotalEnergies sells 50% of German battery pipeline", "date": "2026-03-03", "url": "https://renews.biz/110340/totalenergies-sells-50-of-german-batteries/"},
+        {"title": "KNESS and Hithium enter 2GWh Ukraine partnership", "date": "2026-02-16", "url": "https://storagesummit.solarenergyevents.com/category/news/"},
+        {"title": "Europe Energy Storage Market 2026 Trends", "date": "2026-01-30", "url": "https://www.datainsightsmarket.com/reports/energy-storage-market-in-europe-market-3425"}
+      ]
+    },
+    "industry_reports": {
+      "title": "行业报告与市场分析",
+      "highlights": [
+        "全球BESS市场2026年预计达550-650亿美元（HDIN Research）",
+        "2025年全球BESS部署超300 GWh，市场规模超400亿美元",
+        "预计2026-2031年CAGR保持15-25%",
+        "美国BESS部署预计2026年达70 GWh/35 GW，投资252亿美元",
+        "液冷BESS市场2025年49.8亿美元，预计2035年达378亿美元（CAGR 23.1%）",
+        "印度BESS市场预计2035年达194亿美元（CAGR 24.3%）",
+        "全球BESS市场预计2035年达1837亿美元（CAGR 15.3%）",
+        "AI数据中心电力需求成为储能新增长驱动力"
+      ],
+      "sources": [
+        {"title": "BESS Market Projected to Reach $65B in 2026", "date": "2026-02-04", "url": "https://www.hdinresearch.com/news/693"},
+        {"title": "Energy Storage Market Outlook - SEIA", "date": "2026-02-23", "url": "https://seia.org/research-resources/energy-storage-market-outlook/"},
+        {"title": "Liquid Cooling Market for BESS 2026", "date": "2026-02-05", "url": "https://www.insightaceanalytic.com/report/liquid-cooling-market-for-stationary-battery-energy-storage-system-bess-market-/2970"}
+      ]
+    }
+  },
+  "summary": {
+    "key_trends": [
+      "美股储能龙头Tesla和Fluence业绩强劲，订单 backlog创历史新高",
+      "欧洲储能市场活跃，大型项目交易频繁，但面临规划审批挑战",
+      "AI数据中心电力需求成为储能行业新增长极",
+      "长时储能(LDES)技术受到更多关注，项目洽谈量增加",
+      "全球BESS市场保持高速增长，预计2026年市场规模超600亿美元"
+    ],
+    "risk_factors": [
+      "美国关税政策不确定性影响供应链",
+      "英国等欧洲市场规划审批障碍可能阻碍增长",
+      "储能系统集成商竞争激烈，Powin等公司破产退出"
+    ]
+  }
+}

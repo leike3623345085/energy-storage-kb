@@ -1,0 +1,227 @@
+{
+  "fetch_time": "2026-03-05T15:01:24.900533",
+  "total_count": 36,
+  "sources": [
+    "北极星储能网",
+    "中关村储能联盟",
+    "储能中国网"
+  ],
+  "data": [
+    {
+      "title": "内蒙古锡林郭勒盟独立新型储能电站项目实施企业公示",
+      "url": "https://news.bjx.com.cn/html/20260304/1486100.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875138"
+    },
+    {
+      "title": "内蒙古10GW新型储能电池项目废标！",
+      "url": "https://news.bjx.com.cn/html/20260303/1485964.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875153"
+    },
+    {
+      "title": "储能系统故障诊断与安全预警技术应用分析",
+      "url": "https://news.bjx.com.cn/html/20260304/1486064.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875155"
+    },
+    {
+      "title": "7家预中标3家备选！华电12GWh储能系统框采中标候选人公示！",
+      "url": "https://news.bjx.com.cn/html/20260304/1486037.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875156"
+    },
+    {
+      "title": "0.3484元/Wh、314Ah！中电装19.8GWh储能电芯集采！",
+      "url": "https://news.bjx.com.cn/html/20260304/1486017.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875158"
+    },
+    {
+      "title": "上海电气输配电成立新电绿能 加码储能PCS产能布局",
+      "url": "https://news.bjx.com.cn/html/20260304/1486038.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875159"
+    },
+    {
+      "title": "荒唐立法！美国拟禁用远程监控，封堵中国储能系统入场！",
+      "url": "https://news.bjx.com.cn/html/20260228/1485388.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875161"
+    },
+    {
+      "title": "最大用户侧储能、最大飞轮火储调频项目投运！",
+      "url": "https://news.bjx.com.cn/html/20260302/1485595.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875162"
+    },
+    {
+      "title": "2026年1月储能EPC中标TOP10!",
+      "url": "https://news.bjx.com.cn/html/20260224/1484524.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875163"
+    },
+    {
+      "title": "储能测试故障致电网“跳闸”！供电缺口引发电网振荡！",
+      "url": "https://news.bjx.com.cn/html/20260225/1484920.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875165"
+    },
+    {
+      "title": "进军熔盐储能市场！中化装备收购重组案获受理",
+      "url": "https://news.bjx.com.cn/html/20260226/1485070.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875166"
+    },
+    {
+      "title": "AIDC储能落地背后“四重门”",
+      "url": "https://news.bjx.com.cn/html/20260305/1486224.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875168"
+    },
+    {
+      "title": "3月代理购电：峰谷电价差同比骤降16%！3省明确独立储能容量电费分摊水平",
+      "url": "https://news.bjx.com.cn/html/20260303/1485970.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875170"
+    },
+    {
+      "title": "高澜股份数据中心及储能热管理营收占比32.78%，算力液冷毛利率偏低",
+      "url": "https://news.bjx.com.cn/html/20260305/1486320.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875172"
+    },
+    {
+      "title": "奥特维：储能订单持续增长，硫化物固态电池设备已发往客户端验证",
+      "url": "https://news.bjx.com.cn/html/20260305/1486311.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875173"
+    },
+    {
+      "title": "思源/惟远/为恒智能/德兰明海/德业/特锐德，储能扎堆港股IPO，谁能领跑？",
+      "url": "https://news.bjx.com.cn/html/20260304/1486030.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875174"
+    },
+    {
+      "title": "789MW/1628MWh！安联集团将收购道达尔能源德国11个正在建设中的电池储能项目50%股权",
+      "url": "https://news.bjx.com.cn/html/20260304/1486014.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875176"
+    },
+    {
+      "title": "南源储能314Ah电芯集采：海辰储能、赣锋锂电、亿纬锂能三家企业入围",
+      "url": "https://news.bjx.com.cn/html/20260305/1486237.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875179"
+    },
+    {
+      "title": "滨海投资与中石化天然气签订协议：协同拓展新能源、分布式储能等项目",
+      "url": "https://news.bjx.com.cn/html/20260305/1486222.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875180"
+    },
+    {
+      "title": "中国能建新疆院中标天津蓟州150MW/300MWh储能EPC项目 中标单价0.795元/Wh",
+      "url": "https://news.bjx.com.cn/html/20260305/1486247.shtml",
+      "source": "北极星储能网",
+      "fetched_at": "2026-03-05T15:01:02.875182"
+    },
+    {
+      "title": "宁夏电网首个百万千瓦级共享储能示范项目投运",
+      "url": "http://www.cnnes.cc/hangye/20260305/12986.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583253"
+    },
+    {
+      "title": "2026年政府工作报告：发展新型储能，扩大绿电应用！深入推进零碳园区和工厂建设！",
+      "url": "http://www.cnnes.cc/hangye/20260305/12981.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583270"
+    },
+    {
+      "title": "含37个新型储能项目，规模超6GW/12GWh！贵州发布2026年重大工程和重点项目名单",
+      "url": "http://www.cnnes.cc/hangye/20260303/12965.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583272"
+    },
+    {
+      "title": "已建成400MW/800MWh储能，采用构网型储能技术！我国单体最大采煤沉陷区复合光伏项目投运",
+      "url": "http://www.cnnes.cc/hangye/20260302/12960.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583274"
+    },
+    {
+      "title": "新疆哈密“全钒液流”独立储能电站转入商业运营​",
+      "url": "http://www.cnnes.cc/hangye/20260108/12596.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583275"
+    },
+    {
+      "title": "含1.2GW/4h储能！全国已获批新能源装机规模最大和绿电占比最高“沙",
+      "url": "http://www.cnnes.cc/hangye/20251127/12321.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583278"
+    },
+    {
+      "title": "含5GWh储能！总投资988亿元！内蒙古库布其沙漠12GW风光大基地全面开",
+      "url": "http://www.cnnes.cc/hangye/20250929/11820.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583280"
+    },
+    {
+      "title": "国家地方共建新型储能创新中心总部基地正式启用",
+      "url": "http://www.cnnes.cc/hangye/20241017/9410.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583282"
+    },
+    {
+      "title": "150MW/600MWh！全球海拔最高、规模最大！华能海南州储能项目顺利并网",
+      "url": "http://www.cnnes.cc/hangye/20240827/8988.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583285"
+    },
+    {
+      "title": "11.52GW/48.36GWh！内蒙古公示42个独立储能电站放电量补偿标准",
+      "url": "http://www.cnnes.cc/hangye/20260226/12946.html",
+      "source": "储能中国网",
+      "fetched_at": "2026-03-05T15:01:06.583294"
+    },
+    {
+      "title": "730亿！配储4.8GWh！国家电投19.44GW沙戈荒大基地项目开工",
+      "url": "https://www.cnesa.org/information/detail/?column_id=69&id=7658",
+      "source": "中关村储能联盟",
+      "fetched_at": "2026-03-05T15:01:12.574252"
+    },
+    {
+      "title": "建信金租向融和元储投放首笔独立储能租赁项目",
+      "url": "https://www.cnesa.org/information/detail/?column_id=69&id=7645",
+      "source": "中关村储能联盟",
+      "fetched_at": "2026-03-05T15:01:12.574268"
+    },
+    {
+      "title": "甘肃张掖200MW/800MWh独立储能电站示范项目竣工",
+      "url": "https://www.cnesa.org/information/detail/?column_id=69&id=7644",
+      "source": "中关村储能联盟",
+      "fetched_at": "2026-03-05T15:01:12.574270"
+    },
+    {
+      "title": "1.36GWh！远景智慧储能系统助力英国最大储能项目，开启模型驱动储能收益新范式",
+      "url": "https://www.cnesa.org/information/detail/?column_id=69&id=7643",
+      "source": "中关村储能联盟",
+      "fetched_at": "2026-03-05T15:01:12.574272"
+    },
+    {
+      "title": "国内首条，大容量全固态电池产线建成",
+      "url": "https://www.cnesa.org/information/detail/?column_id=69&id=7642",
+      "source": "中关村储能联盟",
+      "fetched_at": "2026-03-05T15:01:12.574273"
+    },
+    {
+      "title": "3200MWh新型储能项目实现重要节点突破",
+      "url": "https://www.cnesa.org/information/detail/?column_id=69&id=7634",
+      "source": "中关村储能联盟",
+      "fetched_at": "2026-03-05T15:01:12.574275"
+    }
+  ]
+}

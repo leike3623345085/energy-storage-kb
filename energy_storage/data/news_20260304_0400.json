@@ -1,0 +1,199 @@
+{
+  "search_time": "2026-03-04 04:00:00",
+  "search_type": "储能行业资讯搜索-深夜",
+  "results": {
+    "美股储能公司动态": {
+      "Tesla": [
+        {
+          "title": "Tesla Q4 2025储能部署创历史新高",
+          "date": "2026-02-03",
+          "source": "Utility Dive",
+          "summary": "Tesla储能业务在2025年Q4创下历史新高，部署量达到31.4 GWh（2024年全年），同比增长超过100%。Elon Musk表示能源业务将保持高增长。",
+          "url": "https://www.utilitydive.com/news/tesla-battery-storage-ev-samsung-lg/811266/"
+        },
+        {
+          "title": "Tesla与LG Energy Solution达成美国LFP电池供应协议",
+          "date": "2026-02-26",
+          "source": "Teslarati",
+          "summary": "LG Energy Solution将在其密歇根州兰辛工厂为Tesla生产磷酸铁锂(LFP)储能电池。该工厂年产能50 GWh，预计2026年下半年开始量产。",
+          "url": "https://www.teslarati.com/tesla-us-lfp-battery-supply-lg-deal-report/"
+        },
+        {
+          "title": "Tesla与全球可再生能源平台合作开发苏格兰Megapack项目",
+          "date": "2026-02-04",
+          "source": "Yahoo Finance",
+          "summary": "Tesla与全球可再生能源平台合作，在苏格兰开发Megapack电池储能系统项目。",
+          "url": "https://finance.yahoo.com/news/tesla-strikes-game-changing-agreement-020000320.html"
+        },
+        {
+          "title": "Tesla澳大利亚储能目标：2026年底达4.5 GW",
+          "date": "2025-09-10",
+          "source": "TeslaNorth",
+          "summary": "Tesla Energy亚太区总监Josef Tadich表示，到2026年底澳大利亚将有约4.5 GW构网型电池储能容量投运，未来还将翻倍增长。",
+          "url": "https://teslanorth.com/2025/09/10/tesla-targets-4-5-gw-of-battery-storage-in-australia-by-2026/"
+        },
+        {
+          "title": "Tesla上海Megapack项目：5.57亿美元投资",
+          "date": "2025-12-26",
+          "source": "Axis Intelligence",
+          "summary": "Tesla上海Megapack工厂年产能10,000台（40 GWh），定位服务亚太市场。中国储能市场2025年上半年已超100 GW，同比增长110%。",
+          "url": "https://axis-intelligence.com/tesla-china-battery-project-renewable-energy/"
+        }
+      ],
+      "Fluence": [
+        {
+          "title": "Fluence与Cordelio Power合作部署1 GWh美国本土制造储能系统",
+          "date": "2026-03",
+          "source": "NA Clean Energy",
+          "summary": "Fluence将从2026年开始为Cordelio Power的三个项目提供1 GWh电池储能系统，全部使用美国本土制造的电池、模块和软件。",
+          "url": "https://www.nacleanenergy.com/energy-storage/cordelio-power-and-fluence-partner-to-deploy-1-gwh-of-domestically-manufactured-battery-storage-systems-starting-in-2026"
+        },
+        {
+          "title": "Fluence 2026财年展望：收入增长50%至32-36亿美元",
+          "date": "2025-11-25",
+          "source": "Market Chameleon",
+          "summary": "Fluence创纪录的订单积压达53亿美元，85%的2026年收入已锁定。预计2026年营收32-36亿美元，调整后EBITDA 4000-6000万美元。",
+          "url": "https://marketchameleon.com/articles/b/2025/11/25/fluence-energy-hits-record-backlog-order-intake-2026-guidance"
+        },
+        {
+          "title": "Fluence Q1 2026业绩：重申全年指引",
+          "date": "2026-02",
+          "source": "Fluence IR",
+          "summary": "截至2025年12月31日，Fluence已部署储能7.2 GW/18.9 GWh，合同积压9.7 GW，项目储备41.8 GW。",
+          "url": "https://ir.fluenceenergy.com/news-releases/news-release-details/fluence-energy-inc-reports-first-quarter-2026-results-reaffirms"
+        },
+        {
+          "title": "Fluence预计2026年美国市场将占全球需求一半",
+          "date": "2025-10-13",
+          "source": "AllMind AI",
+          "summary": "Fluence CEO Julian Nebreda表示，受电气化 initiatives 和数据中心扩张推动，预计2026年美国市场将占公司全球需求的约50%。",
+          "url": "https://allmind.ai/news/e295907285a6aa88958fe1f4701ed60bb105b69122b1ba5aab99d83e09a5bdb9"
+        },
+        {
+          "title": "Fluence 2026年初股价上涨13.8%",
+          "date": "2026-01-04",
+          "source": "Yahoo Finance",
+          "summary": "受Goldman Sachs对公用事业规模太阳能行业的乐观展望推动，Fluence股价在第一周上涨13.8%，获得多家投行买入评级。",
+          "url": "https://finance.yahoo.com/news/fluence-energy-flnc-enters-2026-122831281.html"
+        }
+      ]
+    },
+    "欧洲储能市场": [
+      {
+        "title": "TotalEnergies出售德国电池项目50%股权",
+        "date": "2026-03-03",
+        "source": "Renews",
+        "summary": "TotalEnergies将其德国789 MW储能项目组合的50%股权出售给AllianzGI。",
+        "url": "https://renews.biz/110340/totalenergies-sells-50-of-german-batteries/"
+      },
+      {
+        "title": "欧洲储能市场2026年趋势：AI与关键参与者重塑格局",
+        "date": "2025-06-17",
+        "source": "LinkedIn",
+        "summary": "欧洲固定式储能市场正见证AI、物联网和自动化技术的整合，以提高效率和性能。消费者和企业越来越重视可持续性。",
+        "url": "https://www.linkedin.com/pulse/europe-stationary-energy-storage-market-2026-ai-trends-7rixc/"
+      },
+      {
+        "title": "欧洲储能市场预计CAGR 26.8%增长",
+        "date": "2026-01-30",
+        "source": "Data Insights Market",
+        "summary": "欧洲储能市场报告：2020-2034年复合年增长率26.8%，技术包括电池、抽水蓄能、热能储存、飞轮储能等。",
+        "url": "https://www.datainsightsmarket.com/reports/energy-storage-market-in-europe-market-3425"
+      },
+      {
+        "title": "KNESS与Hithium在乌克兰达成2 GWh合作",
+        "date": "2026-02-16",
+        "source": "Energy Storage Summit",
+        "summary": "东欧大型BESS项目新闻：KNESS与Hithium在乌克兰达成2 GWh合作，芬兰、爱沙尼亚和东南欧另有约700 MWh项目推进。",
+        "url": "https://storagesummit.solarenergyevents.com/category/news/"
+      },
+      {
+        "title": "英国规划障碍可能阻碍电池储能市场势头",
+        "date": "2026-02-12",
+        "source": "Energy Storage Summit",
+        "summary": "英国刚刚经历了电网规模电池储能部署最大的一年，但规划障碍可能威胁市场势头。",
+        "url": "https://storagesummit.solarenergyevents.com/category/news/"
+      },
+      {
+        "title": "爱沙尼亚1.1 GWh区域供热蓄热器项目",
+        "date": "2026-02-11",
+        "source": "Energy Storage Summit",
+        "summary": "波罗的海地区最新进展：582 MWh电池储能项目和GWh级热能储存系统。",
+        "url": "https://storagesummit.solarenergyevents.com/category/news/"
+      },
+      {
+        "title": "Ore Energy在法国EDF实验室试点100小时铁空气储能",
+        "date": "2026-02-10",
+        "source": "Energy Storage Summit",
+        "summary": "荷兰长时储能(LDES)初创公司Ore Energy在法国EDF Lab完成其100小时铁空气LDES系统的并网试点。",
+        "url": "https://storagesummit.solarenergyevents.com/category/news/"
+      },
+      {
+        "title": "德国市场扩张：RWE、Masdar、Zenobe等建立合作伙伴关系",
+        "date": "2026-02",
+        "source": "Energy Storage Summit",
+        "summary": "德国电网规模BESS项目新闻：众多开发、项目、优化和收费合作伙伴关系宣布。",
+        "url": "https://storagesummit.solarenergyevents.com/category/news/"
+      },
+      {
+        "title": "2026年海上互联与BESS峰会将于3月3-4日在马德里举行",
+        "date": "2026-03-03",
+        "source": "Energy Storage Europe",
+        "summary": "峰会将汇集政策制定者、系统运营商、开发商和技术提供商，讨论海上基础设施、跨境能源整合和电池储能解决方案。",
+        "url": "https://energystorageeurope.eu/event/2026-offshore-interconnection-bess-summit/"
+      },
+      {
+        "title": "欧洲家庭储能解决方案市场2026年规模及展望",
+        "date": "2025-08-30",
+        "source": "LinkedIn",
+        "summary": "欧洲家庭储能市场规模2022年达44亿美元，预计2033年将达131亿美元，2026-2033年CAGR 14.9%。主要参与者包括Sonnen、Tesla、LG、BYD等。",
+        "url": "https://www.linkedin.com/pulse/europe-household-energy-storage-solution-market-bwevc"
+      }
+    ],
+    "行业报告": [
+      {
+        "title": "2025储能行业深度报告",
+        "date": "2025-08-12",
+        "source": "行业报告",
+        "summary": "全球储能装机预计2025年增长44%至285 GWh，2026年增长32%至377 GWh。美国大储2025年增速41%至40 GWh；欧洲大储2025年装机17.6 GWh，同比增长122%；新兴市场大储2025年装机34 GWh，同比增长221%（中东20 GWh，增长400%）。",
+        "url": "http://mp.weixin.qq.com/s?__biz=MzIyNjYxODc3Ng==&mid=2247508614&idx=7&sn=393c0072aa356d7549fa76430224b375"
+      },
+      {
+        "title": "2025中国新型储能行业发展分析报告",
+        "date": "2025-08-10",
+        "source": "电力规划设计总院",
+        "summary": "截至2024年底，全国新型储能累计装机7376万千瓦/1.68亿千瓦时，约为'十三五'末的20倍。技术路线以锂离子电池为主（96.4%）。预计2025年将编制'十五五'新型储能实施方案。",
+        "url": "http://mp.weixin.qq.com/s?__biz=MzkxMDUzNjc2Mg==&mid=2247514420&idx=3&sn=3cdf9a76d841a1cdf7c0c517437c280e"
+      },
+      {
+        "title": "光储行业跟踪：1月国内新型储能新增投运装机规模同比高增",
+        "date": "2026-03-02",
+        "source": "爱建证券",
+        "summary": "2026年3月中国市场动力+储能+消费类电池排产量预计219 GWh，环比增加16.5%。储能市场中标价格分化：2小时储能系统加权平均价0.51元/Wh，4小时储能系统中标均价0.42元/Wh。",
+        "url": "http://field.10jqka.com.cn/20260302/c675020292.shtml"
+      },
+      {
+        "title": "太阳能与储能将引领美国2026年创纪录8600万千瓦新增装机",
+        "date": "2026-03-03",
+        "source": "PV Magazine China",
+        "summary": "EIA报告显示，太阳能和电池储能将占美国2026年86 GW公用事业级新增装机容量的79%，创二十多年来年度增量新高。太阳能计划新增43.4 GW，储能配套率持续提升。",
+        "url": "https://www.pv-magazine-china.com/2026/03/03/"
+      },
+      {
+        "title": "2026年值得关注的五大储能产业趋势",
+        "date": "2026-03-03",
+        "source": "InfoLink",
+        "summary": "2026年全球储能市场预计电芯出货801 GWh，系统集成出货600 GWh，系统装机353 GWh。供需格局预计'上半年紧平衡，下半年适度宽松'。电芯容量正从314 Ah向500 Ah+升级。",
+        "url": "https://www.infolink-group.com/energy-article/cn/energy-storage-topic-2026-outlook-five-major-trends-defining-energy-storage-industry"
+      }
+    ]
+  },
+  "summary": {
+    "美股储能公司": {
+      "Tesla": "Q4 2025储能部署创历史新高，全年31.4 GWh；与LGES达成美国LFP电池供应协议；苏格兰Megapack项目推进；澳大利亚目标2026年底4.5 GW；上海Megafactory年产能40 GWh。",
+      "Fluence": "2026财年展望收入增长50%至32-36亿美元；订单积压创纪录53亿美元；Q1 2026已部署7.2 GW；预计美国市场占全球需求50%；年初股价上涨13.8%获多家投行买入评级。"
+    },
+    "欧洲市场": "TotalEnergies出售德国789 MW项目50%股权；欧洲储能市场预计CAGR 26.8%；乌克兰2 GWh项目合作；英国规划障碍成挑战；爱沙尼亚1.1 GWh热能储存项目；法国100小时铁空气储能试点。",
+    "行业趋势": "2025年全球储能装机预计285 GWh（+44%），2026年377 GWh（+32%）；美国2026年新增86 GW中太阳能+储能占79%；中国1月新型储能装机同比高增；电芯向500 Ah+升级；供需上半年紧平衡、下半年适度宽松。"
+  }
+}

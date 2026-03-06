@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喜报 - 中国建设银行成都新都支行</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #8B0000 0%, #C41E3A 50%, #8B0000 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: "SimHei", "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+        
+        .xibao-container {
+            width: 700px;
+            background: linear-gradient(180deg, #DC143C 0%, #B22222 100%);
+            border: 8px solid #FFD700;
+            border-radius: 10px;
+            padding: 50px 60px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .xibao-container::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 3px solid #FFA500;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+        
+        /* 装饰花纹 */
+        .corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px solid #FFD700;
+        }
+        .corner-tl { top: 25px; left: 25px; border-right: none; border-bottom: none; }
+        .corner-tr { top: 25px; right: 25px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: 25px; left: 25px; border-right: none; border-top: none; }
+        .corner-br { bottom: 25px; right: 25px; border-left: none; border-top: none; }
+        
+        .title {
+            text-align: center;
+            font-size: 100px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+            letter-spacing: 30px;
+            padding-left: 30px;
+        }
+        
+        .divider {
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            margin: 20px auto;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 32px;
+            color: #FFFFFF;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .rank {
+            text-align: center;
+            font-size: 56px;
+            color: #FFD700;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        }
+        
+        .change {
+            text-align: center;
+            font-size: 26px;
+            color: #FFE4B5;
+            margin-bottom: 30px;
+        }
+        
+        .content {
+            color: #FFFFFF;
+            font-size: 22px;
+            line-height: 2;
+            text-align: justify;
+            text-indent: 2em;
+            margin: 30px 0;
+        }
+        
+        .content p {
+            margin-bottom: 15px;
+        }
+        
+        .signature {
+            text-align: right;
+            color: #FFD700;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 40px;
+            line-height: 1.8;
+        }
+        
+        /* 装饰性祥云图案 */
+        .cloud-decoration {
+            position: absolute;
+            opacity: 0.15;
+            font-size: 100px;
+            color: #FFD700;
+        }
+        .cloud-1 { top: 100px; left: 50px; }
+        .cloud-2 { top: 150px; right: 50px; }
+        .cloud-3 { bottom: 200px; left: 80px; }
+        
+        /* 打印/保存按钮 */
+        .action-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: #FFD700;
+            color: #8B0000;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #FFA500;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+        
+        @media print {
+            body { background: #8B0000; }
+            .action-buttons { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="xibao-container">
+        <!-- 四角装饰 -->
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+        
+        <!-- 祥云装饰 -->
+        <div class="cloud-decoration cloud-1">☁</div>
+        <div class="cloud-decoration cloud-2">☁</div>
+        <div class="cloud-decoration cloud-3">☁</div>
+        
+        <!-- 标题 -->
+        <h1 class="title">喜报</h1>
+        
+        <div class="divider"></div>
+        
+        <!-- 副标题 -->
+        <div class="subtitle">2025年度创新管理考核</div>
+        <div class="rank">全省第一名</div>
+        <div class="change">从去年的第21名跃居榜首，实现了跨越进阶！</div>
+        
+        <!-- 正文 -->
+        <div class="content">
+            <p>捷报飞传，振奋人心！在2025年度创新管理考核中，我行以全省第一名的优异成绩，力拔头筹！从去年的第21名跃居榜首，我们实现了跨越进阶。这份荣光属于每一位员工，是全行同心协力、砥砺创新的最好见证。</p>
+            
+            <p>衷心感谢各部门、各网点的通力配合，感谢每一位员工的献计献策。正是大家的群策群力，让创新的涓流汇聚成推动前行的澎湃动力，使创新真正落地生根、开花结果。</p>
+            
+            <p>荣誉是肯定，更是期许。展望2026年，让我们继续浓厚创新氛围，昂扬拼搏斗志，深耕创意转化，赋能基层实践，再创崭新佳绩！</p>
+        </div>
+        
+        <!-- 落款 -->
+        <div class="signature">
+            中共中国建设银行成都新都支行委员会<br>
+            2026年3月
+        </div>
+    </div>
+    
+    <!-- 操作按钮 -->
+    <div class="action-buttons">
+        <button class="btn" onclick="window.print()">🖨️ 打印/另存PDF</button>
+        <button class="btn" onclick="saveAsImage()">📷 保存为图片</button>
+    </div>
+    
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function saveAsImage() {
+            const element = document.querySelector('.xibao-container');
+            html2canvas(element, {
+                backgroundColor: '#8B0000',
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = '喜报-成都新都支行-2025年度全省第一.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>

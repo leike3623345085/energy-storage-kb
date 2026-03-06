@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>储能行业信贷评审报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Microsoft YaHei", "黑体", sans-serif;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #1a5276;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 28px;
+            color: #1a5276;
+            margin-bottom: 10px;
+        }
+        .header .subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        .header .meta {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #888;
+        }
+        .confidential {
+            display: inline-block;
+            background: #c0392b;
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        h2 {
+            font-size: 18px;
+            color: #1a5276;
+            border-left: 4px solid #1a5276;
+            padding-left: 12px;
+            margin: 30px 0 15px 0;
+        }
+        h3 {
+            font-size: 15px;
+            color: #2c3e50;
+            margin: 20px 0 10px 0;
+        }
+        
+        .summary-box {
+            background: #eaf2f8;
+            border: 1px solid #aed6f1;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .summary-box h4 {
+            color: #1a5276;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .risk-high {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .risk-medium {
+            color: #e67e22;
+            font-weight: bold;
+        }
+        .risk-low {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .highlight-box {
+            border-left: 4px solid;
+            padding: 12px 15px;
+            margin: 15px 0;
+            background: #fafafa;
+        }
+        .highlight-box.green {
+            border-color: #27ae60;
+            background: #eafaf1;
+        }
+        .highlight-box.orange {
+            border-color: #e67e22;
+            background: #fef5e7;
+        }
+        .highlight-box.red {
+            border-color: #c0392b;
+            background: #fdedec;
+        }
+        .highlight-box.blue {
+            border-color: #1a5276;
+            background: #eaf2f8;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        th {
+            background: #1a5276;
+            color: #fff;
+            padding: 10px;
+            text-align: left;
+            font-weight: normal;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        tr:hover {
+            background: #eaf2f8;
+        }
+        
+        .data-source {
+            font-size: 11px;
+            color: #888;
+            font-style: italic;
+            margin-top: 3px;
+        }
+        
+        .client-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            background: #fafafa;
+        }
+        .client-card h4 {
+            color: #1a5276;
+            font-size: 15px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        .client-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .client-info-item {
+            font-size: 13px;
+        }
+        .client-info-item strong {
+            color: #555;
+        }
+        
+        .rating {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .rating-aaa {
+            background: #27ae60;
+            color: #fff;
+        }
+        .rating-aa {
+            background: #2ecc71;
+            color: #fff;
+        }
+        .rating-a {
+            background: #f1c40f;
+            color: #333;
+        }
+        .rating-bbb {
+            background: #e67e22;
+            color: #fff;
+        }
+        .rating-bb {
+            background: #c0392b;
+            color: #fff;
+        }
+        
+        .scenario-box {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .scenario-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+        }
+        .scenario-item h4 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .scenario-baseline h4 {
+            color: #1a5276;
+        }
+        .scenario-optimistic h4 {
+            color: #27ae60;
+        }
+        .scenario-pessimistic h4 {
+            color: #c0392b;
+        }
+        
+        .conclusion-box {
+            background: #1a5276;
+            color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 30px 0;
+        }
+        .conclusion-box h3 {
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        ul {
+            margin: 10px 0 10px 20px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+        }
+        
+        .metric {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>储能行业信贷评审报告</h1>
+            <div class="subtitle">Battery Energy Storage System (BESS) Industry Credit Review</div>
+            <div class="meta">
+                评审日期：2026年3月4日
+                <span class="confidential">内部机密</span>
+            </div>
+            <div class="meta">报送对象：信贷审批委员会 | 报告编号：CR-ESS-20260304</div>
+        </div>
+
+        <h2>一、行业概览与准入建议</h2>
+        
+        <div class="summary-box">
+            <h4>核心结论</h4>
+            <p>全球储能行业处于高速增长期，2026年市场规模预计达550-650亿美元。
+            <span class="data-source">[来源: news_20260304_0000.json | 时间: 2026-03-04 00:00]</span></p>
+            <p>AI数据中心电力需求成为新增长驱动力，长时储能(LDES)技术受到更多关注。
+            <span class="data-source">[来源: news_20260304_0000.json | 时间: 2026-03-04 00:00]</span></p>
+        </div>
+
+        <h3>1.1 行业景气度评估</h3>
+        <table>
+            <tr>
+                <th>评估维度</th>
+                <th>现状</th>
+                <th>趋势</th>
+                <th>信贷建议</th>
+            </tr>
+            <tr>
+                <td>市场规模</td>
+                <td>2025年全球部署超300 GWh，市场规模超400亿美元
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td>2026年预计达550-650亿美元，CAGR 15-25%
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td class="risk-low">★★☆☆☆ 积极进入</td>
+            </tr>
+            <tr>
+                <td>需求增长</td>
+                <td>2026年全球储能装机预计377 GWh，同比增长32%
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td>美国2026年新增86 GW装机中太阳能+储能占79%
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-low">★★☆☆☆ 优先支持</td>
+            </tr>
+            <tr>
+                <td>区域市场</td>
+                <td>欧洲储能市场2026-2033年CAGR达26.8%
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td>美国市场预计占全球需求50%
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-low">★★☆☆☆ 重点关注</td>
+            </tr>
+            <tr>
+                <td>政策风险</td>
+                <td>美国关税政策不确定性影响供应链
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td>英国规划审批障碍可能阻碍增长
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td class="risk-medium">★★★☆☆ 审慎关注</td>
+            </tr>
+        </table>
+
+        <h3>1.2 信贷准入策略</h3>
+        <div class="highlight-box green">
+            <strong>优先支持领域：</strong>
+            <ul>
+                <li>具备海外订单能力的系统集成商（订单backlog超50亿美元企业）</li>
+                <li>与头部客户（Tesla、Fluence）建立稳定供应关系的电芯厂商</li>
+                <li>美国本土制造产能项目（符合IRA政策导向）</li>
+            </ul>
+        </div>
+        <div class="highlight-box orange">
+            <strong>审慎进入领域：</strong>
+            <ul>
+                <li>中小型系统集成商（Powin等破产案例警示）</li>
+                <li>纯国内市场竞争激烈的低端产能</li>
+                <li>技术路线尚未验证的长时储能初创企业</li>
+            </ul>
+            <span class="data-source">[来源: news_20260304_0000.json - 风险因素]</span>
+        </div>
+
+        <h2>二、产业链信贷风险评估</h2>
+
+        <h3>2.1 上游：电芯及原材料</h3>
+        <table>
+            <tr>
+                <th>风险类别</th>
+                <th>风险描述</th>
+                <th>风险等级</th>
+                <th>授信建议</th>
+            </tr>
+            <tr>
+                <td>技术迭代</td>
+                <td>电芯容量正从314 Ah向500 Ah+升级，技术路线快速演进
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-medium">★★★☆☆</td>
+                <td>关注技术路线选择，优先支持大容量电芯产能</td>
+            </tr>
+            <tr>
+                <td>供需格局</td>
+                <td>2026年预计"上半年紧平衡，下半年适度宽松"
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-medium">★★★☆☆</td>
+                <td>警惕产能过剩风险，控制库存质押比例</td>
+            </tr>
+            <tr>
+                <td>价格走势</td>
+                <td>2小时储能系统加权平均价0.51元/Wh，4小时0.42元/Wh
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-medium">★★★☆☆</td>
+                <td>价格持续下行，关注企业盈利能力</td>
+            </tr>
+        </table>
+
+        <h3>2.2 中游：系统集成</h3>
+        <table>
+            <tr>
+                <th>风险类别</th>
+                <th>风险描述</th>
+                <th>风险等级</th>
+                <th>授信建议</th>
+            </tr>
+            <tr>
+                <td>竞争格局</td>
+                <td>竞争激烈，Powin等公司破产退出
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td class="risk-high">★★★★☆</td>
+                <td>严格筛选头部企业，关注订单backlog质量</td>
+            </tr>
+            <tr>
+                <td>客户集中度</td>
+                <td>Fluence订单backlog达55亿美元，85%的2026年收入已锁定
+                    <span class="data-source">[来源: news_20260304_0000.json, news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-low">★★☆☆☆</td>
+                <td>优先支持订单可见度高的龙头企业</td>
+            </tr>
+            <tr>
+                <td>项目执行</td>
+                <td>项目管道(pipeline)增长30%达300亿美元，但交付周期长
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td class="risk-medium">★★★☆☆</td>
+                <td>关注项目交付进度和回款周期</td>
+            </tr>
+        </table>
+
+        <h3>2.3 下游：项目开发运营</h3>
+        <table>
+            <tr>
+                <th>风险类别</th>
+                <th>风险描述</th>
+                <th>风险等级</th>
+                <th>授信建议</th>
+            </tr>
+            <tr>
+                <td>政策审批</td>
+                <td>英国规划审批障碍可能阻碍储能市场增长势头
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td class="risk-medium">★★★☆☆</td>
+                <td>关注项目审批进展，审慎评估开发阶段项目</td>
+            </tr>
+            <tr>
+                <td>收益模式</td>
+                <td>AI数据中心电力需求成为新增长驱动力，相关项目讨论容量达36 GWh
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td class="risk-low">★★☆☆☆</td>
+                <td>优先支持有长期购电协议(PPA)的项目</td>
+            </tr>
+            <tr>
+                <td>资产流动性</td>
+                <td>TotalEnergies出售德国789MW项目50%股权给AllianzGI
+                    <span class="data-source">[来源: news_20260304_0000.json, news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-low">★★☆☆☆</td>
+                <td>成熟项目股权交易活跃，资产流动性较好</td>
+            </tr>
+        </table>
+
+        <h2>三、重点客户授信评估</h2>
+
+        <h3>3.1 Tesla Energy（美股：TSLA）</h3>
+        <div class="client-card">
+            <h4>客户基本信息 <span class="rating rating-aaa">AAA</span></h4>
+            <div class="client-info">
+                <div class="client-info-item"><strong>行业地位：</strong>全球储能龙头</div>
+                <div class="client-info-item"><strong>2025年部署：</strong>46.7 GWh，同比增长48%
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </div>
+                <div class="client-info-item"><strong>储能毛利率：</strong>29.8%，几乎是汽车业务两倍
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </div>
+                <div class="client-info-item"><strong>递延收入：</strong>2026年预计确认49.6亿美元
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </div>
+            </div>
+            <p><strong>成长前景：</strong></p>
+            <ul>
+                <li>休斯顿Megapack工厂2026年投产，年产能50 GWh
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </li>
+                <li>上海Megapack工厂年产能40 GWh（10,000台）
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </li>
+                <li>向xAI出售4.3亿美元Megapack产品
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </li>
+                <li>与LG Energy Solution达成美国LFP电池供应协议
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </li>
+            </ul>
+            <p><strong>风险点：</strong>汽车业务波动可能影响整体财务表现；供应链集中度风险</p>
+            <p><strong>授信建议：</strong>优先支持，建议授信额度：视具体业务场景核定，可给予最优惠利率</p>
+        </div>
+
+        <h3>3.2 Fluence Energy（美股：FLNC）</h3>
+        <div class="client-card">
+            <h4>客户基本信息 <span class="rating rating-aa">AA</span></h4>
+            <div class="client-info">
+                <div class="client-info-item"><strong>行业地位：</strong>全球领先储能系统集成商</div>
+                <div class="client-info-item"><strong>Q1 2026营收：</strong>4.75亿美元，同比增长154.4%
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </div>
+                <div class="client-info-item"><strong>订单backlog：</strong>55亿美元（历史新高）
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </div>
+                <div class="client-info-item"><strong>累计部署：</strong>7.2 GW/18.9 GWh
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </div>
+            </div>
+            <p><strong>成长前景：</strong></p>
+            <ul>
+                <li>2026财年营收指引32-36亿美元，EBITDA指引4000-6000万美元
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </li>
+                <li>85%的2026年收入已锁定
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </li>
+                <li>与Cordelio Power合作部署1 GWh美国本土制造储能系统
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </li>
+                <li>年初股价上涨13.8%，获多家投行买入评级
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </li>
+            </ul>
+            <p><strong>风险点：</strong>盈利水平较低（EBITDA margin约1-2%）；对单一市场依赖度高</p>
+            <p><strong>授信建议：</strong>积极支持，建议授信额度：基于订单backlog可给予较大额度，关注盈利改善进展</p>
+        </div>
+
+        <h3>3.3 海辰储能（Hithium）</h3>
+        <div class="client-card">
+            <h4>客户基本信息 <span class="rating rating-a">A</span></h4>
+            <div class="client-info">
+                <div class="client-info-item"><strong>行业地位：</strong>中国储能电芯头部企业</div>
+                <div class="client-info-item"><strong>海外合作：</strong>与KNESS签署乌克兰2 GWh合作协议
+                    <span class="data-source">[来源: news_20260304_0000.json, news_20260304_0400.json]</span>
+                </div>
+                <div class="client-info-item"><strong>技术路线：</strong>大容量储能电芯</div>
+                <div class="client-info-item"><strong>数据缺失：</strong>财务数据未在搜索数据中获取</div>
+            </div>
+            <p><strong>成长前景：</strong>海外市场拓展积极，欧洲、中东、乌克兰等市场均有布局</p>
+            <p><strong>风险点：</strong>数据缺失 - 需补充财务报表；海外项目地缘政治风险（乌克兰）</p>
+            <p><strong>授信建议：</strong>审慎支持，建议先获取完整财务数据后再评估具体额度</p>
+        </div>
+
+        <h2>四、技术路线信贷指引</h2>
+
+        <table>
+            <tr>
+                <th>技术路线</th>
+                <th>产业化进度</th>
+                <th>市场规模</th>
+                <th>信贷态度</th>
+                <th>代表企业/项目</th>
+            </tr>
+            <tr>
+                <td>锂离子电池（LFP）</td>
+                <td>成熟商业化</td>
+                <td>占全球BESS市场96.4%
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-low">★★☆☆☆ 积极支持</td>
+                <td>Tesla、Fluence、宁德时代</td>
+            </tr>
+            <tr>
+                <td>液冷BESS</td>
+                <td>快速普及</td>
+                <td>2025年49.8亿美元，预计2035年达378亿美元（CAGR 23.1%）
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td class="risk-low">★★☆☆☆ 积极支持</td>
+                <td>主流系统集成商</td>
+            </tr>
+            <tr>
+                <td>长时储能(LDES)</td>
+                <td>早期商业化</td>
+                <td>项目洽谈中容量达34 GWh（主要在欧美）
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td class="risk-medium">★★★☆☆ 审慎关注</td>
+                <td>Ore Energy（铁空气储能）</td>
+            </tr>
+            <tr>
+                <td>铁空气储能</td>
+                <td>试点阶段</td>
+                <td>Ore Energy在法国EDF实验室完成100小时并网试点
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-high">★★★★☆ 限制进入</td>
+                <td>Ore Energy</td>
+            </tr>
+            <tr>
+                <td>热能储存</td>
+                <td>区域应用</td>
+                <td>爱沙尼亚1.1 GWh区域供热储能系统
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td class="risk-medium">★★★☆☆ 个案评估</td>
+                <td>区域供热项目</td>
+            </tr>
+        </table>
+
+        <h2>五、情景分析与授信策略</h2>
+
+        <div class="scenario-box">
+            <div class="scenario-item scenario-baseline">
+                <h4>基准情景（概率50%）</h4>
+                <p><strong>特征：</strong></p>
+                <ul>
+                    <li>2026年全球储能装机377 GWh（+32% YoY）
+                        <span class="data-source">[来源: news_20260304_0400.json]</span>
+                    </li>
+                    <li>美国市场占全球需求50%
+                        <span class="data-source">[来源: news_20260304_0400.json]</span>
+                    </li>
+                    <li>供需格局"上半年紧平衡，下半年适度宽松"
+                        <span class="data-source">[来源: news_20260304_0400.json]</span>
+                    </li>
+                </ul>
+                <p><strong>授信策略：</strong>正常投放，优选头部客户</p>
+            </div>
+            <div class="scenario-item scenario-optimistic">
+                <h4>乐观情景（概率30%）</h4>
+                <p><strong>特征：</strong></p>
+                <ul>
+                    <li>AI数据中心需求超预期，相关项目容量超36 GWh快速落地
+                        <span class="data-source">[来源: news_20260304_0000.json]</span>
+                    </li>
+                    <li>欧洲市场CAGR超26.8%预期
+                        <span class="data-source">[来源: news_20260304_0000.json]</span>
+                    </li>
+                    <li>长时储能技术突破，商业化加速</li>
+                </ul>
+                <p><strong>授信策略：</strong>加大投放力度，适度下沉至二线优质客户</p>
+            </div>
+            <div class="scenario-item scenario-pessimistic">
+                <h4>悲观情景（概率20%）</h4>
+                <p><strong>特征：</strong></p>
+                <ul>
+                    <li>美国关税政策不确定性导致供应链中断
+                        <span class="data-source">[来源: news_20260304_0000.json]</span>
+                    </li>
+                    <li>英国等市场规划审批障碍蔓延
+                        <span class="data-source">[来源: news_20260304_0000.json]</span>
+                    </li>
+                    <li>更多系统集成商破产（如Powin案例）
+                        <span class="data-source">[来源: news_20260304_0000.json]</span>
+                    </li>
+                </ul>
+                <p><strong>授信策略：</strong>收紧投放，仅支持龙头企业，加强贷后监控</p>
+            </div>
+        </div>
+
+        <h2>六、授信政策建议</h2>
+
+        <h3>6.1 准入标准</h3>
+        <div class="highlight-box blue">
+            <ul>
+                <li><strong>客户资质：</strong>优先选择订单backlog超10亿美元或年营收超10亿美元的头部企业</li>
+                <li><strong>技术能力：</strong>具备314 Ah及以上大容量电芯技术或成熟系统集成能力</li>
+                <li><strong>市场布局：</strong>具有海外（欧美）市场订单或明确出海计划</li>
+                <li><strong>财务指标：</strong>资产负债率不高于70%，经营性现金流为正</li>
+            </ul>
+        </div>
+
+        <h3>6.2 额度管理</h3>
+        <table>
+            <tr>
+                <th>客户类型</th>
+                <th>授信额度建议</th>
+                <th>期限结构</th>
+                <th>利率定价</th>
+            </tr>
+            <tr>
+                <td>全球龙头（Tesla等）</td>
+                <td>根据具体业务需求核定，可给予大额授信</td>
+                <td>1-3年流动资金贷款</td>
+                <td>LPR-20BP至LPR</td>
+            </tr>
+            <tr>
+                <td>头部集成商（Fluence等）</td>
+                <td>不超过订单backlog的20%</td>
+                <td>1-2年流动资金贷款</td>
+                <td>LPR至LPR+50BP</td>
+            </tr>
+            <tr>
+                <td>优质电芯厂商</td>
+                <td>不超过年营收的30%</td>
+                <td>1年流动资金贷款为主</td>
+                <td>LPR+30BP至LPR+100BP</td>
+            </tr>
+            <tr>
+                <td>项目公司</td>
+                <td>不超过项目总投资的60%</td>
+                <td>匹配项目周期（3-7年）</td>
+                <td>LPR+50BP至LPR+150BP</td>
+            </tr>
+        </table>
+
+        <h3>6.3 担保要求</h3>
+        <ul>
+            <li>流动资金贷款：优先接受应收账款质押、订单质押</li>
+            <li>项目贷款：要求项目资产抵押+股权质押</li>
+            <li>贸易融资：接受信用证、保函等银行信用支持</li>
+            <li>母公司担保：对项目公司授信要求母公司提供连带责任保证</li>
+        </ul>
+
+        <h3>6.4 贷后监控要点</h3>
+        <div class="highlight-box orange">
+            <ul>
+                <li><strong>订单跟踪：</strong>按月监控客户订单backlog变化及项目交付进度</li>
+                <li><strong>价格监测：</strong>关注储能系统价格走势（当前2小时0.51元/Wh，4小时0.42元/Wh）
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </li>
+                <li><strong>政策变化：</strong>跟踪美国关税政策、欧洲审批政策变化</li>
+                <li><strong>行业动态：</strong>关注同行破产风险（如Powin案例）</li>
+            </ul>
+        </div>
+
+        <h2>七、近期关注事项</h2>
+
+        <table>
+            <tr>
+                <th>日期</th>
+                <th>事件</th>
+                <th>影响评估</th>
+            </tr>
+            <tr>
+                <td>2026-03-03</td>
+                <td>TotalEnergies出售德国789MW储能项目50%股权给AllianzGI
+                    <span class="data-source">[来源: news_20260304_0000.json, news_20260304_0400.json]</span>
+                </td>
+                <td>成熟项目资产流动性良好，有利于项目融资退出</td>
+            </tr>
+            <tr>
+                <td>2026-03-03</td>
+                <td>2026年海上互联与BESS峰会在马德里举行
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td>关注欧洲储能政策动向及大型项目机会</td>
+            </tr>
+            <tr>
+                <td>2026-02-26</td>
+                <td>Tesla与LG Energy Solution达成美国LFP电池供应协议
+                    <span class="data-source">[来源: news_20260304_0400.json]</span>
+                </td>
+                <td>美国本土化供应链建设加速，利好在美设厂企业</td>
+            </tr>
+            <tr>
+                <td>2026-02-16</td>
+                <td>KNESS与海辰储能在乌克兰达成2 GWh合作
+                    <span class="data-source">[来源: news_20260304_0000.json, news_20260304_0400.json]</span>
+                </td>
+                <td>东欧市场机会显现，但需关注地缘政治风险</td>
+            </tr>
+            <tr>
+                <td>2026-02-05</td>
+                <td>Fluence Q1 2026业绩发布，营收同比增长154.4%
+                    <span class="data-source">[来源: news_20260304_0000.json]</span>
+                </td>
+                <td>头部集成商业绩强劲，行业景气度验证</td>
+            </tr>
+        </table>
+
+        <div class="conclusion-box">
+            <h3>评审结论</h3>
+            <p><strong>总体判断：</strong>储能行业处于高速增长期，信贷机会大于风险。建议积极布局，但需严格筛选客户，聚焦头部企业。</p>
+            <p><strong>授信审批权限指引：</strong></p>
+            <ul>
+                <li>全球龙头企业（Tesla、Fluence等）：单笔授信超5亿元报总行审批</li>
+                <li>国内头部企业：单笔授信2-5亿元报分行审批</li>
+                <li>项目融资：单笔授信超3亿元报总行审批</li>
+            </ul>
+            <p><strong>下次评审时间：</strong>建议2026年6月进行半年度回顾</p>
+        </div>
+
+        <div class="footer">
+            <p>数据来源：news_20260304_0000.json | news_20260304_0400.json | stocks_20260304.json</p>
+            <p>报告生成时间：2026年3月4日 | 报告编号：CR-ESS-20260304</p>
+            <p>本报告仅供内部决策参考，未经许可不得对外披露</p>
+        </div>
+    </div>
+</body>
+</html>

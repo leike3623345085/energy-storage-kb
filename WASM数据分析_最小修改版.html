@@ -1,0 +1,4385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WASM数据分析与业绩计算综合平台 - ExcelJS版</title>
+    <style>
+        :root{
+            --bg-primary:#0a0e17;--bg-secondary:#111827;--bg-tertiary:#1f2937;
+            --excel:#217346;--excel-light:#2e8b57;--text:#f3f4f6;
+            --text-muted:#9ca3af;--border:rgba(255,255,255,0.1);
+            --accent-blue:#3b82f6;--warning:#f59e0b;--danger:#ef4444;--success:#10b981;
+            --collab-bg:rgba(245, 158, 11, 0.15);--collab-border:#f59e0b;
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg-primary);color:var(--text);height:100vh;overflow:hidden;font-size:13px;}
+        .app-container{display:grid;grid-template-columns:380px 1fr;grid-template-rows:50px 40px 1fr;height:100vh;gap:1px;background:var(--border);}
+        header{grid-column:1/-1;background:var(--bg-secondary);display:flex;align-items:center;justify-content:space-between;padding:0 1rem;border-bottom:1px solid var(--border);}
+        .logo{font-size:1.1rem;font-weight:700;color:var(--excel);display:flex;align-items:center;gap:0.5rem;}
+        .mode-switcher{display:flex;background:var(--bg-primary);border-radius:0.375rem;padding:0.25rem;gap:0.25rem;}
+        .mode-btn{padding:0.4rem 1rem;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-radius:0.25rem;font-size:0.85rem;transition:all 0.2s;}
+        .mode-btn.active{background:var(--excel);color:white;}
+        .sub-header{grid-column:1/-1;background:var(--bg-secondary);display:flex;align-items:center;padding:0 1rem;border-bottom:1px solid var(--border);gap:2rem;}
+        .btn{padding:0.5rem 0.75rem;border:none;border-radius:0.375rem;font-size:0.8rem;cursor:pointer;transition:all 0.2s;background:var(--bg-tertiary);color:var(--text);border:1px solid var(--border);display:inline-flex;align-items:center;gap:0.25rem;}
+        .btn:hover{border-color:var(--text-muted);}
+        .btn-excel{background:var(--excel);color:white;border-color:var(--excel);}
+        .btn-excel:hover{background:var(--excel-light);}
+        .btn-primary{background:var(--accent-blue);color:white;border-color:var(--accent-blue);}
+        .btn-success{background:var(--excel);color:white;}
+        .btn-danger{background:var(--danger);color:white;}
+        .btn-sm{padding:0.35rem 0.5rem;font-size:0.75rem;}
+        .sidebar-left{background:var(--bg-secondary);overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:1rem;}
+        .panel{background:var(--bg-tertiary);border-radius:0.5rem;padding:0.75rem;border:1px solid var(--border);}
+        .panel-title{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:0.75rem;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+        .form-group{margin-bottom:0.75rem;}
+        .form-group label{display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.25rem;}
+        .form-control{width:100%;padding:0.4rem 0.5rem;background:var(--bg-primary);border:1px solid var(--border);border-radius:0.375rem;color:var(--text);font-size:0.8rem;}
+        .form-control:focus{outline:none;border-color:var(--excel);}
+        .match-config{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:0.5rem;padding:0.75rem;margin-bottom:0.5rem;}
+        .match-config-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;}
+        .match-title{font-size:0.8rem;font-weight:600;color:var(--accent-blue);}
+        .match-row{display:grid;grid-template-columns:1fr 30px 1fr;gap:0.5rem;align-items:center;margin-bottom:0.25rem;}
+        .match-equals{text-align:center;color:var(--text-muted);font-weight:bold;}
+        .similarity-row{grid-column: 1 / -1;display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid rgba(59,130,246,0.2);}
+        .similarity-slider{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--bg-secondary);border-radius:2px;outline:none;}
+        .similarity-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;background:var(--excel);border-radius:50%;cursor:pointer;}
+        .similarity-slider::-moz-range-thumb{width:14px;height:14px;background:var(--excel);border-radius:50%;cursor:pointer;border:none;}
+        .similarity-label{font-size:0.75rem;min-width:2.5rem;text-align:right;color:var(--excel);font-weight:600;}
+        .main-content{background:var(--bg-primary);display:flex;flex-direction:column;overflow:hidden;}
+        .toolbar{padding:0.5rem;background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;gap:0.5rem;align-items:center;}
+        .data-grid{flex:1;overflow:auto;padding:0.5rem;}
+        table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+        th{background:var(--bg-tertiary);padding:0.5rem;text-align:left;font-weight:600;color:var(--text-muted);border-bottom:2px solid var(--border);position:sticky;top:0;z-index:10;}
+        td{padding:0.4rem 0.5rem;border-bottom:1px solid var(--border);}
+        tr:hover td{background:rgba(33,115,70,0.1);}
+        .num-cell{text-align:right;font-family:monospace;color:#60a5fa;}
+        .column-select-list{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:0.375rem;padding:0.5rem;background:var(--bg-primary);}
+        .column-item{display:flex;align-items:center;gap:0.5rem;padding:0.35rem;border-radius:0.25rem;cursor:pointer;font-size:0.8rem;}
+        .column-item:hover{background:rgba(255,255,255,0.05);}.column-item.selected{background:rgba(33,115,70,0.2);}
+        .sortable-list{display:flex;flex-direction:column;gap:0.25rem;}
+        .sortable-item{display:flex;align-items:center;gap:0.5rem;padding:0.5rem;background:var(--bg-primary);border:1px solid var(--border);border-radius:0.375rem;cursor:move;font-size:0.8rem;transition:all 0.2s;}
+        .sortable-item.dragging{opacity:0.5;border-color:var(--excel);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+        .drag-handle{color:var(--text-muted);cursor:move;}
+        .badge{display:inline-flex;align-items:center;padding:0.15rem 0.4rem;border-radius:0.25rem;font-size:0.7rem;font-weight:600;}
+        .badge-primary{background:rgba(59,130,246,0.2);color:var(--accent-blue);}
+        .badge-success{background:rgba(33,115,70,0.2);color:var(--excel);}
+        .badge-warning{background:rgba(245,158,11,0.2);color:var(--warning);}
+        .info-text{font-size:0.75rem;color:var(--text-muted);line-height:1.4;}
+        .empty-state{padding:3rem;text-align:center;color:var(--text-muted);}
+        .progress-bar{display:none;height:4px;background:var(--bg-tertiary);border-radius:2px;overflow:hidden;margin:1rem 0;}
+        .progress-bar.show{display:block;}
+        .progress-fill{height:100%;background:var(--excel);width:0%;transition:width 0.3s;}
+        .warning-box{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:var(--warning);padding:0.5rem;border-radius:0.375rem;font-size:0.75rem;margin-bottom:0.75rem;}
+        .success-box{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--success);padding:0.5rem;border-radius:0.375rem;font-size:0.75rem;margin-bottom:0.75rem;}
+        .hidden{display:none!important}
+        .config-grid{display:flex;flex-direction:column;gap:0.75rem;max-height:300px;overflow-y:auto;}
+        .config-item{background:var(--bg-primary);border-radius:0.5rem;padding:0.75rem;border:1px solid var(--border);}
+        .config-item h4{font-size:0.85rem;margin-bottom:0.5rem;color:var(--text);border-bottom:1px solid var(--border);padding-bottom:0.5rem;}
+        .config-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;font-size:0.75rem;}
+        .config-row input{width:80px;padding:0.3rem 0.5rem;background:var(--bg-secondary);border:1px solid var(--border);border-radius:0.25rem;color:var(--text);text-align:right;font-size:0.8rem;}
+        .tier-list{margin-top:0.5rem;padding-top:0.5rem;border-top:1px dashed var(--border);}
+        .tier-item{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;font-size:0.75rem;}
+        .tier-item input{width:60px;}
+        .tabs{display:flex;gap:0.25rem;margin-bottom:0.75rem;border-bottom:1px solid var(--border);}
+        .tab{padding:0.4rem 0.8rem;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:0.8rem;color:var(--text-muted);}
+        .tab.active{color:var(--accent-blue);border-bottom-color:var(--accent-blue);}
+        .tab-content{display:none;}.tab-content.active{display:block;}
+        .summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;margin-bottom:1rem;}
+        .summary-card{background:linear-gradient(135deg,var(--excel) 0%,var(--excel-light) 100%);color:white;padding:1rem;border-radius:0.5rem;text-align:center;}
+        .summary-card .value{font-size:1.2rem;font-weight:700;margin-top:0.25rem;}
+        .collab-cell{background:var(--collab-bg)!important;border-left:2px solid var(--collab-border);}
+        .star-mark{color:var(--warning);font-weight:bold;margin-left:0.25rem;}
+        .collab-badge{display:inline-block;padding:0.1rem 0.4rem;background:var(--collab-border);color:white;border-radius:0.25rem;font-size:0.7rem;margin-left:0.5rem;}
+        .result-total{background:rgba(59,130,246,0.1)!important;font-weight:600;}
+        .upload-zone{border:2px dashed var(--border);border-radius:0.5rem;padding:1.5rem;text-align:center;background:var(--bg-primary);cursor:pointer;transition:all 0.3s;margin-bottom:0.5rem;}
+        .upload-zone:hover{border-color:var(--excel);background:rgba(33,115,70,0.05);}
+        .file-status-box{background:var(--bg-primary);border:1px solid var(--border);border-radius:0.375rem;padding:0.5rem;margin-bottom:0.75rem;font-size:0.8rem;display:flex;align-items:center;justify-content:space-between;}
+        .file-status-box .file-name{color:var(--excel);font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+        .rule-box{background:rgba(59,130,246,0.1);border-left:3px solid var(--accent-blue);padding:0.75rem;margin-bottom:0.75rem;border-radius:0 0.375rem 0.375rem 0;font-size:0.75rem;}
+        .step-indicator{display:flex;gap:0.5rem;margin-bottom:0.5rem;}
+        .step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+        .step-dot.active{background:var(--excel);}.step-dot.completed{background:var(--success);}
+        .nav-buttons{display:flex;gap:0.5rem;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);}
+        .divider{height:1px;background:var(--border);margin:0.5rem 0;}
+        .free-badge{background:linear-gradient(135deg,#10b981 0%,#059669 100%);color:white;padding:0.1rem 0.4rem;border-radius:1rem;font-size:0.65rem;font-weight:700;margin-left:0.5rem;}
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <header>
+        <div class="logo">
+            🔗 WASM数据分析与业绩计算平台
+            <span class="free-badge">ExcelJS 免费版</span>
+        </div>
+        <div class="mode-switcher">
+            <button class="mode-btn active" onclick="switchMode('join')" id="mode-join">数据关联</button>
+            <button class="mode-btn" onclick="switchMode('map')" id="mode-map">字段映射</button>
+            <button class="mode-btn" onclick="switchMode('performance')" id="mode-performance">业绩计算</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem;">
+            <span style="color:var(--text-muted);font-size:0.8rem;" id="current-mode-text">当前模式：数据关联提取</span>
+        </div>
+    </header>
+    <div class="sub-header">
+        <div id="join-step-info" style="display:flex;align-items:center;gap:0.5rem;">
+            <span style="color:var(--text-muted);font-size:0.8rem;">ExcelJS：完全免费，保留格式、样式、公式</span>
+        </div>
+        <div id="perf-step-indicator" class="step-indicator hidden">
+            <div class="step-dot active" id="pdot1"></div>
+            <div class="step-dot" id="pdot2"></div>
+            <div class="step-dot" id="pdot3"></div>
+            <div class="step-dot" id="pdot4"></div>
+        </div>
+    </div>
+    <aside class="sidebar-left" id="join-sidebar">
+        <div class="panel">
+            <div class="panel-title">
+                <span>📂 文件上传</span>
+                <span class="badge badge-success" id="join-file-badge" style="display:none">已加载</span>
+            </div>
+            <div id="join-upload-area">
+                <div class="upload-zone" onclick="document.getElementById('joinFileInput').click()">
+                    <div style="font-size:1.5rem;margin-bottom:0.5rem;">📁</div>
+                    <div style="font-size:0.8rem;">点击上传 Excel 文件</div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem;">ExcelJS：保留原格式免费方案</div>
+                </div>
+                <input type="file" id="joinFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleJoinFile(event)">
+            </div>
+            <div id="join-file-status" class="file-status-box" style="display:none;">
+                <span class="file-name" id="join-file-name"></span>
+                <button class="btn btn-sm" onclick="clearJoinFile()" title="清除文件">×</button>
+            </div>
+        </div>
+        <div class="panel" id="join-data-panel" style="display:none">
+            <div class="panel-title">
+                <span>🎯 主数据表</span>
+                <span class="badge badge-primary" id="primary-badge" style="display:none">已选</span>
+            </div>
+            <div class="form-group">
+                <select class="form-control" id="primarySheet" onchange="onPrimarySheetChange()">
+                    <option value="">-- 选择主表 --</option>
+                </select>
+            </div>
+            <div class="info-text" id="primary-info">选择包含主要数据的表格</div>
+        </div>
+        <div class="panel" id="match-panel" style="display:none">
+            <div class="panel-title">
+                <span>🔗 关联条件</span>
+                <button class="btn btn-sm btn-primary" onclick="addMatchCondition()">+ 添加</button>
+            </div>
+            <div id="matchConfigList"></div>
+            <button class="btn btn-success" style="width:100%;margin-top:0.75rem" onclick="executeQuery()" id="queryBtn">
+                🔍 执行查询
+            </button>
+        </div>
+        <div class="panel" id="column-panel" style="display:none">
+            <div class="panel-title">
+                <span>📋 选择输出列</span>
+                <div style="display:flex;gap:0.25rem">
+                    <button class="btn btn-sm" onclick="selectAllColumns()">全选</button>
+                    <button class="btn btn-sm" onclick="deselectAllColumns()">全不选</button>
+                </div>
+            </div>
+            <div class="column-select-list" id="columnList"></div>
+        </div>
+        <div class="panel" id="sort-panel" style="display:none">
+            <div class="panel-title">🔀 列排序 (拖拽调整)</div>
+            <div class="sortable-list" id="sortableList"></div>
+        </div>
+        <div class="panel" id="output-panel" style="display:none">
+            <div class="panel-title">⚙️ 输出配置 <span class="free-badge">保留格式</span></div>
+            <div class="warning-box" style="font-size:0.7rem;">
+                ExcelJS：完全保留原文件格式、字体、颜色、边框、公式
+            </div>
+            <div class="form-group">
+                <label>输出模式</label>
+                <select class="form-control" id="outputMode" onchange="onOutputModeChange()">
+                    <option value="new">📄 新建工作表</option>
+                    <option value="existing">📝 填充到现有表（保留格式）</option>
+                </select>
+            </div>
+            <div id="new-sheet-config">
+                <div class="form-group">
+                    <label>新表名称</label>
+                    <input type="text" class="form-control" id="newSheetName" value="关联结果">
+                </div>
+            </div>
+            <div id="existing-sheet-config" style="display:none">
+                <div class="form-group">
+                    <label>目标文件（文件C）</label>
+                    <div class="upload-zone" id="targetFileUploadZone" onclick="document.getElementById('targetFileInput').click()" style="padding:0.75rem;margin-bottom:0.5rem;">
+                        <div style="font-size:1.2rem;margin-bottom:0.25rem;">📁</div>
+                        <div style="font-size:0.75rem;">点击上传目标文件</div>
+                    </div>
+                    <input type="file" id="targetFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleTargetFile(event)">
+                    <div id="target-file-status" class="file-status-box" style="display:none;">
+                        <span class="file-name" id="target-file-name"></span>
+                        <button class="btn btn-sm" onclick="clearTargetFile()" title="清除文件">×</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>目标工作表</label>
+                    <select class="form-control" id="targetSheet" onchange="onTargetSheetChange()"></select>
+                </div>
+                <div class="form-group">
+                    <label>目标表表头行</label>
+                    <input type="number" class="form-control" id="targetHeaderRow" value="1" min="1" onchange="onTargetHeaderRowChange()">
+                    <div class="info-text">指定目标表的表头所在行，系统将自动匹配列</div>
+                </div>
+                <div id="columnMappingPanel" style="display:none;margin-top:0.5rem;">
+                    <div class="panel-title" style="font-size:0.8rem;margin-bottom:0.5rem;">🔗 自动列映射</div>
+                    <div id="columnMappingResult" class="success-box" style="font-size:0.75rem;padding:0.5rem;"></div>
+                </div>
+                <div class="form-group">
+                    <label>数据起始行</label>
+                    <input type="number" class="form-control" id="startRow" value="6" min="1">
+                </div>
+                <div class="form-group">
+                    <label>数据结束行（空行）</label>
+                    <input type="number" class="form-control" id="endRow" value="15" min="1">
+                </div>
+                <div class="form-group">
+                    <label>汇总公式行</label>
+                    <input type="number" class="form-control" id="summaryRow" value="16" min="1">
+                </div>
+            </div>
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <button class="btn btn-success" style="width:100%" onclick="exportResults()" id="exportResultBtn" disabled>
+                💾 导出结果（保留格式）
+            </button>
+        </div>
+    </aside>
+    
+    <!-- 字段映射侧边栏 -->
+    <aside class="sidebar-left hidden" id="map-sidebar">
+        <div class="panel">
+            <div class="panel-title">
+                <span>📂 文件上传</span>
+                <span class="badge badge-success" id="map-file-badge" style="display:none">已加载</span>
+            </div>
+            <div id="map-upload-area">
+                <div class="upload-zone" onclick="document.getElementById('mapFileInput').click()">
+                    <div style="font-size:1.5rem;margin-bottom:0.5rem;">📁</div>
+                    <div style="font-size:0.8rem;">点击上传 Excel 文件</div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem;">ExcelJS：保留原格式免费方案</div>
+                </div>
+                <input type="file" id="mapFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleMapFile(event)">
+            </div>
+            <div id="map-file-status" class="file-status-box" style="display:none;">
+                <span class="file-name" id="map-file-name"></span>
+                <button class="btn btn-sm" onclick="clearMapFile()" title="清除文件">×</button>
+            </div>
+        </div>
+        <div class="panel" id="map-sheet-panel" style="display:none">
+            <div class="panel-title">
+                <span>📄 工作表选择</span>
+            </div>
+            <div class="form-group">
+                <label>源工作表（Sheet1）</label>
+                <select class="form-control" id="map-source-sheet" onchange="onMapSourceSheetChange()">
+                    <option value="">-- 选择源表 --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>目标工作表（Sheet2）</label>
+                <select class="form-control" id="map-target-sheet" onchange="onMapTargetSheetChange()">
+                    <option value="">-- 选择目标表 --</option>
+                </select>
+            </div>
+        </div>
+        <div class="panel" id="map-config-panel" style="display:none">
+            <div class="panel-title">
+                <span>🔗 字段映射</span>
+                <button class="btn btn-sm btn-success" onclick="autoMatchFields()">🔄 自动匹配</button>
+            </div>
+            <div class="info-text" style="margin-bottom:0.5rem;">自动匹配 Sheet1 表头与 Sheet2 字段名</div>
+            <div id="mapConfigList" style="display:none;"></div>
+            <div id="autoMatchResult" class="success-box" style="display:none;margin-top:0.5rem;"></div>
+        </div>
+        <div class="panel" id="map-row-panel" style="display:none">
+            <div class="panel-title">
+                <span>📋 生成说明</span>
+            </div>
+            <div class="info-text">
+                系统将自动为 Sheet1 的每一行数据生成一张新表<br>
+                新表以 Sheet2 为模板，表名为序号（1, 2, 3...）
+            </div>
+        </div>
+        <div class="panel" id="map-execute-panel" style="display:none">
+            <div class="panel-title">
+                <span>🚀 执行映射</span>
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="executeMap()" id="executeMapBtn">
+                💾 执行字段映射
+            </button>
+            <div id="map-result" class="success-box" style="display:none;margin-top:0.5rem;"></div>
+        </div>
+    </aside>
+    
+    <!-- 业绩计算侧边栏 -->
+    <aside class="sidebar-left hidden" id="perf-sidebar">
+        <div class="panel" id="perf-file-panel">
+            <div class="panel-title">
+                <span>📂 业绩数据上传</span>
+                <span class="badge badge-success" id="perf-file-badge" style="display:none">已加载</span>
+            </div>
+            <div id="perf-upload-area">
+                <div class="upload-zone" onclick="document.getElementById('perfFileInput').click()">
+                    <div style="font-size:1.5rem;margin-bottom:0.5rem;">📊</div>
+                    <div style="font-size:0.8rem;">点击上传业绩数据</div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.25rem;">自动识别 * 号协同标记</div>
+                </div>
+                <input type="file" id="perfFileInput" accept=".xlsx,.xls" style="display:none" onchange="handlePerfFile(event)">
+            </div>
+            <div id="perf-file-status" class="file-status-box" style="display:none;">
+                <span class="file-name" id="perf-file-name"></span>
+                <button class="btn btn-sm" onclick="clearPerfFile()" title="清除文件">×</button>
+            </div>
+            <div class="success-box" id="collab-info" style="display:none;margin-top:0.5rem;margin-bottom:0;">
+                已识别 <span id="collab-count" style="font-weight:bold;">0</span> 个协同标记 (*)
+            </div>
+        </div>
+        <div class="panel" id="perf-preview-nav" style="display:none">
+            <div class="info-text" style="margin-bottom:0.5rem;">
+                数据已加载，共 <span id="perf-row-count" style="color:var(--excel);font-weight:600;">0</span> 行
+            </div>
+            <button class="btn btn-primary" style="width:100%" onclick="perfGoToConfig()">
+                下一步：配置规则 →
+            </button>
+        </div>
+        <div class="panel" id="perf-config-panel" style="display:none">
+            <div class="panel-title">
+                <span>⚙️ 业绩规则配置</span>
+                <button class="btn btn-sm btn-primary" onclick="savePerfConfig()">保存</button>
+            </div>
+            <div class="tabs">
+                <div class="tab active" onclick="switchPerfTab('prices')">单价</div>
+                <div class="tab" onclick="switchPerfTab('tiers')">阶梯</div>
+            </div>
+            <div class="tab-content active" id="perf-tab-prices">
+                <div class="config-grid" id="priceConfig"></div>
+            </div>
+            <div class="tab-content" id="perf-tab-tiers">
+                <div class="config-grid" id="tierConfig"></div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-sm" onclick="perfBack()">← 返回</button>
+                <button class="btn btn-sm btn-success" onclick="calculatePerformance()" style="margin-left:auto;">
+                    🧮 开始计算
+                </button>
+            </div>
+        </div>
+        <div class="panel" id="perf-result-panel" style="display:none">
+            <div class="panel-title">计算操作</div>
+            <button class="btn btn-primary" style="width:100%;margin-bottom:0.5rem" onclick="exportPerfResult()" id="exportPerfBtn" disabled>
+                💾 导出结果
+            </button>
+            <button class="btn btn-sm" style="width:100%" onclick="perfBack()">
+                ← 返回配置
+            </button>
+        </div>
+        <div class="panel" id="perf-help-panel">
+            <div class="panel-title">ℹ️ 计算说明</div>
+            <div class="info-text" style="margin-bottom:0.5rem;">
+                <p style="margin-bottom:0.5rem;"><strong>计算逻辑：</strong></p>
+                <p>1. 自动识别带*号数据为协同营销</p>
+                <p>2. 基础单价 vs 协同单价分别计算</p>
+                <p>3. 支持阶梯折扣和超额倍数</p>
+            </div>
+        </div>
+    </aside>
+    
+    <main class="main-content">
+        <div id="join-view" class="data-grid">
+            <div class="toolbar">
+                <span style="font-weight:600;color:var(--accent-blue)">数据关联提取模式 <span class="free-badge">ExcelJS</span></span>
+                <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center">
+                    <span class="badge badge-success" id="match-count" style="display:none">0 条匹配</span>
+                </div>
+            </div>
+            <div id="join-placeholder" class="empty-state">
+                <div style="font-size:3rem;margin-bottom:1rem">📗</div>
+                <div>请上传 Excel 文件（ExcelJS保留格式）</div>
+                <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">免费方案，支持样式、公式、合并单元格</div>
+            </div>
+            <div id="join-results" style="display:none;height:100%;flex-direction:column;padding:0.5rem;">
+                <div style="margin-bottom:0.5rem;display:flex;gap:1rem;align-items:center">
+                    <span style="font-size:0.9rem;font-weight:600">查询结果预览</span>
+                    <span style="font-size:0.75rem;color:var(--text-muted)" id="result-stats"></span>
+                </div>
+                <div id="join-table-container" style="flex:1;overflow:auto"></div>
+            </div>
+        </div>
+        <div id="map-view" class="data-grid hidden">
+            <div class="toolbar">
+                <span style="font-weight:600;color:var(--accent-blue)">字段映射模式 <span class="free-badge">ExcelJS</span></span>
+            </div>
+            <div id="map-placeholder" class="empty-state">
+                <div style="font-size:3rem;margin-bottom:1rem">🔗</div>
+                <div>请上传 Excel 文件进行字段映射</div>
+                <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">将Sheet1字段映射到Sheet2指定行的右侧单元格</div>
+            </div>
+            <div id="map-preview" style="display:none;height:100%;flex-direction:column;padding:0.5rem;">
+                <div style="margin-bottom:0.5rem;display:flex;gap:1rem;align-items:center">
+                    <span style="font-size:0.9rem;font-weight:600">映射预览</span>
+                    <span style="font-size:0.75rem;color:var(--text-muted)" id="map-preview-stats"></span>
+                </div>
+                <div id="map-table-container" style="flex:1;overflow:auto"></div>
+            </div>
+        </div>
+        <div id="perf-view" class="data-grid hidden">
+            <div class="toolbar">
+                <span style="font-weight:600;color:var(--warning)">业绩计算模式</span>
+                <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted)">带 * 号标记为协同营销</span>
+            </div>
+            <div id="perf-placeholder" class="empty-state">
+                <div style="font-size:3rem;margin-bottom:1rem">📊</div>
+                <div>请在左侧上传业绩数据</div>
+            </div>
+            <div id="perf-preview-step" style="display:none;height:100%;flex-direction:column;padding:0.5rem;">
+                <div style="margin-bottom:0.5rem;display:flex;gap:1rem;align-items:center">
+                    <span style="font-size:0.9rem;font-weight:600">数据预览</span>
+                    <span class="badge badge-warning" id="preview-collab-badge">0 个协同</span>
+                </div>
+                <div id="perf-preview-container" style="flex:1;overflow:auto"></div>
+            </div>
+            <div id="perf-result-step" style="display:none;height:100%;flex-direction:column;padding:0.5rem;">
+                <div class="summary-grid" id="summaryCards"></div>
+                <div style="flex:1;overflow:auto">
+                    <table class="data-table" id="perfResultTable"></table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ★★★ 使用 ExcelJS（免费，支持格式）★★★ -->
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+
+<script>
+// 全局变量
+let excelWorkbook = null;
+let allSheetData = {};
+let allSheetHeaders = {};
+let matchConditions = [];
+let matchedData = [];
+let selectedColumns = [];
+let allSheetNames = [];
+let draggedItem = null;
+let draggedIndex = null;
+let currentMode = 'join';
+let fuzzyIndexes = {}; // 存储模糊匹配索引
+let perfData = null;
+let perfResults = null;
+let perfConfig = {
+    prices: {
+        "新增客户（中收口径)": { basePrice: 32, collaborativePrice: 16 },
+        "新增活跃客户（中收口径)": { basePrice: 8, collaborativePrice: 5 },
+        "重点年费卡（家庭挚爱卡）": { basePrice: 550, collaborativePrice: null },
+        "企业微信添加": { basePrice: 3, collaborativePrice: null },
+        "建行生活下载": { basePrice: 8, collaborativePrice: null },
+        "手机银行签约": { basePrice: 5, collaborativePrice: null },
+        "一般分期": { basePrice: 300, collaborativePrice: 210 },
+        "分期通": { basePrice: 300, collaborativePrice: 210 },
+        "装修分期": { basePrice: 300, collaborativePrice: 210 },
+        "对公结算账户": { basePrice: 60, collaborativePrice: 100 }
+    },
+    tierRules: {
+        "新增客户（中收口径)": {
+            penaltyThreshold: 5,
+            penaltyAmount: -160,
+            tiers: [[5, 0], [10, 0.5], [14, 0.7], [20, 0.9]],
+            overflowMultiplier: 2
+        },
+        "对公结算账户": {
+            penaltyThreshold: null,
+            penaltyAmount: null,
+            tiers: [[2, 1], [4, 0.5], [6, 0.7], [8, 0.9]],
+            overflowMultiplier: 2
+        }
+    }
+};
+
+// 字段映射相关变量
+let mapWorkbook = null;
+let mapSheetData = {};
+let mapSheetHeaders = {};
+let mapConfig = [];
+let mapSourceSheet = '';
+let mapTargetSheet = '';
+
+// ★★★ ExcelJS 文件读取（保留格式，修复日期格式）★★★
+async function handleJoinFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // 检查文件大小
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+        alert('文件大小超过限制（最大10MB），请选择更小的文件');
+        return;
+    }
+    
+    // 检查文件类型
+    const validTypes = ['.xlsx', '.xls'];
+    const fileName = file.name.toLowerCase();
+    const isValidType = validTypes.some(ext => fileName.endsWith(ext));
+    if (!isValidType) {
+        alert('文件类型不支持，请上传 .xlsx 或 .xls 文件');
+        return;
+    }
+    
+    document.getElementById('join-file-name').textContent = file.name;
+    document.getElementById('join-file-status').style.display = 'flex';
+    document.getElementById('join-file-badge').style.display = 'inline-flex';
+    document.getElementById('join-upload-area').style.display = 'none';
+    
+    // 显示加载状态
+    document.getElementById('join-placeholder').innerHTML = `
+        <div style="font-size:3rem;margin-bottom:1rem">⏳</div>
+        <div>正在加载文件，请稍候...</div>
+        <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">ExcelJS：保留原格式</div>
+    `;
+    
+    try {
+        const buffer = await file.arrayBuffer();
+        
+        // 使用 ExcelJS 读取，保留格式
+        excelWorkbook = new ExcelJS.Workbook();
+        await excelWorkbook.xlsx.load(buffer);
+        
+        // 提取数据用于界面显示
+        allSheetData = {};
+        allSheetHeaders = {};
+        
+        excelWorkbook.eachSheet((worksheet, sheetId) => {
+            const sheetName = worksheet.name;
+            const jsonData = [];
+            
+            worksheet.eachRow((row, rowNumber) => {
+                const rowValues = [];
+                
+                // 逐个单元格处理
+                for (let i = 1; i <= row.cellCount; i++) {
+                    const cell = row.getCell(i);
+                    let value = cell.value;
+                    
+                    // 处理单元格值可能是对象的情况
+                    if (typeof value === 'object' && value !== null) {
+                        if (value.text) {
+                            value = value.text;
+                        } else if (value.result) {
+                            value = value.result;
+                        } else if (value.formula) {
+                            value = value.formula;
+                        } else if (value.richText) {
+                            // 处理富文本
+                            value = value.richText.map(part => part.text).join('');
+                        } else {
+                            value = String(value);
+                        }
+                    }
+                    
+                    // 处理字符串"null"，将其转换为空字符串
+                    if (typeof value === 'string' && value.toLowerCase() === 'null') {
+                        value = '';
+                    }
+                    
+                    // 检查是否是数字类型且可能是卡片号码（长度大于10的数字）
+                    if (typeof value === 'number' && cell.numFmt === 'General') {
+                        const numStr = value.toString();
+                        // 如果数字长度大于10，或者包含小数点后全为0的情况，作为字符串处理
+                        if (numStr.replace(/\D/g, '').length > 10 || (numStr.includes('.') && parseInt(numStr.split('.')[1]) === 0)) {
+                            value = value.toString();
+                        }
+                    }
+                    
+                    // 检查是否是日期类型，转换为 yyyy-mm-dd 格式（修复版：处理带时间部分的日期）
+                    // 优先保留已符合 yyyy-mm-dd 格式的字符串，避免时区转换错误
+                    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value.trim())) {
+                        // 已经是 yyyy-mm-dd 格式（可能带时间部分），只保留日期部分
+                        value = value.trim().split(' ')[0];
+                    } else {
+                        let isDate = false;
+                        let dateValue = null;
+                        
+                        // ExcelJS 日期类型（ValueType.Date = 4）
+                        if (cell.type === 4 || value instanceof Date) {
+                            isDate = true;
+                            dateValue = value instanceof Date ? value : new Date(value);
+                        } 
+                        // Excel 日期序列号（1900系统）
+                        else if (typeof value === 'number' && cell.numFmt && 
+                                (cell.numFmt.toLowerCase().includes('yyyy') || 
+                                 cell.numFmt.toLowerCase().includes('yy'))) {
+                            isDate = true;
+                            const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+                            const msPerDay = 24 * 60 * 60 * 1000;
+                            dateValue = new Date(excelEpoch.getTime() + (value - 1) * msPerDay);
+                        }
+                        // 其他日期格式字符串（如 2019/10/08）
+                        else if (typeof value === 'string' && 
+                                (/^\d{4}[\/\.]\d{2}[\/\.]\d{2}/.test(value) || 
+                                 /^\d{2}[\/\.]\d{2}[\/\.]\d{4}/.test(value))) {
+                            isDate = true;
+                            const cleaned = value.replace(/[\/\.]/g, '-');
+                            dateValue = new Date(cleaned);
+                        }
+                        
+                        // 格式化为 yyyy-mm-dd（使用 UTC 避免时区偏差）
+                        if (isDate && dateValue && !isNaN(dateValue.getTime())) {
+                            const year = dateValue.getUTCFullYear();
+                            const month = String(dateValue.getUTCMonth() + 1).padStart(2, '0');
+                            const day = String(dateValue.getUTCDate()).padStart(2, '0');
+                            value = `${year}-${month}-${day}`;
+                        }
+                    }
+                    
+                    rowValues.push(value);
+                }
+                
+                jsonData.push(rowValues);
+            });
+            
+            allSheetData[sheetName] = jsonData;
+            allSheetHeaders[sheetName] = jsonData[0] || [];
+            
+            // 调试：输出表头信息
+            console.log('Sheet:', sheetName);
+            console.log('Headers:', allSheetHeaders[sheetName]);
+        });
+        
+        // 检查是否有数据
+        if (Object.keys(allSheetData).length === 0) {
+            throw new Error('文件中没有工作表数据');
+        }
+        
+        initFillerSelectors();
+        document.getElementById('join-data-panel').style.display = 'block';
+        document.getElementById('join-placeholder').innerHTML = `
+            <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+            <div>ExcelJS已加载: ${file.name}</div>
+            <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">原格式、样式、公式已保留</div>
+        `;
+        
+    } catch (err) {
+        console.error('文件加载错误:', err);
+        // 恢复上传区域
+        document.getElementById('join-upload-area').style.display = 'block';
+        document.getElementById('join-file-status').style.display = 'none';
+        document.getElementById('join-file-badge').style.display = 'none';
+        document.getElementById('join-data-panel').style.display = 'none';
+        document.getElementById('join-placeholder').innerHTML = `
+            <div style="font-size:3rem;margin-bottom:1rem">❌</div>
+            <div>文件加载失败</div>
+            <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">${err.message}</div>
+        `;
+        alert('ExcelJS加载失败：' + err.message);
+    }
+}
+
+
+// ==================== 智能工作表分析器（新增）====================
+
+/**
+ * 自动分析工作表结构，识别表头、空白行、数据行、汇总行
+ */
+function autoAnalyzeSheet(worksheet) {
+    const maxScanRows = Math.min(50, worksheet.rowCount);
+    
+    function findHeaderRow() {
+        let bestRow = null, bestScore = 0;
+        for (let rowNum = 1; rowNum <= maxScanRows; rowNum++) {
+            const row = worksheet.getRow(rowNum);
+            const score = scoreAsHeader(row);
+            if (score > bestScore) { bestScore = score; bestRow = rowNum; }
+        }
+        return bestScore >= 3 ? bestRow : 1;
+    }
+
+    function scoreAsHeader(row) {
+        let score = 0, textCount = 0, numberCount = 0, dateCount = 0, emptyCount = 0;
+        let totalCells = 0;
+        const textLengths = [];
+
+        row.eachCell({ includeEmpty: true }, (cell) => {
+            totalCells++;
+            const type = getCellType(cell.value);
+            if (type === 'text') {
+                textCount++;
+                const text = String(cell.value).trim();
+                if (text.length > 0 && text.length < 50) textLengths.push(text.length);
+            } else if (type === 'number') numberCount++;
+            else if (type === 'date') dateCount++;
+            else if (type === 'empty') emptyCount++;
+        });
+
+        if (totalCells === 0) return 0;
+        const nonEmpty = totalCells - emptyCount;
+        if (textCount / nonEmpty > 0.7) score += 3;
+        if (numberCount / nonEmpty < 0.2) score += 2;
+        if (dateCount === 0) score += 1;
+        if (textLengths.length > 0) {
+            const avg = textLengths.reduce((a, b) => a + b, 0) / textLengths.length;
+            if (avg >= 2 && avg <= 15) score += 2;
+        }
+        if (nonEmpty / totalCells > 0.5) score += 1;
+        
+        const keywords = ['姓名', '名称', '日期', '金额', '数量', '序号', '编号', '合计', '总计'];
+        let hasKeyword = false;
+        row.eachCell((cell) => {
+            const text = String(cell.value || '').trim();
+            if (keywords.some(kw => text.includes(kw))) hasKeyword = true;
+        });
+        if (hasKeyword) score += 2;
+        return score;
+    }
+
+    function analyzeBelowHeader(headerRowNum) {
+        const result = { blankRows: [], dataStartRow: null, dataEndRow: null, summaryRow: null };
+        let consecutiveBlank = 0, foundData = false, lastDataRow = null;
+
+        for (let rowNum = headerRowNum + 1; rowNum <= worksheet.rowCount; rowNum++) {
+            const row = worksheet.getRow(rowNum);
+            const type = classifyRow(row);
+            switch (type) {
+                case 'blank':
+                    result.blankRows.push(rowNum);
+                    consecutiveBlank++;
+                    if (foundData && consecutiveBlank >= 2 && !result.dataEndRow) result.dataEndRow = lastDataRow;
+                    break;
+                case 'data':
+                    if (!result.dataStartRow) result.dataStartRow = rowNum;
+                    lastDataRow = rowNum; foundData = true; consecutiveBlank = 0;
+                    break;
+                case 'summary':
+                    result.summaryRow = rowNum;
+                    if (!result.dataEndRow && lastDataRow) result.dataEndRow = lastDataRow;
+                    consecutiveBlank = 0;
+                    break;
+                default:
+                    consecutiveBlank = 0;
+            }
+        }
+        if (!result.dataEndRow && lastDataRow) result.dataEndRow = lastDataRow;
+        if (!result.dataStartRow) result.dataStartRow = headerRowNum + 1;
+        if (!result.dataEndRow) result.dataEndRow = result.dataStartRow + 9;
+        if (!result.summaryRow) result.summaryRow = result.dataEndRow + 1;
+        return result;
+    }
+
+    function classifyRow(row) {
+        let empty = 0, text = 0, number = 0, formula = 0, total = 0;
+        let hasSumKeyword = false, hasSumFormula = false;
+        row.eachCell({ includeEmpty: true }, (cell) => {
+            total++;
+            const type = getCellType(cell.value);
+            if (type === 'empty') empty++;
+            else if (type === 'text') {
+                text++;
+                const str = String(cell.value || '').trim();
+                if (/合计|总计|汇总|小计|SUM/i.test(str)) hasSumKeyword = true;
+            } else if (type === 'number') number++;
+            if (cell.formula) {
+                formula++;
+                if (/SUM|AVERAGE|COUNT/i.test(cell.formula)) hasSumFormula = true;
+            }
+        });
+        const nonEmpty = total - empty;
+        if (nonEmpty === 0 || empty / total > 0.9) return 'blank';
+        if (hasSumKeyword || hasSumFormula) return 'summary';
+        if (number / nonEmpty > 0.3 || formula > 0) return 'data';
+        return 'other';
+    }
+
+    function getCellType(value) {
+        if (value === null || value === undefined || value === '') return 'empty';
+        if (value instanceof Date) return 'date';
+        if (typeof value === 'number') return 'number';
+        if (typeof value === 'string') {
+            if (/^\d{4}[\-/]\d{2}[\-/]\d{2}/.test(value)) return 'date';
+            return 'text';
+        }
+        if (typeof value === 'object') {
+            if (value.text || value.result !== undefined) return getCellType(value.text || value.result);
+        }
+        return 'text';
+    }
+
+    const headerRow = findHeaderRow();
+    const below = analyzeBelowHeader(headerRow);
+    return { headerRow, ...below };
+}
+
+// ==================== 智能工作表分析器（结束）====================
+
+function clearJoinFile() {
+    document.getElementById('joinFileInput').value = '';
+    document.getElementById('join-file-status').style.display = 'none';
+    document.getElementById('join-file-badge').style.display = 'none';
+    document.getElementById('join-upload-area').style.display = 'block';
+    document.getElementById('join-data-panel').style.display = 'none';
+    document.getElementById('match-panel').style.display = 'none';
+    document.getElementById('column-panel').style.display = 'none';
+    document.getElementById('sort-panel').style.display = 'none';
+    document.getElementById('output-panel').style.display = 'none';
+    document.getElementById('join-results').style.display = 'none';
+    document.getElementById('join-placeholder').style.display = 'block';
+    document.getElementById('join-placeholder').innerHTML = `
+        <div style="font-size:3rem;margin-bottom:1rem">📗</div>
+        <div>请上传 Excel 文件（ExcelJS保留格式）</div>
+    `;
+    document.getElementById('match-count').style.display = 'none';
+    excelWorkbook = null;
+    allSheetData = {};
+    allSheetHeaders = {};
+    allSheetNames = [];
+    matchConditions = [];
+    matchedData = [];
+    selectedColumns = [];
+}
+
+// 显示工作表选择面板
+function showSheetSelector() {
+    const sheetListHtml = allSheetNames.map((name, index) => `
+        <div class="sheet-item" style="padding:0.75rem;border:1px solid var(--border);border-radius:0.375rem;margin-bottom:0.5rem;cursor:pointer;transition:all 0.2s;"
+             onmouseover="this.style.background='rgba(33,115,70,0.05)';this.style.borderColor='var(--excel)'"
+             onmouseout="this.style.background='';this.style.borderColor='var(--border)'"
+             onclick="loadSelectedSheet('${name}')">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                <span style="font-size:1.25rem;">📄</span>
+                <span style="font-weight:500;">${name}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    document.getElementById('join-placeholder').innerHTML = `
+        <div style="font-size:2.5rem;margin-bottom:1rem">📂</div>
+        <div style="font-weight:600;margin-bottom:1rem;">请选择要处理的工作表</div>
+        <div style="text-align:left;max-width:300px;margin:0 auto;">
+            ${sheetListHtml}
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:1rem;">
+            点击工作表名称加载数据
+        </div>
+    `;
+}
+
+// 加载选中的工作表
+async function loadSelectedSheet(sheetName) {
+    if (!excelWorkbook) return;
+    
+    document.getElementById('join-placeholder').innerHTML = `
+        <div style="font-size:3rem;margin-bottom:1rem">⏳</div>
+        <div>正在加载工作表: ${sheetName}</div>
+        <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">请稍候...</div>
+    `;
+    
+    try {
+        // 只加载选中的工作表数据
+        allSheetData = {};
+        allSheetHeaders = {};
+        
+        const worksheet = excelWorkbook.getWorksheet(sheetName);
+        if (!worksheet) {
+            throw new Error(`找不到工作表: ${sheetName}`);
+        }
+        
+        const jsonData = [];
+        
+        worksheet.eachRow((row, rowNumber) => {
+            const rowValues = [];
+            
+            // 逐个单元格处理
+            for (let i = 1; i <= row.cellCount; i++) {
+                const cell = row.getCell(i);
+                let value = cell.value;
+                
+                // 处理单元格值可能是对象的情况
+                if (typeof value === 'object' && value !== null) {
+                    if (value.text) {
+                        value = value.text;
+                    } else if (value.result) {
+                        value = value.result;
+                    } else if (value.formula) {
+                        value = value.formula;
+                    } else if (value.richText) {
+                        value = value.richText.map(part => part.text).join('');
+                    } else {
+                        value = String(value);
+                    }
+                }
+                
+                // 检查是否是数字类型且可能是卡片号码
+                if (typeof value === 'number' && cell.numFmt === 'General') {
+                    const numStr = value.toString();
+                    if (numStr.replace(/\D/g, '').length > 10 || (numStr.includes('.') && parseInt(numStr.split('.')[1]) === 0)) {
+                        value = value.toString();
+                    }
+                }
+                
+                // 检查是否是日期类型
+                if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value.trim())) {
+                    value = value.trim().split(' ')[0];
+                } else {
+                    let isDate = false;
+                    let dateValue = null;
+                    
+                    if (cell.type === 4 || value instanceof Date) {
+                        isDate = true;
+                        dateValue = value instanceof Date ? value : new Date(value);
+                    } else if (typeof value === 'number' && cell.numFmt && 
+                            (cell.numFmt.toLowerCase().includes('yyyy') || 
+                             cell.numFmt.toLowerCase().includes('yy'))) {
+                        isDate = true;
+                        const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+                        const msPerDay = 24 * 60 * 60 * 1000;
+                        dateValue = new Date(excelEpoch.getTime() + (value - 1) * msPerDay);
+                    } else if (typeof value === 'string' && 
+                            (/^\d{4}[\/\.]\d{2}[\/\.]\d{2}/.test(value) || 
+                             /^\d{2}[\/\.]\d{2}[\/\.]\d{4}/.test(value))) {
+                        isDate = true;
+                        const cleaned = value.replace(/[\/\.]/g, '-');
+                        dateValue = new Date(cleaned);
+                    }
+                    
+                    if (isDate && dateValue && !isNaN(dateValue.getTime())) {
+                        const year = dateValue.getUTCFullYear();
+                        const month = String(dateValue.getUTCMonth() + 1).padStart(2, '0');
+                        const day = String(dateValue.getUTCDate()).padStart(2, '0');
+                        value = `${year}-${month}-${day}`;
+                    }
+                }
+                
+                rowValues.push(value);
+            }
+            
+            jsonData.push(rowValues);
+        });
+        
+        allSheetData[sheetName] = jsonData;
+        allSheetHeaders[sheetName] = jsonData[0] || [];
+        
+        console.log('加载工作表:', sheetName);
+        console.log('表头:', allSheetHeaders[sheetName]);
+        console.log('数据行数:', jsonData.length - 1);
+        
+        // 初始化选择器并显示面板
+        initFillerSelectors();
+        document.getElementById('join-data-panel').style.display = 'block';
+        
+        // 自动选中新加载的工作表
+        document.getElementById('primarySheet').value = sheetName;
+        onPrimarySheetChange();
+        
+        document.getElementById('join-placeholder').innerHTML = `
+            <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+            <div>已加载工作表: ${sheetName}</div>
+            <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">共 ${jsonData.length - 1} 行数据</div>
+        `;
+        
+    } catch (err) {
+        console.error('加载工作表错误:', err);
+        document.getElementById('join-placeholder').innerHTML = `
+            <div style="font-size:3rem;margin-bottom:1rem">❌</div>
+            <div>加载失败</div>
+            <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">${err.message}</div>
+        `;
+        alert('加载工作表失败：' + err.message);
+    }
+}
+
+function initFillerSelectors() {
+    const primarySelect = document.getElementById('primarySheet');
+    const targetSelect = document.getElementById('targetSheet');
+    primarySelect.innerHTML = '<option value="">-- 选择主表 --</option>';
+    targetSelect.innerHTML = '';
+    
+    // 只加载已加载的工作表（不再加载所有工作表）
+    Object.keys(allSheetData).forEach(name => {
+        primarySelect.add(new Option(name, name));
+        targetSelect.add(new Option(name, name));
+    });
+}
+
+function onPrimarySheetChange() {
+    const name = document.getElementById('primarySheet').value;
+    if (!name) {
+        document.getElementById('primary-badge').style.display = 'none';
+        document.getElementById('match-panel').style.display = 'none';
+        return;
+    }
+    document.getElementById('primary-badge').style.display = 'inline-flex';
+    document.getElementById('match-panel').style.display = 'block';
+    document.getElementById('primary-info').textContent = `共 ${allSheetData[name].length - 1} 行数据`;
+    matchConditions = [];
+    document.getElementById('matchConfigList').innerHTML = '';
+    addMatchCondition();
+}
+
+function addMatchCondition() {
+    const primarySheet = document.getElementById('primarySheet').value;
+    if (!primarySheet) {
+        alert('请先选择主数据表');
+        return;
+    }
+    const id = matchConditions.length;
+    const div = document.createElement('div');
+    div.className = 'match-config';
+    div.dataset.id = id;
+    const primaryHeaders = allSheetHeaders[primarySheet];
+    
+    const allSheetNames = Object.keys(allSheetData);
+    const otherSheets = allSheetNames.filter(n => n !== primarySheet);
+    
+    div.innerHTML = `
+        <div class="match-config-header">
+            <span class="match-title">条件 ${id + 1}</span>
+            ${id > 0 ? `<button class="btn btn-sm" onclick="removeMatchCondition(${id})" style="padding:0.1rem 0.3rem">×</button>` : ''}
+        </div>
+        <div class="match-row">
+            <select class="form-control primary-col" data-id="${id}">
+                ${primaryHeaders.map((h, i) => `<option value="${i}">${h || `列${i+1}`}</option>`).join('')}
+            </select>
+            <div class="match-equals">=</div>
+            <select class="form-control secondary-sheet" data-id="${id}" onchange="updateSecondaryColumns(${id})">
+                <option value="">选择副表...</option>
+                ${otherSheets.map(s => `<option value="${s}">${s}</option>`).join('')}
+            </select>
+        </div>
+        <div class="match-row" style="margin-top:0.5rem">
+            <select class="form-control match-type" data-id="${id}" onchange="toggleSimilarityInput(${id})">
+                <option value="exact">完全匹配</option>
+                <option value="fuzzy">模糊匹配</option>
+            </select>
+            <div></div>
+            <select class="form-control secondary-col" data-id="${id}">
+                <option value="">选择列...</option>
+            </select>
+        </div>
+        <div class="similarity-row" id="similarity-${id}" style="display:none;">
+            <span style="font-size:0.75rem; color:var(--text-muted); white-space:nowrap;">相似度≥</span>
+            <input type="range" class="similarity-slider" data-id="${id}" min="0" max="100" value="60" 
+                   oninput="updateSimilarityLabel(${id})">
+            <span class="similarity-label" id="sim-label-${id}">60%</span>
+        </div>
+    `;
+    document.getElementById('matchConfigList').appendChild(div);
+    matchConditions.push({id});
+}
+
+function toggleSimilarityInput(id) {
+    const type = document.querySelector(`.match-type[data-id="${id}"]`).value;
+    const simRow = document.getElementById(`similarity-${id}`);
+    if (simRow) simRow.style.display = type === 'fuzzy' ? 'flex' : 'none';
+}
+
+function updateSimilarityLabel(id) {
+    const val = document.querySelector(`.similarity-slider[data-id="${id}"]`).value;
+    document.getElementById(`sim-label-${id}`).textContent = val + '%';
+}
+
+function removeMatchCondition(id) {
+    const el = document.querySelector(`.match-config[data-id="${id}"]`);
+    if (el) el.remove();
+    matchConditions = matchConditions.filter(c => c.id !== id);
+}
+
+function updateSecondaryColumns(id) {
+    const sheet = document.querySelector(`.secondary-sheet[data-id="${id}"]`).value;
+    const select = document.querySelector(`.secondary-col[data-id="${id}"]`);
+    if (!sheet) {
+        select.innerHTML = '<option value="">选择列...</option>';
+        return;
+    }
+    
+    // 直接使用ExcelJS的工作表获取表头
+    const worksheet = excelWorkbook.getWorksheet(sheet);
+    if (worksheet) {
+        const firstRow = worksheet.getRow(1);
+        const excelHeaders = [];
+        
+        for (let i = 1; i <= firstRow.cellCount; i++) {
+            const cell = firstRow.getCell(i);
+            let value = cell.value;
+            
+            // 处理各种可能的单元格值类型
+            if (value === null || value === undefined) {
+                excelHeaders.push(`列${i}`);
+            } else if (typeof value === 'object') {
+                if (value.text) {
+                    excelHeaders.push(value.text);
+                } else if (value.result) {
+                    excelHeaders.push(value.result);
+                } else if (value.richText) {
+                    excelHeaders.push(value.richText.map(part => part.text).join(''));
+                } else {
+                    excelHeaders.push(String(value));
+                }
+            } else {
+                excelHeaders.push(String(value));
+            }
+        }
+        
+        select.innerHTML = excelHeaders.map((h, i) => {
+            return `<option value="${i}">${h || `列${i+1}`}</option>`;
+        }).join('');
+    } else {
+        const headers = allSheetHeaders[sheet] || [];
+        if (!headers.length) {
+            select.innerHTML = '<option value="">无可用列</option>';
+            return;
+        }
+        select.innerHTML = headers.map((h, i) => {
+            let headerText = h;
+            if (typeof h === 'object' && h !== null) {
+                if (h.text) {
+                    headerText = h.text;
+                } else if (h.result) {
+                    headerText = h.result;
+                } else {
+                    headerText = String(h);
+                }
+            }
+            return `<option value="${i}">${headerText || `列${i+1}`}</option>`;
+        }).join('');
+    }
+}
+
+/**
+ * 全局匹配标记数组（避免重复分配内存）
+ */
+let s1MatchesGlobal = [];
+let s2MatchesGlobal = [];
+
+/**
+ * Jaro-Winkler 相似度计算 - O(n)复杂度
+ * 适合短字符串（如姓名、企业名）匹配，前缀匹配奖励
+ */
+function jaroWinkler(s1, s2) {
+    if (s1 === s2) return 1.0;
+    if (!s1 || !s2) return 0;
+    
+    const len1 = s1.length, len2 = s2.length;
+    const maxDist = Math.floor(Math.max(len1, len2) / 2) - 1;
+    
+    // 预分配匹配数组
+    if (s1MatchesGlobal.length < len1) s1MatchesGlobal = new Array(len1);
+    if (s2MatchesGlobal.length < len2) s2MatchesGlobal = new Array(len2);
+    s1MatchesGlobal.fill(false, 0, len1);
+    s2MatchesGlobal.fill(false, 0, len2);
+    
+    let matches = 0;
+    for (let i = 0; i < len1; i++) {
+        const start = Math.max(0, i - maxDist);
+        const end = Math.min(len2, i + maxDist + 1);
+        
+        for (let j = start; j < end; j++) {
+            if (!s2MatchesGlobal[j] && s1[i] === s2[j]) {
+                s1MatchesGlobal[i] = true;
+                s2MatchesGlobal[j] = true;
+                matches++;
+                break;
+            }
+        }
+    }
+    
+    if (matches === 0) return 0;
+    
+    let transpositions = 0;
+    let k = 0;
+    for (let i = 0; i < len1; i++) {
+        if (!s1MatchesGlobal[i]) continue;
+        while (!s2MatchesGlobal[k]) k++;
+        if (s1[i] !== s2[k]) transpositions++;
+        k++;
+    }
+    
+    const jaro = (matches/len1 + matches/len2 + (matches-transpositions/2)/matches) / 3;
+    
+    // 前缀匹配奖励（最多4个字符，每个0.1分）
+    let prefix = 0;
+    const prefixLimit = Math.min(4, len1, len2);
+    while (prefix < prefixLimit && s1[prefix] === s2[prefix]) prefix++;
+    
+    return jaro + (prefix * 0.1 * (1 - jaro));
+}
+
+/**
+ * 早期终止的Jaro-Winkler算法
+ * 当发现不可能达到阈值时提前终止计算
+ */
+function optimizedJaroWinkler(s1, s2, threshold = 0.6) {
+    const len1 = s1.length, len2 = s2.length;
+    const maxDist = Math.floor(Math.max(len1, len2) / 2) - 1;
+    
+    // 预分配匹配数组
+    if (s1MatchesGlobal.length < len1) s1MatchesGlobal = new Array(len1);
+    if (s2MatchesGlobal.length < len2) s2MatchesGlobal = new Array(len2);
+    s1MatchesGlobal.fill(false, 0, len1);
+    s2MatchesGlobal.fill(false, 0, len2);
+    
+    let matches = 0;
+    let transpositions = 0;
+    let prevPos = -1;
+    
+    // 计算匹配字符
+    for (let i = 0; i < len1; i++) {
+        const char = s1[i];
+        const start = Math.max(0, i - maxDist);
+        const end = Math.min(len2, i + maxDist + 1);
+        
+        let found = false;
+        for (let j = start; j < end; j++) {
+            if (!s2MatchesGlobal[j] && s2[j] === char) {
+                s1MatchesGlobal[i] = true;
+                s2MatchesGlobal[j] = true;
+                matches++;
+                
+                // 计算转置
+                if (prevPos !== -1 && j < prevPos) {
+                    transpositions++;
+                }
+                prevPos = j;
+                found = true;
+                break;
+            }
+        }
+        
+        // 早期终止：如果当前匹配数无法达到阈值，直接返回
+        if (matches === 0) continue;
+        const currentScore = (matches / len1 + matches / len2 + (matches - transpositions) / matches) / 3;
+        if (currentScore < threshold * 0.9) {
+            return 0;
+        }
+    }
+    
+    if (matches === 0) return 0;
+    
+    // 计算最终Jaro相似度
+    const jaroScore = (matches / len1 + matches / len2 + (matches - transpositions) / matches) / 3;
+    
+    // 计算前缀匹配奖励
+    let prefix = 0;
+    const prefixLimit = Math.min(4, len1, len2);
+    while (prefix < prefixLimit && s1[prefix] === s2[prefix]) prefix++;
+    
+    const finalScore = jaroScore + (prefix * 0.1 * (1 - jaroScore));
+    return finalScore >= threshold ? finalScore : 0;
+}
+
+/**
+ * 构建模糊匹配的分层索引
+ * 包含：长度索引 + 首字符索引 + n-gram索引
+ */
+function buildFuzzyIndex(sheetData, colIndex) {
+    const index = {
+        lengthIndex: new Map(), // 长度 -> 字符串集合
+        charIndex: new Map(),   // 首字符 -> 字符串集合
+        ngramIndex: new Map(),  // n-gram -> 字符串集合
+        rowValues: [],          // 缓存行值，避免重复计算
+        rowLengths: []          // 缓存行长度，用于预过滤
+    };
+    
+    // 预估内存：如果超过500万条目，使用轻量模式
+    const estimatedEntries = (sheetData.length - 1) * 10; // 每个字符串平均10个n-gram
+    const lightweight = estimatedEntries > 5000000;
+    
+    if (lightweight) {
+        console.warn('数据量过大，使用轻量模式（仅长度索引）');
+        return { lightweight: true, sheetData, colIndex };
+    }
+    
+    for (let j = 1; j < sheetData.length; j++) {
+        const value = (sheetData[j][colIndex] === null || sheetData[j][colIndex] === undefined) ? '' : String(sheetData[j][colIndex]).trim().toLowerCase();
+        index.rowValues[j] = value;
+        index.rowLengths[j] = value.length;
+        
+        if (!value) continue;
+        
+        // 长度索引
+        const len = value.length;
+        if (!index.lengthIndex.has(len)) {
+            index.lengthIndex.set(len, new Set());
+        }
+        index.lengthIndex.get(len).add(value);
+        
+        // 首字符索引
+        const firstChar = value[0];
+        if (!index.charIndex.has(firstChar)) {
+            index.charIndex.set(firstChar, new Set());
+        }
+        index.charIndex.get(firstChar).add(value);
+        
+        // n-gram索引（使用双字索引，适合大多数语言）
+        for (let i = 0; i < value.length - 1; i++) {
+            const ngram = value.substring(i, i + 2);
+            if (!index.ngramIndex.has(ngram)) {
+                index.ngramIndex.set(ngram, new Set());
+            }
+            index.ngramIndex.get(ngram).add(value);
+        }
+    }
+    
+    return { ...index, lightweight: false };
+}
+
+/**
+ * 使用索引获取候选集
+ */
+function getCandidates(indexObj, query, threshold = 0.6) {
+    if (indexObj.lightweight) {
+        return { lightweight: true, candidates: [] };
+    }
+    
+    if (!query || query.length < 2) {
+        return { lightweight: false, candidates: [] };
+    }
+    
+    const { lengthIndex, charIndex, ngramIndex } = indexObj;
+    const queryLen = query.length;
+    const candidates = new Set();
+    
+    // 1. 长度过滤：获取长度相近的字符串
+    const minLen = Math.max(1, Math.floor(queryLen * threshold * 0.8));
+    const maxLen = Math.ceil(queryLen / (threshold * 0.8));
+    
+    for (let len = minLen; len <= maxLen; len++) {
+        if (lengthIndex.has(len)) {
+            lengthIndex.get(len).forEach(value => candidates.add(value));
+        }
+    }
+    
+    // 2. 首字符过滤：进一步缩小候选集
+    const firstChar = query[0];
+    if (charIndex.has(firstChar)) {
+        const charCandidates = new Set();
+        charIndex.get(firstChar).forEach(value => {
+            if (candidates.has(value)) {
+                charCandidates.add(value);
+            }
+        });
+        if (charCandidates.size > 0) {
+            candidates.clear();
+            charCandidates.forEach(value => candidates.add(value));
+        }
+    }
+    
+    // 3. n-gram过滤：精确筛选
+    if (query.length >= 2) {
+        const ngramCandidates = new Set();
+        const queryNgrams = new Set();
+        
+        // 提取查询的n-gram
+        for (let i = 0; i < query.length - 1; i++) {
+            queryNgrams.add(query.substring(i, i + 2));
+        }
+        
+        // 查找包含至少一个相同n-gram的字符串
+        queryNgrams.forEach(ngram => {
+            if (ngramIndex.has(ngram)) {
+                ngramIndex.get(ngram).forEach(value => {
+                    if (candidates.has(value)) {
+                        ngramCandidates.add(value);
+                    }
+                });
+            }
+        });
+        
+        if (ngramCandidates.size > 0) {
+            candidates.clear();
+            ngramCandidates.forEach(value => candidates.add(value));
+        }
+    }
+    
+    return { lightweight: false, candidates: Array.from(candidates) };
+}
+
+/**
+ * 优化的相似度计算入口
+ * 包含：长度预过滤 -> 包含检查 -> 快速算法 -> Jaro-Winkler
+ */
+function similarity(a, b, threshold = 0.6) {
+    a = String(a).trim().toLowerCase();
+    b = String(b).trim().toLowerCase();
+    
+    if (!a || !b) return 0;
+    if (a === b) return 1.0;
+    
+    // 长度预过滤：如果长度差异过大，直接返回0
+    const len1 = a.length, len2 = b.length;
+    const maxLen = Math.max(len1, len2);
+    const minLen = Math.min(len1, len2);
+    
+    // 如果最短/最长 < threshold，不可能达到阈值
+    if (minLen / maxLen < threshold * 0.85) return 0;
+    
+    // 包含检查（快速路径）
+    if (a.includes(b) || b.includes(a)) return 0.95;
+    
+    // 快速字符集检查：如果共同字符太少，直接返回0
+    const setA = new Set(a);
+    const setB = new Set(b);
+    const commonChars = [...setA].filter(c => setB.has(c)).length;
+    if (commonChars / Math.max(setA.size, setB.size) < threshold * 0.5) return 0;
+    
+    // 快速Hamming距离检查（仅适用于等长字符串）
+    if (len1 === len2 && len1 <= 20) {
+        let hammingDist = 0;
+        for (let i = 0; i < len1; i++) {
+            if (a[i] !== b[i]) hammingDist++;
+            // 早期终止：如果Hamming距离过大，不可能达到阈值
+            if (hammingDist / len1 > (1 - threshold)) return 0;
+        }
+        if (hammingDist === 0) return 1.0;
+        // Hamming距离转换为相似度
+        const hammingSimilarity = 1 - hammingDist / len1;
+        if (hammingSimilarity >= threshold) return hammingSimilarity;
+    }
+    
+    // 对于长字符串，使用更严格的阈值
+    if (maxLen > 20 && minLen / maxLen < threshold * 0.9) return 0;
+    
+    // 使用早期终止的Jaro-Winkler算法
+    return optimizedJaroWinkler(a, b, threshold);
+}
+
+function executeQuery() {
+    const primarySheet = document.getElementById('primarySheet').value;
+    if (!primarySheet) return;
+    
+    const conditions = [];
+    let valid = true;
+    
+    document.querySelectorAll('.match-config').forEach(el => {
+        const primaryCol = parseInt(el.querySelector('.primary-col').value);
+        const secondarySheet = el.querySelector('.secondary-sheet').value;
+        const secondaryCol = parseInt(el.querySelector('.secondary-col').value);
+        const matchType = el.querySelector('.match-type').value;
+        let similarityThreshold = 0.6;
+        if (matchType === 'fuzzy') {
+            const slider = el.querySelector('.similarity-slider');
+            if (slider) similarityThreshold = parseInt(slider.value) / 100;
+        }
+        if (!secondarySheet || isNaN(secondaryCol)) {
+            valid = false;
+            return;
+        }
+        conditions.push({primaryCol, secondarySheet, secondaryCol, matchType, similarityThreshold});
+    });
+    
+    if (!valid || conditions.length === 0) {
+        alert('请配置完整的关联条件');
+        return;
+    }
+    
+    // 显示加载状态
+    const queryBtn = document.getElementById('queryBtn');
+    const originalText = queryBtn.innerHTML;
+    queryBtn.innerHTML = '🔍 执行中...';
+    queryBtn.disabled = true;
+    
+    // 使用 setTimeout 避免阻塞主线程
+    setTimeout(async () => {
+        try {
+            matchedData = [];
+            const primaryData = allSheetData[primarySheet];
+            
+            // 为次要表数据创建索引，减少查找时间
+            const secondaryIndexes = {};
+            fuzzyIndexes = {}; // 重置模糊索引
+            
+            // 使用for循环替代forEach，避免异步问题
+            for (let i = 0; i < conditions.length; i++) {
+                const cond = conditions[i];
+                if (!secondaryIndexes[cond.secondarySheet]) {
+                    secondaryIndexes[cond.secondarySheet] = {};
+                }
+                
+                if (cond.matchType === 'exact') {
+                    // 精确匹配：使用哈希表索引
+                    if (!secondaryIndexes[cond.secondarySheet][cond.secondaryCol]) {
+                        const index = {};
+                        const secondarySheetData = allSheetData[cond.secondarySheet];
+                        for (let j = 1; j < secondarySheetData.length; j++) {
+                            const secRow = secondarySheetData[j];
+                            const secVal = (secRow[cond.secondaryCol] === null || secRow[cond.secondaryCol] === undefined) ? '' : String(secRow[cond.secondaryCol]).trim().toLowerCase();
+                            if (secVal) {
+                                if (!index[secVal]) {
+                                    index[secVal] = [];
+                                }
+                                index[secVal].push(j);
+                            }
+                        }
+                        secondaryIndexes[cond.secondarySheet][cond.secondaryCol] = index;
+                    }
+                } else {
+                    // 模糊匹配：构建分层索引
+                    const key = `${cond.secondarySheet}_${cond.secondaryCol}`;
+                    if (!fuzzyIndexes[key]) {
+                        queryBtn.innerHTML = `🔍 构建索引 ${cond.secondarySheet}...`;
+                        // 强制UI更新
+                        const secondarySheetData = allSheetData[cond.secondarySheet];
+                        fuzzyIndexes[key] = buildFuzzyIndex(secondarySheetData, cond.secondaryCol);
+                        // 允许浏览器渲染
+                        await new Promise(resolve => setTimeout(resolve, 0));
+                    }
+                }
+            }
+            
+            // 分批处理数据，避免浏览器卡顿
+            const batchSize = 50; // 减小批次大小，增加响应性
+            const totalRows = primaryData.length - 1;
+            let processedCount = 0;
+            
+            for (let batchStart = 1; batchStart < primaryData.length; batchStart += batchSize) {
+                const batchEnd = Math.min(batchStart + batchSize, primaryData.length);
+                
+                // 处理当前批次
+                for (let i = batchStart; i < batchEnd; i++) {
+                    const primaryRow = primaryData[i];
+                    let match = true;
+                    let conditionsMet = 0;
+                    
+                    for (const cond of conditions) {
+                        const primaryVal = (primaryRow[cond.primaryCol] === null || primaryRow[cond.primaryCol] === undefined) ? '' : String(primaryRow[cond.primaryCol]).trim().toLowerCase();
+                        let found = false;
+                        
+                        if (cond.matchType === 'exact') {
+                            // 精确匹配：先检查空值
+                            if (!primaryVal) continue;
+                            
+                            // 使用索引快速查找
+                            const index = secondaryIndexes[cond.secondarySheet][cond.secondaryCol];
+                            if (index[primaryVal]) {
+                                found = true;
+                                conditionsMet++;
+                            }
+                        } else {
+                            // 优化模糊匹配：使用分层索引快速筛选
+                            if (!primaryVal || primaryVal.length < 2) continue;
+                            
+                            const key = `${cond.secondarySheet}_${cond.secondaryCol}`;
+                            const indexObj = fuzzyIndexes[key];
+                            
+                            if (indexObj.lightweight) {
+                                // 轻量模式：遍历但使用长度预过滤
+                                const secondarySheetData = allSheetData[cond.secondarySheet];
+                                const minLen = primaryVal.length * cond.similarityThreshold * 0.8;
+                                const maxLen = primaryVal.length / (cond.similarityThreshold * 0.8);
+                                
+                                for (let j = 1; j < secondarySheetData.length; j++) {
+                                    const secVal = (secondarySheetData[j][cond.secondaryCol] === null || secondarySheetData[j][cond.secondaryCol] === undefined) ? '' : String(secondarySheetData[j][cond.secondaryCol]).trim().toLowerCase();
+                                    if (!secVal || secVal.length < minLen || secVal.length > maxLen) continue;
+                                    
+                                    if (primaryVal.includes(secVal) || secVal.includes(primaryVal)) {
+                                        found = true;
+                                        conditionsMet++;
+                                        break;
+                                    }
+                                    
+                                    if (similarity(primaryVal, secVal, cond.similarityThreshold) >= cond.similarityThreshold) {
+                                        found = true;
+                                        conditionsMet++;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                // 索引模式：先获取候选集
+                                const candidateResult = getCandidates(indexObj, primaryVal, cond.similarityThreshold);
+                                
+                                // 判断是否需要回退到轻量模式
+                                if (candidateResult.lightweight || candidateResult.candidates.length === 0) {
+                                    const secondarySheetData = allSheetData[cond.secondarySheet];
+                                    for (let j = 1; j < secondarySheetData.length; j++) {
+                                        const secVal = (secondarySheetData[j][cond.secondaryCol] === null || secondarySheetData[j][cond.secondaryCol] === undefined) ? '' : String(secondarySheetData[j][cond.secondaryCol]).trim().toLowerCase();
+                                        if (!secVal) continue;
+                                        
+                                        if (primaryVal.includes(secVal) || secVal.includes(primaryVal)) {
+                                            found = true;
+                                            conditionsMet++;
+                                            break;
+                                        }
+                                        if (similarity(primaryVal, secVal, cond.similarityThreshold) >= cond.similarityThreshold) {
+                                            found = true;
+                                            conditionsMet++;
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    // 在候选集中精确计算
+                                    for (const candidate of candidateResult.candidates) {
+                                        if (!candidate) continue;
+                                        
+                                        if (primaryVal.includes(candidate) || candidate.includes(primaryVal)) {
+                                            found = true;
+                                            conditionsMet++;
+                                            break;
+                                        }
+                                        if (similarity(primaryVal, candidate, cond.similarityThreshold) >= cond.similarityThreshold) {
+                                            found = true;
+                                            conditionsMet++;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if (!found && primaryVal) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    
+                    // 只有当至少有一个条件被成功匹配时，才添加到结果中
+                    if (match && conditionsMet > 0) {
+                        matchedData.push({
+                            primaryRow,
+                            primaryHeaders: allSheetHeaders[primarySheet]
+                        });
+                    }
+                    
+                    processedCount++;
+                }
+                
+                // 每批次后更新进度
+                const progress = Math.min(Math.round((batchEnd - 1) / totalRows * 100), 100);
+                queryBtn.innerHTML = `🔍 执行中... ${progress}% (${processedCount}/${totalRows})`;
+                
+                // 允许浏览器渲染 - 使用更长的延迟确保UI更新
+                await new Promise(resolve => setTimeout(resolve, 10));
+            }
+            
+            showFillerResults();
+            initColumnSelection();
+        } catch (error) {
+            console.error('查询执行错误:', error);
+            alert('查询执行过程中发生错误，请重试');
+        } finally {
+            // 恢复按钮状态
+            queryBtn.innerHTML = originalText;
+            queryBtn.disabled = false;
+        }
+    }, 0);
+}
+
+function showFillerResults() {
+    document.getElementById('join-placeholder').style.display = 'none';
+    document.getElementById('join-results').style.display = 'flex';
+    document.getElementById('match-count').style.display = 'inline-flex';
+    document.getElementById('match-count').textContent = `${matchedData.length} 条匹配`;
+    document.getElementById('exportResultBtn').disabled = matchedData.length === 0;
+    
+    if (matchedData.length === 0) {
+        document.getElementById('result-stats').textContent = '未找到匹配数据';
+        document.getElementById('join-table-container').innerHTML = `
+            <div style="text-align:center;padding:3rem;color:var(--text-muted)">
+                <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+                <div>未找到匹配数据</div>
+                <div style="font-size:0.8rem;margin-top:0.5rem">请调整关联条件后重试</div>
+            </div>
+        `;
+        return;
+    }
+    
+    const sample = matchedData[0];
+    const headers = sample.primaryHeaders;
+    const totalRows = matchedData.length;
+    const previewRows = Math.min(totalRows, 100);
+    
+    document.getElementById('result-stats').textContent = `共 ${totalRows} 行数据，显示前 ${previewRows} 行`;
+    
+    let html = '<table><thead><tr>';
+    headers.forEach(h => html += `<th>${h}</th>`);
+    html += '</tr></thead><tbody>';
+    
+    matchedData.slice(0, previewRows).forEach((item, index) => {
+        html += `<tr ${index % 2 === 0 ? 'style="background:rgba(255,255,255,0.02)"' : ''}>`;
+        item.primaryRow.forEach(v => {
+            let cellValue = v !== undefined ? v : '';
+            // 将"null"字符串替换为空字符串
+            if (typeof cellValue === 'string' && cellValue.toLowerCase() === 'null') {
+                cellValue = '';
+            }
+            const isNumber = typeof cellValue === 'number' || (!isNaN(parseFloat(cellValue)) && isFinite(cellValue));
+            html += `<td ${isNumber ? 'class="num-cell"' : ''}>${cellValue}</td>`;
+        });
+        html += '</tr>';
+    });
+    
+    if (totalRows > previewRows) {
+        html += `<tr><td colspan="${headers.length}" style="text-align:center;color:var(--text-muted);background:rgba(255,255,255,0.05);font-style:italic">... 还有 ${totalRows - previewRows} 行数据未显示 ...</td></tr>`;
+    }
+    
+    html += '</tbody></table>';
+    document.getElementById('join-table-container').innerHTML = html;
+}
+
+function initColumnSelection() {
+    const container = document.getElementById('columnList');
+    container.innerHTML = '';
+    selectedColumns = [];
+    
+    if (matchedData.length === 0) return;
+    
+    const sample = matchedData[0];
+    let colId = 0;
+    
+    sample.primaryHeaders.forEach((h, i) => {
+        addColumnItem(container, h || `列${i+1}`, 'primary', i, colId++);
+    });
+    
+    document.getElementById('column-panel').style.display = 'block';
+    document.getElementById('sort-panel').style.display = 'block';
+    document.getElementById('output-panel').style.display = 'block';
+    
+    // 添加列数统计
+    const columnCount = sample.primaryHeaders.length;
+    document.querySelector('#column-panel .panel-title').innerHTML = `
+        <span>📋 选择输出列</span>
+        <span class="badge badge-primary" style="margin-right:0.5rem">共 ${columnCount} 列</span>
+        <div style="display:flex;gap:0.25rem">
+            <button class="btn btn-sm" onclick="selectAllColumns()">全选</button>
+            <button class="btn btn-sm" onclick="deselectAllColumns()">全不选</button>
+        </div>
+    `;
+    
+    updateSortableList();
+}
+
+function addColumnItem(container, name, source, index, id) {
+    // 处理列名可能是对象的情况
+    let displayName = name;
+    if (typeof name === 'object' && name !== null) {
+        if (name.text) {
+            displayName = name.text;
+        } else if (name.result) {
+            displayName = name.result;
+        } else {
+            displayName = String(name);
+        }
+    }
+    
+    const div = document.createElement('div');
+    div.className = 'column-item selected';
+    div.innerHTML = `
+        <input type="checkbox" checked onchange="toggleColumn(${id}, this)">
+        <span style="flex:1">${displayName}</span>
+        <span class="badge badge-primary" style="font-size:0.6rem">主</span>
+    `;
+    container.appendChild(div);
+    selectedColumns.push({id, name: displayName, source, index, selected: true, order: id});
+}
+
+function toggleColumn(id, checkbox) {
+    const col = selectedColumns.find(c => c.id === id);
+    if (col) {
+        col.selected = checkbox.checked;
+        updateColumnOrder();
+    }
+    updateSortableList();
+}
+
+function updateColumnOrder() {
+    let order = 0;
+    selectedColumns.forEach(c => {
+        if (c.selected) c.order = order++;
+        else c.order = 9999;
+    });
+}
+
+function selectAllColumns() {
+    selectedColumns.forEach((c, idx) => {
+        c.selected = true;
+        c.order = idx;
+    });
+    document.querySelectorAll('.column-item input').forEach(cb => cb.checked = true);
+    updateSortableList();
+}
+
+function deselectAllColumns() {
+    selectedColumns.forEach(c => {
+        c.selected = false;
+        c.order = 9999;
+    });
+    document.querySelectorAll('.column-item input').forEach(cb => cb.checked = false);
+    updateSortableList();
+}
+
+function updateSortableList() {
+    const container = document.getElementById('sortableList');
+    container.innerHTML = '';
+    const sortedCols = selectedColumns.filter(c => c.selected).sort((a, b) => a.order - b.order);
+    sortedCols.forEach((col, idx) => {
+        const div = document.createElement('div');
+        div.className = 'sortable-item';
+        div.draggable = true;
+        div.dataset.index = idx;
+        div.dataset.id = col.id;
+        div.innerHTML = `
+            <span class="drag-handle">☰</span>
+            <span style="flex:1;font-size:0.75rem">${col.name}</span>
+            <button class="btn btn-sm" onclick="removeColumn(${col.id})" style="padding:0.1rem 0.3rem">×</button>
+        `;
+        div.addEventListener('dragstart', handleDragStart);
+        div.addEventListener('dragover', handleDragOver);
+        div.addEventListener('drop', handleDrop);
+        div.addEventListener('dragend', handleDragEnd);
+        container.appendChild(div);
+    });
+}
+
+function removeColumn(id) {
+    const col = selectedColumns.find(c => c.id === id);
+    if (col) {
+        col.selected = false;
+        col.order = 9999;
+    }
+    const items = document.querySelectorAll('.column-item');
+    items.forEach((item, idx) => {
+        if (selectedColumns[idx] && selectedColumns[idx].id === id) {
+            item.querySelector('input').checked = false;
+        }
+    });
+    updateSortableList();
+}
+
+function handleDragStart(e) {
+    draggedItem = this;
+    draggedIndex = parseInt(this.dataset.index);
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    if (draggedItem === this) return;
+    const fromIdx = draggedIndex;
+    const toIdx = parseInt(this.dataset.index);
+    const activeCols = selectedColumns.filter(c => c.selected).sort((a, b) => a.order - b.order);
+    const [moved] = activeCols.splice(fromIdx, 1);
+    activeCols.splice(toIdx, 0, moved);
+    activeCols.forEach((col, idx) => {
+        const original = selectedColumns.find(c => c.id === col.id);
+        if (original) original.order = idx;
+    });
+    updateSortableList();
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    draggedItem = null;
+    draggedIndex = null;
+}
+
+// 目标文件工作簿
+let targetWorkbook = null;
+
+// 处理目标文件上传
+async function handleTargetFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    try {
+        const buffer = await file.arrayBuffer();
+        targetWorkbook = new ExcelJS.Workbook();
+        await targetWorkbook.xlsx.load(buffer);
+        
+        // 显示文件名
+        document.getElementById('target-file-name').textContent = file.name;
+        document.getElementById('target-file-status').style.display = 'flex';
+        document.getElementById('targetFileUploadZone').style.display = 'none';
+        
+        // 填充工作表选择下拉框
+        const targetSheetSelect = document.getElementById('targetSheet');
+        targetSheetSelect.innerHTML = '<option value="">-- 选择目标表 --</option>';
+        
+        targetWorkbook.eachSheet((sheet) => {
+            const option = document.createElement('option');
+            option.value = sheet.name;
+            option.textContent = sheet.name;
+            targetSheetSelect.appendChild(option);
+        });
+        
+        console.log('目标文件已加载:', file.name);
+        alert('✅ 目标文件已加载！\n请选择目标工作表');
+        
+    } catch (err) {
+        console.error('目标文件加载失败:', err);
+        alert('目标文件加载失败: ' + err.message);
+    }
+}
+
+// 清除目标文件
+function clearTargetFile() {
+    targetWorkbook = null;
+    document.getElementById('targetFileInput').value = '';
+    document.getElementById('target-file-status').style.display = 'none';
+    document.getElementById('targetFileUploadZone').style.display = 'block';
+    document.getElementById('targetSheet').innerHTML = '<option value="">-- 选择目标表 --</option>';
+    document.getElementById('columnMappingPanel').style.display = 'none';
+}
+
+function onOutputModeChange() {
+    const mode = document.getElementById('outputMode').value;
+    document.getElementById('new-sheet-config').style.display = mode === 'new' ? 'block' : 'none';
+    document.getElementById('existing-sheet-config').style.display = mode === 'existing' ? 'block' : 'none';
+}
+
+// 目标表改变时触发
+function onTargetSheetChange() {
+    const targetSheet = document.getElementById('targetSheet').value;
+    if (targetSheet && excelWorkbook) {
+        // 重置列映射
+        document.getElementById('columnMappingPanel').style.display = 'none';
+        document.getElementById('columnMappingResult').textContent = '';
+        // 自动检测表头行
+        autoDetectHeaderRow();
+    }
+}
+
+// 目标表头行改变时触发
+function onTargetHeaderRowChange() {
+    const targetSheet = document.getElementById('targetSheet').value;
+    const headerRow = parseInt(document.getElementById('targetHeaderRow').value) || 1;
+    if (targetSheet && excelWorkbook && matchedData.length > 0) {
+        buildColumnMapping();
+    }
+}
+
+// 自动检测目标表的表头行
+function autoDetectHeaderRow() {
+    const targetSheetName = document.getElementById('targetSheet').value;
+    const workbookToUse = targetWorkbook || excelWorkbook;
+    if (!targetSheetName || !workbookToUse) return;
+    
+    const worksheet = workbookToUse.getWorksheet(targetSheetName);
+    if (!worksheet) return;
+    
+    // 简单启发式：找第一个有多个非空单元格的行
+    for (let rowNum = 1; rowNum <= Math.min(worksheet.rowCount, 10); rowNum++) {
+        const row = worksheet.getRow(rowNum);
+        let nonEmptyCount = 0;
+        row.eachCell({ includeEmpty: false }, (cell) => {
+            if (cell.value !== undefined && cell.value !== null && String(cell.value).trim() !== '') {
+                nonEmptyCount++;
+            }
+        });
+        if (nonEmptyCount >= 3) {
+            document.getElementById('targetHeaderRow').value = rowNum;
+            buildColumnMapping();
+            break;
+        }
+    }
+}
+
+// 构建列映射
+let columnMapping = {}; // 存储源列到目标列的映射
+
+function buildColumnMapping() {
+    const targetSheetName = document.getElementById('targetSheet').value;
+    const headerRowNum = parseInt(document.getElementById('targetHeaderRow').value) || 1;
+    const workbookToUse = targetWorkbook || excelWorkbook;
+    
+    if (!targetSheetName || !workbookToUse || matchedData.length === 0) return;
+    
+    const worksheet = workbookToUse.getWorksheet(targetSheetName);
+    if (!worksheet) return;
+    
+    // 获取目标表表头
+    const targetHeaders = [];
+    const headerRow = worksheet.getRow(headerRowNum);
+    headerRow.eachCell({ includeEmpty: false }, (cell, colNumber) => {
+        let value = cell.value;
+        
+        // 处理各种类型的对象值
+        if (typeof value === 'object' && value !== null) {
+            if (value.text) {
+                value = value.text;
+            } else if (value.result) {
+                value = value.result;
+            } else if (value.richText) {
+                // 处理富文本
+                value = value.richText.map(part => part.text).join('');
+            } else if (Array.isArray(value)) {
+                // 处理数组
+                value = value.join('');
+            } else {
+                // 尝试其他属性
+                value = value.toString ? value.toString() : JSON.stringify(value);
+            }
+        }
+        
+        // 清洗数据：去除多余空格和特殊符号
+        let cleanValue = String(value || '').trim();
+        cleanValue = cleanValue.replace(/\s+/g, ''); // 去除所有空格
+        cleanValue = cleanValue.replace(/[：:]/g, ''); // 去除冒号
+        
+        targetHeaders.push({
+            col: colNumber,
+            originalValue: String(value || '').trim(), // 保留原始值用于显示
+            value: cleanValue // 清洗后的值用于匹配
+        });
+    });
+    
+    // 获取源数据表头
+    const sourceHeaders = matchedData[0].primaryHeaders.map((h, i) => {
+        let cleanValue = String(h || '').trim();
+        cleanValue = cleanValue.replace(/\s+/g, ''); // 去除所有空格
+        cleanValue = cleanValue.replace(/[：:]/g, ''); // 去除冒号
+        
+        return {
+            index: i,
+            originalValue: String(h || '').trim(), // 保留原始值用于显示
+            value: cleanValue // 清洗后的值用于匹配
+        };
+    });
+    
+    // 调试：打印表头信息
+    console.log('源表头:', sourceHeaders.map(h => h.value));
+    console.log('目标表头:', targetHeaders.map(h => h.value));
+    
+    // 基于相似度构建映射（两阶段：先完全匹配，再按得分排序）
+    columnMapping = {};
+    const matchedSourceIndices = new Set();
+    const matchedTargetCols = new Set();
+    
+    // 第一阶段：完全匹配（优先级最高）
+    sourceHeaders.forEach(sourceCol => {
+        if (matchedSourceIndices.has(sourceCol.index)) return;
+        
+        const exactMatch = targetHeaders.find(targetCol => {
+            if (matchedTargetCols.has(targetCol.col)) return false;
+            const isMatch = targetCol.value === sourceCol.value;
+            if (isMatch) {
+                console.log(`完全匹配: "${sourceCol.value}" → "${targetCol.value}"`);
+            }
+            return isMatch;
+        });
+        
+        if (exactMatch) {
+            columnMapping[sourceCol.index] = exactMatch.col;
+            matchedSourceIndices.add(sourceCol.index);
+            matchedTargetCols.add(exactMatch.col);
+        }
+    });
+    
+    // 第二阶段：模糊匹配（按得分排序）
+    const fuzzyMatches = [];
+    
+    sourceHeaders.forEach(sourceCol => {
+        if (matchedSourceIndices.has(sourceCol.index)) return;
+        
+        targetHeaders.forEach(targetCol => {
+            if (matchedTargetCols.has(targetCol.col)) return;
+            
+            const score = calculateFieldMatchScore(sourceCol.value, targetCol.value);
+            console.log(`相似度: "${sourceCol.value}" vs "${targetCol.value}" = ${score.toFixed(2)}`);
+            if (score >= 0.5) {  // 降低阈值到0.5
+                fuzzyMatches.push({
+                    sourceIndex: sourceCol.index,
+                    targetCol: targetCol.col,
+                    score: score
+                });
+            }
+        });
+    });
+    
+    // 按得分降序排序
+    fuzzyMatches.sort((a, b) => b.score - a.score);
+    
+    console.log('模糊匹配候选:', fuzzyMatches);
+    
+    // 应用模糊匹配（避免冲突）
+    fuzzyMatches.forEach(match => {
+        if (!matchedSourceIndices.has(match.sourceIndex) && 
+            !matchedTargetCols.has(match.targetCol)) {
+            columnMapping[match.sourceIndex] = match.targetCol;
+            matchedSourceIndices.add(match.sourceIndex);
+            matchedTargetCols.add(match.targetCol);
+            console.log(`模糊匹配: 源列${match.sourceIndex} → 目标列${match.targetCol} (得分: ${match.score.toFixed(2)})`);
+        }
+    });
+    
+    const matchCount = matchedSourceIndices.size;
+    
+    // 显示映射结果
+    const mappingPanel = document.getElementById('columnMappingPanel');
+    const mappingResult = document.getElementById('columnMappingResult');
+    
+    if (matchCount > 0) {
+        let html = `✅ 成功匹配 ${matchCount} 列<br><br>`;
+        html += '<table style="width:100%;font-size:0.7rem;"><tr><th style="text-align:left">源列</th><th style="text-align:left">→</th><th style="text-align:left">目标列</th></tr>';
+        
+        sourceHeaders.forEach(sourceCol => {
+            if (columnMapping[sourceCol.index]) {
+                const targetCol = targetHeaders.find(t => t.col === columnMapping[sourceCol.index]);
+                if (targetCol) {
+                    // 使用原始值显示，而不是清洗后的值
+                    html += `<tr><td>${sourceCol.originalValue}</td><td>→</td><td>${targetCol.originalValue}</td></tr>`;
+                }
+            }
+        });
+        
+        html += '</table>';
+        mappingResult.innerHTML = html;
+        mappingPanel.style.display = 'block';
+    } else {
+        mappingResult.innerHTML = '⚠️ 未找到匹配的列，将按顺序填充';
+        mappingPanel.style.display = 'block';
+    }
+}
+
+async function exportResults() {
+    // 构建所有有映射的列（不需要用户勾选）
+    const mappedCols = [];
+    let colId = 0;
+    
+    // 获取源数据表头
+    if (matchedData.length > 0) {
+        matchedData[0].primaryHeaders.forEach((h, i) => {
+            // 只添加有映射的列
+            if (columnMapping[i]) {
+                let displayName = h;
+                if (typeof h === 'object' && h !== null) {
+                    displayName = h.text || String(h);
+                }
+                mappedCols.push({
+                    id: colId++,
+                    name: displayName,
+                    source: 'primary',
+                    index: i,
+                    selected: true,
+                    order: colId
+                });
+            }
+        });
+    }
+    
+    const activeCols = mappedCols;
+    if (activeCols.length === 0) {
+        alert('没有匹配上的列可填充，请先配置列映射');
+        return;
+    }
+    
+    if (matchedData.length === 0) {
+        alert('没有匹配的数据可导出');
+        return;
+    }
+    
+    const mode = document.getElementById('outputMode').value;
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    
+    progressBar.classList.add('show');
+    progressFill.style.width = '30%';
+    
+    try {
+        if (mode === 'new') {
+            await exportToNewSheet(activeCols);
+        } else {
+            const targetSheetName = document.getElementById('targetSheet').value;
+            const startRow = parseInt(document.getElementById('startRow').value);
+            const endRow = parseInt(document.getElementById('endRow').value);
+            
+            if (!targetSheetName) {
+                throw new Error('请选择目标工作表');
+            }
+            
+            if (isNaN(startRow) || isNaN(endRow) || startRow < 1 || endRow < startRow) {
+                throw new Error('请输入有效的数据行范围');
+            }
+            
+            await exportToExisting(activeCols);
+        }
+        progressFill.style.width = '100%';
+        
+        setTimeout(() => {
+            alert('✅ 导出成功！\n\nExcelJS：已保留原文件格式、样式和公式');
+        }, 300);
+    } catch (e) {
+        console.error('导出错误:', e);
+        alert('导出错误：' + e.message);
+    } finally {
+        setTimeout(() => progressBar.classList.remove('show'), 500);
+    }
+}
+
+// ★★★ ExcelJS：新建工作表 ★★★
+async function exportToNewSheet(columns) {
+    const sortedColumns = [...columns].sort((a, b) => a.order - b.order);
+    const sheetName = document.getElementById('newSheetName').value || '关联结果';
+    
+    const newWorkbook = new ExcelJS.Workbook();
+    const worksheet = newWorkbook.addWorksheet(sheetName);
+    
+    const headers = sortedColumns.map(c => c.name);
+    worksheet.addRow(headers);
+    
+    matchedData.forEach(item => {
+        const row = sortedColumns.map(col => {
+            if (col.source === 'primary') {
+                return item.primaryRow[col.index];
+            }
+            return '';
+        });
+        worksheet.addRow(row);
+    });
+    
+    sortedColumns.forEach((col, idx) => {
+        worksheet.getColumn(idx + 1).width = 15;
+    });
+    
+    const buffer = await newWorkbook.xlsx.writeBuffer();
+    downloadExcel(buffer, `${sheetName}.xlsx`);
+}
+
+// ★★★ ExcelJS：填充到现有表（保留格式，支持自定义行配置）★★★
+async function exportToExisting(columns) {
+    const targetSheetName = document.getElementById('targetSheet').value;
+    const startRow = parseInt(document.getElementById('startRow').value) || 6;
+    const endRow = parseInt(document.getElementById('endRow').value) || 15;
+    const summaryRow = parseInt(document.getElementById('summaryRow').value) || 16;
+
+    if (!targetSheetName) {
+        alert('请选择目标工作表');
+        return;
+    }
+
+    // 使用目标文件工作簿（如果已上传），否则使用原始工作簿
+    const workbookToUse = targetWorkbook || excelWorkbook;
+    if (!workbookToUse) {
+        alert('请先上传目标文件或原始工作簿');
+        return;
+    }
+    
+    const sortedColumns = [...columns].sort((a, b) => a.order - b.order);
+    const dataToExport = matchedData;
+    
+    if (dataToExport.length === 0) {
+        alert('没有数据可导出');
+        return;
+    }
+    
+    const worksheet = workbookToUse.getWorksheet(targetSheetName);
+    if (!worksheet) {
+        alert('找不到目标工作表');
+        return;
+    }
+    
+    // ★★★ 自动分析工作表结构 ★★★
+    console.log('开始自动分析工作表结构...');
+    const analysis = autoAnalyzeSheet(worksheet);
+    console.log('自动分析结果:', analysis);
+    
+    // 使用自动检测的结果（如果用户没有手动修改）
+    const userStartRow = parseInt(document.getElementById('startRow').value);
+    const userEndRow = parseInt(document.getElementById('endRow').value);
+    const userSummaryRow = parseInt(document.getElementById('summaryRow').value);
+    
+    const startRow = userStartRow || analysis.dataStartRow;
+    const endRow = userEndRow || analysis.dataEndRow;
+    const summaryRow = userSummaryRow || analysis.summaryRow;
+    
+    // 更新输入框显示检测到的值（如果用户未设置）
+    if (!userStartRow) document.getElementById('startRow').value = analysis.dataStartRow;
+    if (!userEndRow) document.getElementById('endRow').value = analysis.dataEndRow;
+    if (!userSummaryRow) document.getElementById('summaryRow').value = analysis.summaryRow;
+    
+    // 显示检测结果
+    const mappingResult = document.getElementById('columnMappingResult');
+    const mappingPanel = document.getElementById('columnMappingPanel');
+    if (mappingResult && mappingPanel) {
+        mappingResult.innerHTML = `
+            <strong>✅ 自动识别成功</strong><br>
+            表头行: 第${analysis.headerRow}行 | 
+            数据: 第${analysis.dataStartRow}-${analysis.dataEndRow}行 | 
+            汇总: 第${analysis.summaryRow}行
+            ${analysis.blankRows.length > 0 ? '<br>空白行: 第' + analysis.blankRows.join(',') + '行' : ''}
+        `;
+        mappingPanel.style.display = 'block';
+    }
+    
+    // 计算实际需要的行数
+    let actualEndRow = startRow + dataToExport.length - 1;
+    const originalEndRow = endRow;
+    let shiftCount = actualEndRow - originalEndRow;
+    
+    console.log(`导出配置: 起始=${startRow}, 原结束=${originalEndRow}, 新结束=${actualEndRow}, 下移=${shiftCount}, 汇总行=${summaryRow}`);
+    
+    const maxCol = Math.max(worksheet.columnCount || 20, 50); // 确保至少有50列
+    
+    // ===== 设置第4行时间为当前系统时间 =====
+    const row4 = worksheet.getRow(4);
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('zh-CN'); // 格式：2024/1/15
+    
+    // 时间在CD列（第3、4列）
+    row4.getCell(3).value = dateStr; // C列
+    row4.getCell(4).value = dateStr; // D列
+    console.log(`设置第4行时间: C列=${dateStr}, D列=${dateStr}`);
+    row4.commit();
+    
+    // ===== 1. 保存关键信息（在插入前）=====
+    // 保存汇总行及以下的所有内容和样式（包括汇总行本身，因为汇总行有格式）
+    const savedRows = [];
+    const saveStartRow = summaryRow; // 从汇总行开始保存（包括汇总行格式）
+    const maxRow = Math.max(worksheet.rowCount, summaryRow + 50);
+    
+    console.log(`保存 ${saveStartRow} 到 ${maxRow} 行的数据（包括${summaryRow}行汇总行格式）`);
+    
+    for (let i = saveStartRow; i <= maxRow; i++) {
+        const sourceRow = worksheet.getRow(i);
+        const rowData = {
+            rowIndex: i,
+            height: sourceRow.height,
+            hidden: sourceRow.hidden,
+            cells: []
+        };
+        
+        for (let col = 1; col <= maxCol; col++) {
+            const cell = sourceRow.getCell(col);
+            // 调试：打印汇总行B列的值
+            if (i === summaryRow && col === 2) {
+                console.log(`保存汇总行B列: value=${cell.value}, formula=${cell.formula}, result=${cell.result}`);
+            }
+            rowData.cells.push({
+                value: cell.value,
+                style: cell.style ? JSON.parse(JSON.stringify(cell.style)) : null,
+                numFmt: cell.numFmt,
+                formula: cell.formula,
+                result: cell.result
+            });
+        }
+        
+        savedRows.push(rowData);
+    }
+    
+    // 保存汇总行及以下的合并单元格（包括汇总行本身）
+    const savedMerges = [];
+    if (worksheet._merges) {
+        Object.keys(worksheet._merges).forEach(key => {
+            const merge = worksheet._merges[key];
+            if (merge.top >= summaryRow) { // 保存汇总行及以下的合并
+                savedMerges.push({
+                    top: merge.top,
+                    left: merge.left,
+                    bottom: merge.bottom,
+                    right: merge.right,
+                    key: key
+                });
+                console.log(`保存合并单元格: ${key} (行 ${merge.top}-${merge.bottom}, 列 ${merge.left}-${merge.right})`);
+            }
+        });
+    }
+    
+    // 特别记录原汇总行和下一行的合并情况
+    const summaryMerge = savedMerges.find(m => m.top === summaryRow);
+    const nextRowMerge = savedMerges.find(m => m.top === summaryRow + 1);
+    if (summaryMerge) {
+        console.log(`★ 原汇总行(${summaryRow})合并: 列${summaryMerge.left}-${summaryMerge.right}`);
+    }
+    if (nextRowMerge) {
+        console.log(`★ 原汇总行下一行(${summaryRow+1})合并: 列${nextRowMerge.left}-${nextRowMerge.right}`);
+    }
+    
+    // ===== 2. 批量插入数据 =====
+    const rowsNeeded = dataToExport.length;
+    const existingRows = originalEndRow - startRow + 1;
+    
+    // 检查是否有列映射，如果没有则构建
+    if (Object.keys(columnMapping).length === 0) {
+        buildColumnMapping();
+    }
+    
+    // 辅助函数：根据列映射填充数据
+    function fillRowWithMapping(row, item, sortedColumns, rowIndex) {
+        // 检查是否是汇总行，如果是则不填充
+        if (rowIndex === summaryRow) {
+            console.log(`跳过汇总行 ${rowIndex}`);
+            return;
+        }
+        
+        // 清空原有内容（只清空有映射的列）
+        const mappedTargetCols = Object.values(columnMapping);
+        mappedTargetCols.forEach(col => {
+            row.getCell(col).value = null;
+        });
+        
+        // 只使用有映射的列进行填充
+        sortedColumns.forEach((col) => {
+            if (col.source === 'primary' && columnMapping[col.index]) {
+                const value = item.primaryRow[col.index];
+                const targetCol = columnMapping[col.index];
+                
+                console.log(`填充: 行${rowIndex}, 源列${col.index}(${col.name}) → 目标列${targetCol}, 值=${value}`);
+                console.log(`  item.primaryRow长度=${item.primaryRow.length}, col.index=${col.index}`);
+                console.log(`  item.primaryRow[${col.index}]=${item.primaryRow[col.index]}`);
+                
+                const cell = row.getCell(targetCol);
+                cell.value = value;
+                
+                // 设置边框和居中
+                cell.style = {
+                    border: {
+                        top: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        left: { style: 'thin' },
+                        right: { style: 'thin' }
+                    },
+                    alignment: {
+                        horizontal: 'center',
+                        vertical: 'center'
+                    }
+                };
+            }
+        });
+    }
+    
+    if (rowsNeeded > existingRows) {
+        const rowsToInsert = rowsNeeded - existingRows;
+        console.log(`需要插入 ${rowsToInsert} 行新行（原${existingRows}行，新${rowsNeeded}行）`);
+        
+        // 策略：先填充原数据行到原位置，然后在原结束行后插入新行
+        // 这样不会重复插入
+        
+        // 获取模板行高
+        const templateRow = worksheet.getRow(startRow);
+        const rowHeight = templateRow.height || 15; // 默认15
+        console.log(`模板行高: ${rowHeight}`);
+        
+        // 步骤2.1: 填充原数据行到原位置
+        for (let i = 0; i < existingRows; i++) {
+            const rowIndex = startRow + i;
+            const row = worksheet.getRow(rowIndex);
+            const item = dataToExport[i];
+            
+            fillRowWithMapping(row, item, sortedColumns, rowIndex);
+            
+            // 设置统一行高
+            row.height = rowHeight;
+            row.commit();
+        }
+        
+        // 步骤2.2: 准备剩余数据行（只准备有映射的列）
+        const mappedTargetCols = Object.values(columnMapping);
+        const maxMappedCol = mappedTargetCols.length > 0 ? Math.max(...mappedTargetCols) : sortedColumns.length;
+        
+        const remainingData = dataToExport.slice(existingRows).map(item => {
+            const rowData = new Array(maxMappedCol).fill('');
+            sortedColumns.forEach((col) => {
+                if (col.source === 'primary' && columnMapping[col.index]) {
+                    const value = item.primaryRow[col.index];
+                    const targetCol = columnMapping[col.index] - 1; // 转为0-based
+                    
+                    if (targetCol >= 0 && targetCol < maxMappedCol) {
+                        rowData[targetCol] = value;
+                    }
+                }
+            });
+            return rowData;
+        });
+        
+        // 步骤2.3: 在原结束行后插入新行
+        worksheet.spliceRows(originalEndRow + 1, 0, ...remainingData);
+        
+        // 步骤2.4: 设置插入行的行高、边框和居中
+        for (let i = 0; i < remainingData.length; i++) {
+            const rowIndex = originalEndRow + 1 + i;
+            const row = worksheet.getRow(rowIndex);
+            row.height = rowHeight;
+            
+            // 只为有映射的列添加边框和居中
+            sortedColumns.forEach((col) => {
+                if (col.source === 'primary' && columnMapping[col.index]) {
+                    const targetCol = columnMapping[col.index];
+                    
+                    const cell = row.getCell(targetCol);
+                    cell.style = {
+                        border: {
+                            top: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            left: { style: 'thin' },
+                            right: { style: 'thin' }
+                        },
+                        alignment: {
+                            horizontal: 'center',
+                            vertical: 'center'
+                        }
+                    };
+                }
+            });
+            
+            row.commit();
+        }
+        
+        // 更新行号
+        actualEndRow = startRow + rowsNeeded - 1;
+        shiftCount = rowsToInsert; // 只插入了需要的新行
+        console.log(`插入后数据结束行: ${actualEndRow}, 下移量: ${shiftCount}`);
+    } else {
+        // 不需要插入，直接填充到原位置
+        console.log(`直接填充数据到 ${startRow} 到 ${actualEndRow} 行`);
+        
+        // 获取模板行高
+        const templateRow = worksheet.getRow(startRow);
+        const rowHeight = templateRow.height || 15;
+        
+        for (let i = 0; i < dataToExport.length; i++) {
+            const rowIndex = startRow + i;
+            const row = worksheet.getRow(rowIndex);
+            const item = dataToExport[i];
+            
+            fillRowWithMapping(row, item, sortedColumns, rowIndex);
+
+            // 设置统一行高
+            row.height = rowHeight;
+            row.commit();
+        }
+    }
+
+    // ===== 3. 恢复保存的数据（下移后的位置）=====
+    if (rowsNeeded > existingRows) {
+        console.log(`恢复数据到新位置（下移 ${shiftCount} 行）`);
+        
+        // 计算新的汇总行位置
+        const newSummaryRow = actualEndRow + 1;
+        console.log(`新汇总行位置: ${newSummaryRow}，原汇总行(${summaryRow})格式将应用到新位置`);
+        
+        for (const savedRow of savedRows) {
+            const newRowIndex = savedRow.rowIndex + shiftCount;
+            
+            const targetRow = worksheet.getRow(newRowIndex);
+            
+            // 恢复行属性
+            targetRow.height = savedRow.height;
+            targetRow.hidden = savedRow.hidden;
+            
+            // 恢复单元格
+            let restoredCells = 0;
+            for (let col = 1; col <= maxCol; col++) {
+                const cellData = savedRow.cells[col - 1];
+                const targetCell = targetRow.getCell(col);
+                
+                // 恢复样式（关键：确保格式被完整恢复）
+                if (cellData.style) {
+                    targetCell.style = cellData.style;
+                    restoredCells++;
+                }
+                if (cellData.numFmt) {
+                    targetCell.numFmt = cellData.numFmt;
+                }
+                
+                // 恢复值
+                if (newRowIndex === newSummaryRow) {
+                    // 新汇总行：恢复公式，但需要调整行号引用
+                    if (cellData.formula) {
+                        const adjustedFormula = adjustFormulaRowRef(cellData.formula, shiftCount);
+                        targetCell.value = { formula: adjustedFormula, result: cellData.result };
+                    } else if (cellData.value !== null && cellData.value !== undefined) {
+                        targetCell.value = cellData.value;
+                    }
+                } else {
+                    // 其他行：恢复值
+                    // 注意：对于合并单元格，只设置主单元格（左上角）的值
+                    const isMasterCell = !cellData.style || !cellData.style.alignment || cellData.value !== null;
+                    
+                    if (cellData.formula) {
+                        // 转换公式中的行号引用
+                        const adjustedFormula = adjustFormulaRowRef(cellData.formula, shiftCount);
+                        targetCell.value = { formula: adjustedFormula, result: cellData.result };
+                    } else if (cellData.value !== null && cellData.value !== undefined) {
+                        // 只设置有值的单元格（避免合并单元格的从属单元格被设置值）
+                        targetCell.value = cellData.value;
+                    }
+                }
+            }
+            
+            // 特别记录32行（新汇总行+1）的恢复情况
+            if (newRowIndex === newSummaryRow + 1) {
+                console.log(`★★★ 恢复32行（原${savedRow.rowIndex}行）：恢复了 ${restoredCells} 个单元格的样式`);
+            } else if (restoredCells > 0 || newRowIndex === newSummaryRow) {
+                console.log(`恢复第 ${newRowIndex} 行（原${savedRow.rowIndex}行），恢复了 ${restoredCells} 个单元格的样式`);
+            }
+            
+            targetRow.commit();
+        }
+        
+        // ===== 4. 重建合并单元格（智能偏移）=====
+        console.log(`重建 ${savedMerges.length} 个合并单元格`);
+        
+        // 先解绑所有已有的合并单元格（避免冲突）
+        if (worksheet._merges) {
+            const mergesToUnmerge = [];
+            Object.keys(worksheet._merges).forEach(key => {
+                const m = worksheet._merges[key];
+                // 只解绑新汇总行及以下的合并
+                if (m.top >= newSummaryRow) {
+                    mergesToUnmerge.push(key);
+                }
+            });
+            
+            mergesToUnmerge.forEach(key => {
+                try {
+                    worksheet.unMergeCells(key);
+                    console.log(`解绑合并单元格: ${key}`);
+                } catch(e) {
+                    console.warn(`解绑合并单元格失败: ${key}`, e.message);
+                }
+            });
+        }
+        
+        // 重建所有保存的合并单元格（包括新汇总行）
+        savedMerges.forEach(merge => {
+            const newTop = merge.top + shiftCount;
+            const newBottom = merge.bottom + shiftCount;
+            
+            // 特别记录31、32行的合并重建
+            if (newTop === newSummaryRow || newTop === newSummaryRow + 1) {
+                console.log(`★★★ 重建${newTop === newSummaryRow ? '31' : '32'}行的合并单元格: 行 ${newTop}, 列 ${merge.left}-${merge.right}`);
+            }
+            
+            try {
+                worksheet.mergeCells(newTop, merge.left, newBottom, merge.right);
+                console.log(`重建合并单元格: 行 ${newTop}, 列 ${merge.left}-${merge.right}`);
+            } catch(e) {
+                console.warn(`重建合并单元格失败: 行 ${newTop}`, e.message);
+            }
+        });
+    }
+    
+    // 辅助函数：调整公式中的行号引用
+    function adjustFormulaRowRef(formula, offset) {
+        if (!formula) return formula;
+        // 处理类似 SUM(A6:B14) 中的行号，+offset偏移
+        return formula.replace(/(\$?[A-Z]+)(\$?\d+)/g, (match, col, row) => {
+            const rowNum = parseInt(row.replace('$', ''));
+            const newRow = rowNum + offset;
+            return col + (row.includes('$') ? '$' : '') + newRow;
+        });
+    }
+    
+    // 清空多余的原数据行（如果新数据比原范围少）
+    if (dataToExport.length < (originalEndRow - startRow + 1)) {
+        for (let i = dataToExport.length; i < (originalEndRow - startRow + 1); i++) {
+            const rowIndex = startRow + i;
+            // 只有当这一行在新数据范围之外才清空
+            if (rowIndex > actualEndRow) {
+                const row = worksheet.getRow(rowIndex);
+                for (let colIndex = 0; colIndex < sortedColumns.length; colIndex++) {
+                    const cell = row.getCell(colIndex + 1);
+                    cell.value = null;
+                }
+                row.commit();
+            }
+        }
+    }
+    
+    // 更新汇总行公式（保留公式，只调整行号引用）
+    let actualSummaryRow = summaryRow;
+    
+    // 如果新数据超出了原汇总行位置，汇总行需要下移
+    if (actualEndRow >= summaryRow) {
+        actualSummaryRow = actualEndRow + 1;
+    }
+    
+    console.log(`汇总行: 原=${summaryRow}, 新=${actualSummaryRow}, 数据结束=${actualEndRow}`);
+    
+    // 更新汇总行公式中的行号引用
+    if (actualSummaryRow > startRow) {
+        const summaryRowObj = worksheet.getRow(actualSummaryRow);
+        
+        // 遍历所有单元格，调整公式中的行号引用
+        for (let col = 1; col <= maxCol; col++) {
+            const cell = summaryRowObj.getCell(col);
+            
+            if (cell.formula) {
+                // 调整公式中的行号引用
+                const adjustedFormula = adjustFormulaRowRef(cell.formula, shiftCount);
+                cell.value = { formula: adjustedFormula };
+                console.log(`调整汇总行公式: ${cell.formula} -> ${adjustedFormula}`);
+            }
+        }
+        
+        summaryRowObj.commit();
+    }
+    
+    const buffer = await workbookToUse.xlsx.writeBuffer();
+    const fileName = document.getElementById('target-file-name').textContent || 
+                     document.getElementById('join-file-name').textContent || 
+                     '导出结果.xlsx';
+    const newFileName = fileName.replace(/\.xlsx?$/i, '') + '_已填充.xlsx';
+    
+    downloadExcel(buffer, newFileName);
+    
+    // 导出成功信息通过控制台输出，不弹出alert
+    // 由调用方startExport统一处理成功提示
+    console.log(`✅ ExcelJS导出成功！\n\n工作表：${targetSheetName}\n数据行：${startRow}-${actualEndRow}\n` + 
+                `共导出：${dataToExport.length} 行数据\n` + 
+                (actualSummaryRow !== summaryRow ? `汇总行：${actualSummaryRow}（已从原${summaryRow}调整）\n` : `汇总行：${summaryRow}\n`));
+}
+
+function downloadExcel(buffer, fileName) {
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+function switchMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`mode-${mode}`).classList.add('active');
+    
+    // 隐藏所有视图
+    document.getElementById('join-sidebar').classList.add('hidden');
+    document.getElementById('map-sidebar').classList.add('hidden');
+    document.getElementById('perf-sidebar').classList.add('hidden');
+    document.getElementById('join-view').classList.add('hidden');
+    document.getElementById('map-view').classList.add('hidden');
+    document.getElementById('perf-view').classList.add('hidden');
+    document.getElementById('perf-step-indicator').classList.add('hidden');
+    document.getElementById('join-step-info').style.display = 'none';
+    
+    if (mode === 'join') {
+        document.getElementById('join-sidebar').classList.remove('hidden');
+        document.getElementById('join-view').classList.remove('hidden');
+        document.getElementById('join-step-info').style.display = 'flex';
+        document.getElementById('current-mode-text').textContent = '当前模式：数据关联提取';
+    } else if (mode === 'map') {
+        document.getElementById('map-sidebar').classList.remove('hidden');
+        document.getElementById('map-view').classList.remove('hidden');
+        document.getElementById('current-mode-text').textContent = '当前模式：字段映射';
+    } else {
+        document.getElementById('perf-sidebar').classList.remove('hidden');
+        document.getElementById('perf-view').classList.remove('hidden');
+        document.getElementById('perf-step-indicator').classList.remove('hidden');
+        document.getElementById('current-mode-text').textContent = '当前模式：业绩计算';
+    }
+}
+
+let perfWorkbook = null;
+let perfSheetNames = [];
+
+async function handlePerfFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    document.getElementById('perf-file-name').textContent = file.name;
+    document.getElementById('perf-file-status').style.display = 'flex';
+    document.getElementById('perf-file-badge').style.display = 'inline-flex';
+    document.getElementById('perf-upload-area').style.display = 'none';
+    
+    try {
+        const buffer = await file.arrayBuffer();
+        perfWorkbook = new ExcelJS.Workbook();
+        await perfWorkbook.xlsx.load(buffer);
+        
+        // 获取所有工作表名称
+        perfSheetNames = [];
+        perfWorkbook.eachSheet((worksheet, sheetId) => {
+            perfSheetNames.push(worksheet.name);
+        });
+        
+        if (perfSheetNames.length === 0) {
+            throw new Error('文件中没有工作表');
+        }
+        
+        // 显示工作表选择面板
+        showPerfSheetSelector();
+        
+    } catch (err) {
+        alert('解析失败: ' + err.message);
+    }
+}
+
+// 显示业绩计算工作表选择面板
+function showPerfSheetSelector() {
+    const sheetListHtml = perfSheetNames.map((name, index) => `
+        <div class="sheet-item" style="padding:0.75rem;border:1px solid var(--border);border-radius:0.375rem;margin-bottom:0.5rem;cursor:pointer;transition:all 0.2s;"
+             onmouseover="this.style.background='rgba(33,115,70,0.05)';this.style.borderColor='var(--excel)'"
+             onmouseout="this.style.background='';this.style.borderColor='var(--border)'"
+             onclick="loadPerfSelectedSheet('${name}')">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                <span style="font-size:1.25rem;">📄</span>
+                <span style="font-weight:500;">${name}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    document.getElementById('perf-placeholder').innerHTML = `
+        <div style="font-size:2.5rem;margin-bottom:1rem">📂</div>
+        <div style="font-weight:600;margin-bottom:1rem;">请选择要处理的工作表</div>
+        <div style="text-align:left;max-width:300px;margin:0 auto;">
+            ${sheetListHtml}
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:1rem;">
+            点击工作表名称加载数据
+        </div>
+    `;
+}
+
+// 加载选中的业绩计算工作表
+async function loadPerfSelectedSheet(sheetName) {
+    if (!perfWorkbook) return;
+    
+    document.getElementById('perf-placeholder').innerHTML = `
+        <div style="font-size:3rem;margin-bottom:1rem">⏳</div>
+        <div>正在加载工作表: ${sheetName}</div>
+        <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">请稍候...</div>
+    `;
+    
+    try {
+        const worksheet = perfWorkbook.getWorksheet(sheetName);
+        if (!worksheet) {
+            throw new Error(`找不到工作表: ${sheetName}`);
+        }
+        
+        const jsonData = [];
+        
+        worksheet.eachRow((row, rowNumber) => {
+            jsonData.push(row.values.slice(1));
+        });
+        
+        if (jsonData.length < 2) {
+            alert('数据格式错误');
+            return;
+        }
+        
+        const headers = jsonData[0];
+        const rows = [];
+        let collabCount = 0;
+        
+        for (let i = 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (!row[0]) continue;
+            const rowData = {name: row[0], items: {}};
+            
+            for (let j = 1; j < headers.length; j++) {
+                const result = checkCollaborative(row[j]);
+                if (result.isCollab) collabCount++;
+                rowData.items[headers[j]] = {
+                    value: result.cleanValue,
+                    isCollaborative: result.isCollab
+                };
+            }
+            rows.push(rowData);
+        }
+        
+        perfData = {headers, rows, fileName: perfWorkbook.name || '业绩数据'};
+        
+        // 动态更新 perfConfig.prices，为每个项目（除第一列"人员"外）添加配置
+        const projectHeaders = headers.slice(1); // 去掉第一列"人员"
+        
+        // 清理不在当前数据中的项目（保留预定义的项目）
+        const predefinedProjects = [
+            "新增客户（中收口径)",
+            "新增活跃客户（中收口径)",
+            "重点年费卡（家庭挚爱卡）",
+            "企业微信添加",
+            "建行生活下载",
+            "手机银行签约",
+            "一般分期",
+            "分期通",
+            "装修分期",
+            "对公结算账户"
+        ];
+        
+        // 添加新发现的项目
+        projectHeaders.forEach(projectName => {
+            if (!perfConfig.prices[projectName]) {
+                // 如果项目中没有该配置，添加默认配置
+                perfConfig.prices[projectName] = {
+                    basePrice: 0,
+                    collaborativePrice: null
+                };
+                console.log(`添加新项目到配置: ${projectName}`);
+            }
+        });
+        
+        document.getElementById('collab-count').textContent = collabCount;
+        document.getElementById('preview-collab-badge').textContent = `${collabCount} 个协同`;
+        document.getElementById('collab-info').style.display = 'block';
+        document.getElementById('perf-row-count').textContent = rows.length;
+        
+        renderPerfPreview();
+        document.getElementById('perf-preview-nav').style.display = 'block';
+        document.getElementById('perf-placeholder').style.display = 'none';
+        document.getElementById('perf-preview-step').style.display = 'flex';
+        
+    } catch (err) {
+        console.error('加载工作表错误:', err);
+        document.getElementById('perf-placeholder').innerHTML = `
+            <div style="font-size:3rem;margin-bottom:1rem">❌</div>
+            <div>加载失败</div>
+            <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">${err.message}</div>
+        `;
+        alert('加载工作表失败：' + err.message);
+    }
+}
+
+function clearPerfFile() {
+    document.getElementById('perfFileInput').value = '';
+    document.getElementById('perf-file-status').style.display = 'none';
+    document.getElementById('perf-file-badge').style.display = 'none';
+    document.getElementById('perf-upload-area').style.display = 'block';
+    document.getElementById('collab-info').style.display = 'none';
+    document.getElementById('perf-preview-nav').style.display = 'none';
+    document.getElementById('perf-preview-step').style.display = 'none';
+    document.getElementById('perf-placeholder').style.display = 'block';
+    document.getElementById('perf-placeholder').innerHTML = `
+        <div style="font-size:3rem;margin-bottom:1rem">📊</div>
+        <div>请上传业绩数据文件</div>
+    `;
+    perfData = null;
+    perfResults = null;
+    perfWorkbook = null;
+    perfSheetNames = [];
+}
+
+function checkCollaborative(value) {
+    if (value === null || value === undefined) return {isCollab: false, cleanValue: 0};
+    const str = String(value).trim();
+    const isCollab = str.endsWith('*') || str.endsWith('＊');
+    const cleanStr = str.replace(/[\*＊]/g, '').trim();
+    const cleanValue = parseFloat(cleanStr) || 0;
+    return {isCollab, cleanValue};
+}
+
+function renderPerfPreview() {
+    const validHeaders = perfData.headers.slice(1);
+    let html = '<thead><tr><th>人员</th>';
+    validHeaders.forEach(h => html += `<th>${h}</th>`);
+    html += '</tr></thead><tbody>';
+    
+    perfData.rows.forEach(row => {
+        html += `<tr><td>${row.name}</td>`;
+        validHeaders.forEach(h => {
+            const item = row.items[h];
+            if (item) {
+                const cls = item.isCollaborative ? 'collab-cell' : '';
+                const star = item.isCollaborative ? '<span class="star-mark">*</span>' : '';
+                html += `<td class="${cls}">${item.value}${star}</td>`;
+            } else html += '<td>-</td>';
+        });
+        html += '</tr>';
+    });
+    html += '</tbody>';
+    
+    document.getElementById('perf-preview-container').innerHTML = `<table class="data-table">${html}</table>`;
+}
+
+function perfGoToConfig() {
+    document.getElementById('perf-preview-step').style.display = 'none';
+    document.getElementById('perf-preview-nav').style.display = 'none';
+    document.getElementById('perf-config-panel').style.display = 'block';
+    renderPerfConfig();
+}
+
+function perfBack() {
+    // 如果当前在结果预览步骤，返回到数据预览步骤
+    if (document.getElementById('perf-result-step').style.display === 'flex') {
+        document.getElementById('perf-result-step').style.display = 'none';
+        document.getElementById('perf-preview-step').style.display = 'flex';
+        document.getElementById('perf-preview-nav').style.display = 'block';
+        document.getElementById('perf-result-panel').style.display = 'none';
+    } else {
+        // 否则返回到配置面板
+        document.getElementById('perf-config-panel').style.display = 'none';
+        document.getElementById('perf-preview-step').style.display = 'flex';
+        document.getElementById('perf-preview-nav').style.display = 'block';
+    }
+}
+
+function switchPerfTab(tab) {
+    document.querySelectorAll('#perf-config-panel .tab').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('#perf-config-panel .tab-content').forEach(el => el.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById(`perf-tab-${tab}`).classList.add('active');
+}
+
+function renderPerfConfig() {
+    const priceContainer = document.getElementById('priceConfig');
+    priceContainer.innerHTML = '';
+    for (const name in perfConfig.prices) {
+        const cfg = perfConfig.prices[name];
+        const div = document.createElement('div');
+        div.className = 'config-item';
+        div.innerHTML = `
+            <h4>${name}</h4>
+            <div class="config-row">
+                <label>基础单价</label>
+                <input type="number" id="pp-${name}-b" value="${cfg.basePrice}" step="0.01">
+            </div>
+            <div class="config-row">
+                <label>协同单价</label>
+                <input type="number" id="pp-${name}-c" value="${cfg.collaborativePrice !== null ? cfg.collaborativePrice : ''}" placeholder="无" step="0.01">
+            </div>
+        `;
+        priceContainer.appendChild(div);
+    }
+    const tierContainer = document.getElementById('tierConfig');
+    tierContainer.innerHTML = '';
+    for (const rName in perfConfig.tierRules) {
+        const rule = perfConfig.tierRules[rName];
+        const div = document.createElement('div');
+        div.className = 'config-item';
+        let tiersHtml = '<div class="tier-list">';
+        rule.tiers.forEach((tier, idx) => {
+            tiersHtml += `
+                <div class="tier-item">
+                    阶梯${idx+1}: 
+                    <input type="number" id="pt-${rName}-${idx}-th" value="${tier[0]}" step="0.01"> 张
+                    <input type="number" id="pt-${rName}-${idx}-dis" value="${tier[1]}" step="0.1"> 折
+                </div>
+            `;
+        });
+        tiersHtml += '</div>';
+        div.innerHTML = `
+            <h4>${rName}</h4>
+            <div class="config-row">
+                <label>负激励阈值</label>
+                <input type="number" id="pt-${rName}-pt" value="${rule.penaltyThreshold !== null ? rule.penaltyThreshold : ''}" placeholder="无" step="0.01">
+            </div>
+            <div class="config-row">
+                <label>负激励金额</label>
+                <input type="number" id="pt-${rName}-pa" value="${rule.penaltyAmount !== null ? rule.penaltyAmount : ''}" placeholder="无" step="0.01">
+            </div>
+            ${tiersHtml}
+            <div class="config-row" style="margin-top:10px">
+                <label>超额倍数</label>
+                <input type="number" id="pt-${rName}-of" value="${rule.overflowMultiplier || 1}" step="0.1">
+            </div>
+        `;
+        tierContainer.appendChild(div);
+    }
+}
+
+function savePerfConfig() {
+    for (const name in perfConfig.prices) {
+        const baseEl = document.getElementById(`pp-${name}-b`);
+        const collEl = document.getElementById(`pp-${name}-c`);
+        if (baseEl) {
+            const val = parseFloat(baseEl.value);
+            perfConfig.prices[name].basePrice = isNaN(val) ? 0 : val;
+        }
+        if (collEl) perfConfig.prices[name].collaborativePrice = collEl.value ? parseFloat(collEl.value) : null;
+    }
+    alert('配置已保存');
+}
+
+function calculatePerformance() {
+    if (!perfData) {
+        alert('请先上传数据');
+        return;
+    }
+    
+    perfResults = [];
+    const validHeaders = perfData.headers.slice(1).filter(h => perfConfig.prices[h]);
+    
+    perfData.rows.forEach(row => {
+        const result = {name: row.name, items: {}, total: 0};
+        validHeaders.forEach(header => {
+            const item = row.items[header];
+            if (!item) {
+                // 没有数据的项目也包含在结果中，显示为0
+                result.items[header] = {quantity: 0, isCollaborative: false, performance: 0};
+                return;
+            }
+            const perf = calcPerfItem(header, item.value, item.isCollaborative);
+            result.items[header] = {quantity: item.value, isCollaborative: item.isCollaborative, performance: perf};
+            result.total += perf;
+        });
+        perfResults.push(result);
+    });
+    
+    renderPerfResults();
+    document.getElementById('perf-result-panel').style.display = 'block';
+    document.getElementById('exportPerfBtn').disabled = false;
+    
+    // 切换到结果预览步骤
+    document.getElementById('perf-preview-step').style.display = 'none';
+    document.getElementById('perf-preview-nav').style.display = 'none';
+    document.getElementById('perf-result-step').style.display = 'flex';
+}
+
+function calcPerfItem(itemName, qty, isCollab) {
+    const cfg = perfConfig.prices[itemName];
+    if (!cfg) return 0;
+    const unitPrice = (isCollab && cfg.collaborativePrice !== null) ? cfg.collaborativePrice : cfg.basePrice;
+    const rule = perfConfig.tierRules[itemName];
+    if (!rule) return qty * unitPrice;
+    if (rule.penaltyThreshold !== null && qty < rule.penaltyThreshold) return rule.penaltyAmount || 0;
+    let lastTh = 0, lastDis = 1;
+    for (let i = 0; i < rule.tiers.length; i++) {
+        const [th, dis] = rule.tiers[i];
+        if (qty < th) return qty * unitPrice * dis;
+        lastTh = th;
+        lastDis = dis;
+    }
+    const overflowMult = rule.overflowMultiplier || 1;
+    return lastTh * unitPrice * lastDis + (qty - lastTh) * unitPrice * overflowMult;
+}
+
+function renderPerfResults() {
+    let total = 0, max = -Infinity, min = Infinity;
+    perfResults.forEach(r => {
+        total += r.total;
+        if (r.total > max) max = r.total;
+        if (r.total < min) min = r.total;
+    });
+    const avg = perfResults.length > 0 ? total / perfResults.length : 0;
+    const fmt = n => '¥' + n.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('summaryCards').innerHTML = `
+        <div class="summary-card"><h4>总业绩</h4><div class="value">${fmt(total)}</div></div>
+        <div class="summary-card"><h4>人均业绩</h4><div class="value">${fmt(avg)}</div></div>
+        <div class="summary-card"><h4>最高业绩</h4><div class="value">${fmt(max)}</div></div>
+        <div class="summary-card"><h4>最低业绩</h4><div class="value">${fmt(min)}</div></div>
+    `;
+    const headers = Object.keys(perfConfig.prices);
+    let html = '<thead><tr><th>人员</th>';
+    headers.forEach(h => html += `<th>${h}</th>`);
+    html += '<th>业绩合计</th></tr></thead><tbody>';
+    perfResults.forEach(person => {
+        html += `<tr><td><strong>${person.name}</strong></td>`;
+        headers.forEach(h => {
+            const it = person.items[h];
+            const cls = it && it.isCollaborative ? 'collab-cell' : '';
+            const val = it ? it.performance.toLocaleString('zh-CN', {minimumFractionDigits: 2}) : '0.00';
+            html += `<td class="${cls}">${val}</td>`;
+        });
+        html += `<td class="result-total">${person.total.toLocaleString('zh-CN', {minimumFractionDigits: 2})}</td></tr>`;
+    });
+    html += '</tbody>';
+    document.getElementById('perfResultTable').innerHTML = html;
+}
+
+async function exportPerfResult() {
+    if (!perfResults) {
+        alert('没有可导出的数据');
+        return;
+    }
+    const headers = Object.keys(perfConfig.prices);
+    const data = [['人员'].concat(headers).concat(['业绩合计'])];
+    perfResults.forEach(person => {
+        const row = [person.name];
+        headers.forEach(h => {
+            const it = person.items[h];
+            row.push(it ? it.performance : 0);
+        });
+        row.push(person.total);
+        data.push(row);
+    });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('业绩计算结果');
+    data.forEach(row => worksheet.addRow(row));
+    const buffer = await workbook.xlsx.writeBuffer();
+    const fname = perfData ? perfData.fileName.replace(/\.xlsx?$/i, '') + '_业绩计算.xlsx' : '业绩计算.xlsx';
+    downloadExcel(buffer, fname);
+}
+
+// ==================== 字段映射功能 ====================
+
+async function handleMapFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    document.getElementById('map-file-name').textContent = file.name;
+    document.getElementById('map-file-status').style.display = 'flex';
+    document.getElementById('map-file-badge').style.display = 'inline-flex';
+    document.getElementById('map-upload-area').style.display = 'none';
+    
+    document.getElementById('map-placeholder').innerHTML = `
+        <div style="font-size:3rem;margin-bottom:1rem">⏳</div>
+        <div>正在加载文件，请稍候...</div>
+        <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">ExcelJS：保留原格式</div>
+    `;
+    
+    try {
+        const buffer = await file.arrayBuffer();
+        mapWorkbook = new ExcelJS.Workbook();
+        await mapWorkbook.xlsx.load(buffer);
+        
+        mapSheetData = {};
+        mapSheetHeaders = {};
+        
+        mapWorkbook.eachSheet((worksheet, sheetId) => {
+            const sheetName = worksheet.name;
+            const jsonData = [];
+            
+            worksheet.eachRow((row, rowNumber) => {
+                const rowValues = [];
+                for (let i = 1; i <= row.cellCount; i++) {
+                    const cell = row.getCell(i);
+                    let value = cell.value;
+                    
+                    if (typeof value === 'object' && value !== null) {
+                        if (value.text) {
+                            value = value.text;
+                        } else if (value.result) {
+                            value = value.result;
+                        } else if (value.formula) {
+                            value = value.formula;
+                        } else if (value.richText) {
+                            value = value.richText.map(part => part.text).join('');
+                        } else {
+                            value = String(value);
+                        }
+                    }
+                    
+                    rowValues.push(value);
+                }
+                jsonData.push(rowValues);
+            });
+            
+            mapSheetData[sheetName] = jsonData;
+            mapSheetHeaders[sheetName] = jsonData[0] || [];
+        });
+        
+        initMapSelectors();
+        document.getElementById('map-sheet-panel').style.display = 'block';
+        document.getElementById('map-placeholder').innerHTML = `
+            <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+            <div>ExcelJS已加载: ${file.name}</div>
+            <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">原格式、样式、公式已保留</div>
+        `;
+        
+    } catch (err) {
+        console.error('文件加载错误:', err);
+        clearMapFile();
+        document.getElementById('map-placeholder').innerHTML = `
+            <div style="font-size:3rem;margin-bottom:1rem">❌</div>
+            <div>文件加载失败</div>
+            <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">${err.message}</div>
+        `;
+    }
+}
+
+function clearMapFile() {
+    document.getElementById('mapFileInput').value = '';
+    document.getElementById('map-file-status').style.display = 'none';
+    document.getElementById('map-file-badge').style.display = 'none';
+    document.getElementById('map-upload-area').style.display = 'block';
+    document.getElementById('map-sheet-panel').style.display = 'none';
+    document.getElementById('map-source-fields-panel').style.display = 'none';
+    document.getElementById('map-config-panel').style.display = 'none';
+    document.getElementById('map-row-panel').style.display = 'none';
+    document.getElementById('map-execute-panel').style.display = 'none';
+    document.getElementById('map-view').classList.remove('hidden');
+    document.getElementById('map-placeholder').style.display = 'block';
+    document.getElementById('map-preview').style.display = 'none';
+    document.getElementById('map-placeholder').innerHTML = `
+        <div style="font-size:3rem;margin-bottom:1rem">🔗</div>
+        <div>请上传 Excel 文件进行字段映射</div>
+        <div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.7">将Sheet1字段映射到Sheet2指定行的右侧单元格</div>
+    `;
+    document.getElementById('mapConfigList').innerHTML = '';
+    document.getElementById('autoMatchResult').style.display = 'none';
+    
+    mapWorkbook = null;
+    mapSheetData = {};
+    mapSheetHeaders = {};
+    mapConfig = [];
+    mapSourceSheet = '';
+    mapTargetSheet = '';
+    sourceHeaderRowIndex = 0;
+    targetFieldPositions = {};
+}
+
+function initMapSelectors() {
+    const sourceSelect = document.getElementById('map-source-sheet');
+    const targetSelect = document.getElementById('map-target-sheet');
+    sourceSelect.innerHTML = '<option value="">-- 选择源表 --</option>';
+    targetSelect.innerHTML = '<option value="">-- 选择目标表 --</option>';
+    
+    Object.keys(mapSheetData).forEach(name => {
+        sourceSelect.add(new Option(name, name));
+        targetSelect.add(new Option(name, name));
+    });
+}
+
+function onMapSourceSheetChange() {
+    mapSourceSheet = document.getElementById('map-source-sheet').value;
+    updateMapPanels();
+}
+
+function onMapTargetSheetChange() {
+    mapTargetSheet = document.getElementById('map-target-sheet').value;
+    updateMapPanels();
+}
+
+// 字段行索引
+let sourceHeaderRowIndex = 0;
+
+function updateMapPanels() {
+    if (mapSourceSheet && mapTargetSheet) {
+        // 自动识别源表字段行
+        detectAndSetHeaderRow();
+        
+        document.getElementById('map-config-panel').style.display = 'block';
+        document.getElementById('map-row-panel').style.display = 'block';
+        document.getElementById('map-execute-panel').style.display = 'block';
+        
+        // 清空之前的映射配置和结果
+        mapConfig = [];
+        targetFieldPositions = {};
+        document.getElementById('mapConfigList').innerHTML = '';
+        document.getElementById('autoMatchResult').style.display = 'none';
+    } else {
+        document.getElementById('map-config-panel').style.display = 'none';
+        document.getElementById('map-row-panel').style.display = 'none';
+        document.getElementById('map-execute-panel').style.display = 'none';
+    }
+}
+
+// 自动识别源表字段行
+function detectAndSetHeaderRow() {
+    const sourceData = mapSheetData[mapSourceSheet];
+    
+    if (sourceData && sourceData.length > 0) {
+        sourceHeaderRowIndex = detectHeaderRow(sourceData);
+        const headers = sourceData[sourceHeaderRowIndex] || [];
+        mapSheetHeaders[mapSourceSheet] = headers;
+    }
+    // 注意：目标表字段将在选择目标行后通过 detectFieldsFromTargetRows 识别
+}
+
+// 自动匹配字段 - 遍历整个Sheet2识别所有字段
+function autoMatchFields() {
+    if (!mapSourceSheet || !mapTargetSheet) {
+        alert('请先选择源表和目标表');
+        return;
+    }
+    
+    // 遍历整个Sheet2识别所有字段
+    const targetFields = detectAllFieldsFromSheet2();
+    if (targetFields.length === 0) {
+        alert('无法从Sheet2识别字段');
+        return;
+    }
+    
+    const sourceHeaders = mapSheetHeaders[mapSourceSheet];
+    
+    if (!sourceHeaders || sourceHeaders.length === 0) {
+        alert('无法获取源表字段信息');
+        return;
+    }
+    
+    // 清空现有映射
+    mapConfig = [];
+    targetFieldPositions = {};
+    document.getElementById('mapConfigList').innerHTML = '';
+    
+    let matchCount = 0;
+    const matchedSourceIndices = new Set();
+    const matchedTargetIndices = new Set();
+    
+    // 第一阶段：完全匹配（优先级最高）
+    sourceHeaders.forEach((sourceField, sourceIndex) => {
+        if (!sourceField || matchedSourceIndices.has(sourceIndex)) return;
+        
+        const sourceFieldStr = String(sourceField).trim();
+        if (sourceFieldStr === '') return;
+        
+        // 查找完全匹配的目标字段
+        const exactMatchIndex = targetFields.findIndex((targetField, targetIndex) => {
+            if (matchedTargetIndices.has(targetIndex)) return false;
+            const targetFieldStr = String(targetField.label).trim();
+            return targetFieldStr === sourceFieldStr;
+        });
+        
+        if (exactMatchIndex !== -1) {
+            addMapFieldWithValues(sourceIndex, targetFields[exactMatchIndex]);
+            matchedSourceIndices.add(sourceIndex);
+            matchedTargetIndices.add(exactMatchIndex);
+            matchCount++;
+        }
+    });
+    
+    // 第二阶段：模糊匹配（按得分排序）
+    const fuzzyMatches = [];
+    
+    sourceHeaders.forEach((sourceField, sourceIndex) => {
+        if (!sourceField || matchedSourceIndices.has(sourceIndex)) return;
+        
+        const sourceFieldStr = String(sourceField).trim();
+        if (sourceFieldStr === '') return;
+        
+        // 查找最佳模糊匹配
+        let bestMatchIndex = -1;
+        let bestMatchScore = 0;
+        
+        targetFields.forEach((targetField, targetIndex) => {
+            if (matchedTargetIndices.has(targetIndex)) return;
+            
+            const targetFieldStr = String(targetField.label).trim();
+            if (targetFieldStr === '') return;
+            
+            const score = calculateFieldMatchScore(sourceFieldStr, targetFieldStr);
+            
+            if (score > bestMatchScore) {
+                bestMatchScore = score;
+                bestMatchIndex = targetIndex;
+            }
+        });
+        
+        // 记录模糊匹配候选（阈值 0.5）
+        if (bestMatchIndex >= 0 && bestMatchScore >= 0.5) {
+            fuzzyMatches.push({
+                sourceIndex,
+                targetIndex: bestMatchIndex,
+                score: bestMatchScore,
+                targetField: targetFields[bestMatchIndex]
+            });
+        }
+    });
+    
+    // 按得分降序排序模糊匹配
+    fuzzyMatches.sort((a, b) => b.score - a.score);
+    
+    // 应用模糊匹配（避免冲突）
+    fuzzyMatches.forEach(match => {
+        if (!matchedSourceIndices.has(match.sourceIndex) && 
+            !matchedTargetIndices.has(match.targetIndex)) {
+            addMapFieldWithValues(match.sourceIndex, match.targetField);
+            matchedSourceIndices.add(match.sourceIndex);
+            matchedTargetIndices.add(match.targetIndex);
+            matchCount++;
+        }
+    });
+    
+    // 显示匹配结果
+    const resultDiv = document.getElementById('autoMatchResult');
+    resultDiv.className = 'success-box';
+    if (matchCount > 0) {
+        resultDiv.textContent = `✅ 自动匹配完成！共匹配 ${matchCount} 个字段`;
+        resultDiv.style.display = 'block';
+    } else {
+        // 如果没有匹配到，尝试强制匹配
+        forceMatchAllFields(targetFields);
+    }
+}
+
+// 遍历整个Sheet2识别所有字段（标签在左，值在右）
+function detectAllFieldsFromSheet2() {
+    const targetWorksheet = mapWorkbook.getWorksheet(mapTargetSheet);
+    if (!targetWorksheet) return [];
+    
+    const fields = [];
+    const seenLabels = new Set(); // 避免重复字段
+    
+    // 遍历Sheet2的所有行
+    for (let rowNum = 1; rowNum <= targetWorksheet.rowCount; rowNum++) {
+        const row = targetWorksheet.getRow(rowNum);
+        if (!row) continue;
+        
+        // 遍历该行的所有单元格，寻找标签-值对
+        for (let col = 1; col < row.cellCount; col++) {
+            const labelCell = row.getCell(col);
+            const valueCell = row.getCell(col + 1);
+            
+            let label = labelCell.value;
+            let value = valueCell.value;
+            
+            // 处理对象类型的值
+            if (typeof label === 'object' && label !== null) {
+                if (label.text) label = label.text;
+                else if (label.result) label = label.result;
+                else label = String(label);
+            }
+            if (typeof value === 'object' && value !== null) {
+                if (value.text) value = value.text;
+                else if (value.result) value = value.result;
+                else value = String(value);
+            }
+            
+            label = String(label || '').trim();
+            value = String(value || '').trim();
+            
+            // 识别字段标签
+            if (label && label !== '' && label.length < 50) {
+                // 判断是否为标签（通常以冒号结尾，或者是短文本，或者是特定字段）
+                const isLabel = /[:：]$/.test(label) || 
+                               (label.length < 20 && !/^\d/.test(value)) ||
+                               (label.length < 15) ||
+                               /(累计折旧|折旧年限|已提折旧|减值准备)/.test(label);
+                
+                if (isLabel) {
+                    // 移除末尾的冒号和空格
+                    const cleanLabel = label.replace(/[:：]\s*$/, '').trim();
+                    
+                    // 避免重复字段（同一标签在同一行或不同行）
+                    if (!seenLabels.has(cleanLabel) && cleanLabel !== '') {
+                        seenLabels.add(cleanLabel);
+                        fields.push({
+                            label: cleanLabel,
+                            rowNum: rowNum,
+                            labelCol: col - 1,  // 0-based索引
+                            valueCol: col       // 0-based索引（字段名右边那一列）
+                        });
+                    }
+                }
+            }
+        }
+    }
+    
+    return fields;
+}
+
+// 强制匹配 - 遍历所有字段
+function forceMatchAllFields(targetFields) {
+    const sourceHeaders = mapSheetHeaders[mapSourceSheet];
+    
+    if (!sourceHeaders || !targetFields) return;
+    
+    // 过滤出有效的源字段
+    const validSourceFields = sourceHeaders.map((h, i) => ({index: i, value: h}))
+        .filter(item => item.value && String(item.value).trim() !== '');
+    
+    // 按顺序一对一匹配
+    const minLength = Math.min(validSourceFields.length, targetFields.length);
+    for (let i = 0; i < minLength; i++) {
+        addMapFieldWithValues(validSourceFields[i].index, targetFields[i]);
+    }
+    
+    const resultDiv = document.getElementById('autoMatchResult');
+    if (minLength > 0) {
+        resultDiv.textContent = `✅ 已按顺序匹配 ${minLength} 个字段（未找到相同名称字段）`;
+        resultDiv.className = 'warning-box';
+        resultDiv.style.display = 'block';
+    } else {
+        resultDiv.textContent = '⚠️ 未找到有效字段，请检查Sheet2';
+        resultDiv.className = 'warning-box';
+        resultDiv.style.display = 'block';
+    }
+}
+
+// 强制匹配 - 当智能匹配失败时，按顺序一对一匹配
+function forceMatchFields() {
+    const sourceHeaders = mapSheetHeaders[mapSourceSheet];
+    const targetHeaders = mapSheetHeaders[mapTargetSheet];
+    
+    if (!sourceHeaders || !targetHeaders) return;
+    
+    // 过滤出有效的源字段和目标字段
+    const validSourceFields = sourceHeaders.map((h, i) => ({index: i, value: h}))
+        .filter(item => item.value && String(item.value).trim() !== '');
+    const validTargetFields = targetHeaders.map((h, i) => ({index: i, value: h}))
+        .filter(item => item.value && String(item.value).trim() !== '');
+    
+    // 按顺序一对一匹配
+    const minLength = Math.min(validSourceFields.length, validTargetFields.length);
+    for (let i = 0; i < minLength; i++) {
+        addMapFieldWithValues(validSourceFields[i].index, validTargetFields[i].index);
+    }
+    
+    const resultDiv = document.getElementById('autoMatchResult');
+    if (minLength > 0) {
+        resultDiv.textContent = `✅ 已按顺序匹配 ${minLength} 个字段（未找到相同名称字段）`;
+        resultDiv.className = 'warning-box';
+        resultDiv.style.display = 'block';
+    } else {
+        resultDiv.textContent = '⚠️ 未找到有效字段，请检查工作表';
+        resultDiv.className = 'warning-box';
+        resultDiv.style.display = 'block';
+    }
+}
+
+// 计算字段匹配分数（0-1）
+function calculateFieldMatchScore(source, target) {
+    const s = String(source).toLowerCase().trim();
+    const t = String(target).toLowerCase().trim();
+    
+    // 清理字符串，移除特殊字符和空格
+    const sClean = s.replace(/[^\u4e00-\u9fa5a-z0-9]/g, '');
+    const tClean = t.replace(/[^\u4e00-\u9fa5a-z0-9]/g, '');
+    
+    // 1. 完全匹配（最高优先级）
+    if (s === t || sClean === tClean) return 1.0;
+    
+    // 2. 包含匹配
+    if (s.includes(t) || t.includes(s)) return 0.95;
+    if (sClean.includes(tClean) || tClean.includes(sClean)) return 0.9;
+    
+    // 3. 日期/时间/周期字段的同义词组匹配
+    const sHasDateTime = s.includes('日期') || s.includes('时间') || s.includes('date') || s.includes('time');
+    const tHasDateTime = t.includes('日期') || t.includes('时间') || t.includes('date') || t.includes('time');
+    const sHasPeriod = s.includes('月份') || s.includes('年限') || s.includes('年') || s.includes('月') || s.includes('period') || s.includes('month') || s.includes('year');
+    const tHasPeriod = t.includes('月份') || t.includes('年限') || t.includes('年') || s.includes('月') || t.includes('period') || t.includes('month') || t.includes('year');
+
+    // 日期时间字段的同义词匹配
+    if (sHasDateTime && tHasDateTime) {
+        const dateTimeSynonyms = [
+            ['开始', '启用', '使用', '购入', '投产', '启动', '生效', 'start', 'begin'],
+            ['结束', '终止', '停止', 'end', 'stop'],
+            ['创建', '建立', '生成', 'create'],
+            ['更新', '修改', '变动', 'update', 'modify']
+        ];
+
+        for (const group of dateTimeSynonyms) {
+            const sInGroup = group.some(word => s.includes(word));
+            const tInGroup = group.some(word => t.includes(word));
+
+            if (sInGroup && tInGroup) {
+                return 0.75;
+            }
+        }
+    }
+
+    // 时间周期字段的精确匹配（确保单位和语义都一致）
+    if (sHasPeriod && tHasPeriod) {
+        // 检查是否有共同的周期单位（必须单位完全一致）
+        const monthUnits = ['月份', '月', 'month'];
+        const yearUnits = ['年限', '年', 'year'];
+        
+        const sHasMonth = monthUnits.some(unit => s.includes(unit));
+        const tHasMonth = monthUnits.some(unit => t.includes(unit));
+        const sHasYear = yearUnits.some(unit => s.includes(unit));
+        const tHasYear = yearUnits.some(unit => t.includes(unit));
+        
+        // 只有单位完全一致才继续检查（都是月或都是年）
+        const unitMatch = (sHasMonth && tHasMonth) || (sHasYear && tHasYear);
+        
+        if (unitMatch) {
+            // 检查语义类型是否一致
+            const usageTypes = ['使用', '已使用'];
+            const depreciationTypes = ['折旧'];
+            
+            const sIsUsage = usageTypes.some(type => s.includes(type));
+            const tIsUsage = usageTypes.some(type => t.includes(type));
+            const sIsDepreciation = depreciationTypes.some(type => s.includes(type));
+            const tIsDepreciation = depreciationTypes.some(type => t.includes(type));
+            
+            // 如果都是使用类型，或者都是折旧类型，才匹配
+            if ((sIsUsage && tIsUsage) || (sIsDepreciation && tIsDepreciation)) {
+                return 0.72;
+            }
+            // 语义类型不一致（一个使用一个折旧），不匹配
+        }
+        // 单位不一致（一个月一个年），不匹配
+    }
+    
+    // 4. 关键词匹配
+    const keywords = [
+        '名称', '编号', '编码', '日期', '时间', '金额', '值', '序号', '资产', '原值', '净值', '折旧', '累计折旧',
+        '部门', '支行', '机构', '中心', '类别', '型号', '卡片', '号码', '经办', '负责', '鉴定',
+        '开始', '启用', '使用', '购入', '投产', '启动', '生效',
+        'name', 'code', 'date', 'time', 'value', 'no', 'num', 'id', 'type', 'dept', 'org', 'start', 'begin'
+    ];
+    
+    const sHasKeyword = keywords.some(kw => s.includes(kw));
+    const tHasKeyword = keywords.some(kw => t.includes(kw));
+    
+    if (sHasKeyword && tHasKeyword) {
+        const sKeywords = keywords.filter(kw => s.includes(kw));
+        const tKeywords = keywords.filter(kw => t.includes(kw));
+        const commonKeywords = sKeywords.filter(kw => tKeywords.includes(kw));
+        
+        if (commonKeywords.length > 0) {
+            return 0.6 + (commonKeywords.length * 0.1);
+        }
+    }
+    
+    // 4. 编辑距离相似度
+    const maxLen = Math.max(sClean.length, tClean.length);
+    if (maxLen === 0) return 0;
+    
+    const lcsLength = longestCommonSubsequence(sClean, tClean);
+    const similarity = lcsLength / maxLen;
+    
+    return similarity * 0.5;
+}
+
+// 计算最长公共子序列长度
+function longestCommonSubsequence(a, b) {
+    const m = a.length;
+    const n = b.length;
+    const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+    
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            if (a[i - 1] === b[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+    
+    return dp[m][n];
+}
+
+// 格式化日期值为 yyyy-mm-dd
+function formatDateValue(value) {
+    if (value === null || value === undefined || value === '') {
+        return value;
+    }
+    
+    // 如果已经是标准日期格式，直接返回
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(value))) {
+        return value;
+    }
+    
+    // 尝试解析为日期
+    let date = null;
+    
+    // 处理 JavaScript Date 对象
+    if (value instanceof Date) {
+        date = value;
+    }
+    // 处理 Excel 日期序列号
+    else if (typeof value === 'number' && value > 30000 && value < 50000) {
+        // Excel 日期序列号转 JavaScript Date
+        // Excel 的日期从 1899-12-30 开始计算
+        date = new Date((value - 25569) * 86400 * 1000);
+    }
+    // 处理字符串日期
+    else {
+        const dateStr = String(value).trim();
+        
+        // 尝试解析各种日期格式
+        // 格式: Fri Apr 02 2021 08:00:00 GMT+0800
+        const gmtMatch = dateStr.match(/([A-Za-z]{3})\s+([A-Za-z]{3})\s+(\d{1,2})\s+(\d{4})/);
+        if (gmtMatch) {
+            date = new Date(dateStr);
+        }
+        // 格式: 2021/4/2 或 2021-4-2
+        else if (/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}/.test(dateStr)) {
+            date = new Date(dateStr.replace(/\//g, '-'));
+        }
+        // 格式: 4/2/2021 或 4-2-2021
+        else if (/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(dateStr)) {
+            const parts = dateStr.split(/[\/\-]/);
+            date = new Date(`${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`);
+        }
+    }
+    
+    // 如果成功解析为日期，格式化为 yyyy-mm-dd
+    if (date && !isNaN(date.getTime())) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    
+    // 如果不是日期，返回原值
+    return value;
+}
+
+// 全局变量存储目标字段位置信息
+let targetFieldPositions = {};
+
+// 添加带有预设值的映射字段
+function addMapFieldWithValues(sourceCol, targetField) {
+    const id = mapConfig.length;
+    
+    // 存储目标字段的位置信息
+    targetFieldPositions[id] = {
+        rowNum: targetField.rowNum,
+        valueCol: targetField.valueCol  // 这是需要填充值的列（字段名右边那一列）
+    };
+    
+    // 创建隐藏的配置项（不显示在界面上）
+    const div = document.createElement('div');
+    div.className = 'match-config';
+    div.dataset.id = id;
+    div.style.display = 'none';  // 隐藏
+    
+    const sourceHeaders = mapSheetHeaders[mapSourceSheet];
+    
+    div.innerHTML = `
+        <select class="form-control source-col" data-id="${id}">
+            <option value="${sourceCol}">${sourceHeaders[sourceCol] || `列${sourceCol+1}`}</option>
+        </select>
+    `;
+    
+    document.getElementById('mapConfigList').appendChild(div);
+    mapConfig.push({id, sourceCol, targetField: targetField.label});
+}
+
+// 自动识别字段行 - 通过分析数据特征
+function detectHeaderRow(sheetData) {
+    if (!sheetData || sheetData.length === 0) return 0;
+    
+    // 分析前10行，找出最可能是字段标题的行
+    const maxCheckRows = Math.min(10, sheetData.length);
+    let bestHeaderRow = 0;
+    let bestScore = -1;
+    
+    for (let i = 0; i < maxCheckRows; i++) {
+        const row = sheetData[i];
+        if (!row || row.length === 0) continue;
+        
+        let score = 0;
+        let textCount = 0;
+        let numberCount = 0;
+        let emptyCount = 0;
+        let totalCells = 0;
+        
+        for (let j = 0; j < row.length && j < 20; j++) { // 检查前20列
+            const cell = row[j];
+            const cellStr = String(cell || '').trim();
+            
+            if (cellStr === '') {
+                emptyCount++;
+            } else if (!isNaN(cellStr) && !isNaN(parseFloat(cellStr))) {
+                // 纯数字
+                numberCount++;
+            } else {
+                // 文本
+                textCount++;
+                // 字段标题通常包含特定关键词
+                const keywords = ['名称', '编号', '编码', '日期', '时间', '金额', '值', '序号', 'id', 'name', 'code', 'date', 'value', 'no.', 'num'];
+                if (keywords.some(kw => cellStr.toLowerCase().includes(kw))) {
+                    score += 2;
+                }
+            }
+            totalCells++;
+        }
+        
+        // 计算得分：文本比例高、包含关键词、非空单元格多
+        if (totalCells > 0) {
+            const textRatio = textCount / totalCells;
+            const fillRatio = (totalCells - emptyCount) / totalCells;
+            
+            // 字段标题行的特征：文本多、填充率高、数字少
+            score += textRatio * 10;
+            score += fillRatio * 5;
+            score -= numberCount * 0.5;
+            
+            // 偏好较前面的行，但不要太靠前
+            score -= i * 0.3;
+        }
+        
+        if (score > bestScore) {
+            bestScore = score;
+            bestHeaderRow = i;
+        }
+    }
+    
+    return bestHeaderRow;
+}
+
+// 解析逗号分隔的行号
+function collectTargetRows() {
+    const rowsInput = document.getElementById('map-target-rows').value;
+    if (!rowsInput.trim()) return [];
+    
+    // 解析逗号分隔的行号
+    const rows = rowsInput.split(',')
+        .map(s => parseInt(s.trim()))
+        .filter(n => !isNaN(n) && n > 0);
+    
+    return [...new Set(rows)].sort((a, b) => a - b); // 去重并排序
+}
+
+// 手动添加映射字段（用于手动调整）
+function addMapField() {
+    // 默认添加第一个可用字段的映射
+    addMapFieldWithValues(0, 0);
+}
+
+function removeMapField(id) {
+    const el = document.querySelector(`.match-config[data-id="${id}"]`);
+    if (el) el.remove();
+    mapConfig = mapConfig.filter(c => c.id !== id);
+    // 重新编号
+    mapConfig.forEach((config, index) => {
+        config.id = index;
+        const el = document.querySelector(`.match-config[data-id="${index}"]`);
+        if (el) {
+            el.dataset.id = index;
+            el.querySelector('.match-title').textContent = `映射 ${index + 1}`;
+        }
+    });
+}
+
+// 验证目标行是否有效
+function validateTargetRows() {
+    const rows = collectTargetRows();
+    // 如果用户没有指定行，返回null表示处理所有行
+    return rows.length > 0 ? rows : null;
+}
+
+function collectMapConfig() {
+    const config = [];
+    document.querySelectorAll('.match-config').forEach((div) => {
+        const id = parseInt(div.dataset.id);
+        const sourceCol = parseInt(div.querySelector('.source-col').value);
+        const position = targetFieldPositions[id];
+        if (position && !isNaN(sourceCol)) {
+            config.push({sourceCol, targetRowNum: position.rowNum, targetValueCol: position.valueCol});
+        }
+    });
+    return config;
+}
+
+async function previewMap() {
+    const config = collectMapConfig();
+    if (config.length === 0) {
+        alert('请先点击自动匹配');
+        return;
+    }
+    
+    try {
+        const sourceWorksheet = mapWorkbook.getWorksheet(mapSourceSheet);
+        const targetWorksheet = mapWorkbook.getWorksheet(mapTargetSheet);
+        
+        const previewData = [];
+        
+        // 计算源数据起始行和行数
+        const sourceDataStartRow = sourceHeaderRowIndex + 2;
+        const sourceDataRowCount = sourceWorksheet.rowCount - sourceHeaderRowIndex - 1;
+        
+        if (sourceDataRowCount <= 0) {
+            alert('Sheet1 中没有数据行');
+            return;
+        }
+        
+        // 预览前3张表的数据
+        const previewCount = Math.min(3, sourceDataRowCount);
+        
+        for (let dataRowIndex = 0; dataRowIndex < previewCount; dataRowIndex++) {
+            const sourceRowIndex = sourceDataStartRow + dataRowIndex;
+            const sourceRow = sourceWorksheet.getRow(sourceRowIndex);
+            
+            // 获取目标表第一行数据作为模板
+            const rowData = [];
+            const targetRow = targetWorksheet.getRow(1);
+            
+            // 获取目标表当前行数据
+            for (let col = 1; col <= targetWorksheet.columnCount && col <= 10; col++) {
+                const cell = targetRow.getCell(col);
+                let value = cell.value;
+                if (typeof value === 'object' && value !== null) {
+                    if (value.text) value = value.text;
+                    else if (value.result) value = value.result;
+                    else value = String(value);
+                }
+                rowData.push(value || '');
+            }
+            
+            // 根据映射配置填充数据
+            config.forEach((map) => {
+                const sourceCell = sourceRow.getCell(map.sourceCol + 1);
+                let sourceValue = sourceCell.value;
+                if (typeof sourceValue === 'object' && sourceValue !== null) {
+                    if (sourceValue.text) sourceValue = sourceValue.text;
+                    else if (sourceValue.result) sourceValue = sourceValue.result;
+                    else sourceValue = String(sourceValue);
+                }
+                // 格式化日期
+                sourceValue = formatDateValue(sourceValue);
+                // 填充到目标位置
+                if (map.targetValueCol < rowData.length) {
+                    rowData[map.targetValueCol] = sourceValue || '';
+                }
+            });
+            
+            previewData.push({rowNum: dataRowIndex + 1, data: rowData, sheetName: String(dataRowIndex + 1)});
+        }
+        
+        // 显示预览
+        showMapPreview(previewData, sourceDataRowCount);
+        
+    } catch (err) {
+        console.error('预览错误:', err);
+        alert('预览失败: ' + err.message);
+    }
+}
+
+function showMapPreview(data, totalCount) {
+    document.getElementById('map-placeholder').style.display = 'none';
+    document.getElementById('map-preview').style.display = 'flex';
+    document.getElementById('map-preview-stats').textContent = `预览前 ${data.length} 张表，共将生成 ${totalCount} 张表`;
+    
+    const container = document.getElementById('map-table-container');
+    
+    if (data.length === 0) {
+        container.innerHTML = '<div class="empty-state">没有数据可预览</div>';
+        return;
+    }
+    
+    const table = document.createElement('table');
+    table.className = 'data-table';
+    
+    // 创建表头
+    const headerRow = document.createElement('tr');
+    // 添加表名列
+    const sheetTh = document.createElement('th');
+    sheetTh.textContent = '表名';
+    sheetTh.style.backgroundColor = 'var(--excel)';
+    sheetTh.style.color = 'white';
+    headerRow.appendChild(sheetTh);
+    
+    data[0].data.forEach((cell, index) => {
+        const th = document.createElement('th');
+        th.textContent = `列${index + 1}`;
+        headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+    
+    // 创建数据行
+    data.forEach((rowInfo, rowIndex) => {
+        const tr = document.createElement('tr');
+        // 添加表名
+        const sheetTd = document.createElement('td');
+        sheetTd.textContent = rowInfo.sheetName;
+        sheetTd.style.fontWeight = 'bold';
+        sheetTd.style.backgroundColor = 'rgba(33,115,70,0.1)';
+        tr.appendChild(sheetTd);
+        
+        rowInfo.data.forEach((cell, colIndex) => {
+            const td = document.createElement('td');
+            td.textContent = cell || '';
+            tr.appendChild(td);
+        });
+        table.appendChild(tr);
+    });
+    
+    container.innerHTML = '';
+    container.appendChild(table);
+}
+
+async function executeMap() {
+    const config = collectMapConfig();
+    if (config.length === 0) {
+        alert('请先点击自动匹配');
+        return;
+    }
+    
+    try {
+        const sourceWorksheet = mapWorkbook.getWorksheet(mapSourceSheet);
+        const targetWorksheet = mapWorkbook.getWorksheet(mapTargetSheet);
+        
+        // 检查工作表是否存在
+        if (!sourceWorksheet) {
+            alert('源工作表不存在');
+            return;
+        }
+        if (!targetWorksheet) {
+            alert('目标工作表不存在');
+            return;
+        }
+        
+        // 计算源数据行数 - 根据"序号"列识别数据行
+        const sourceDataStartRow = sourceHeaderRowIndex + 2;
+        
+        // 找到"序号"列的索引
+        const headers = mapSheetHeaders[mapSourceSheet];
+        const seqColIndex = headers.findIndex(h => h && (h.includes('序号') || h.toLowerCase().includes('no') || h.toLowerCase().includes('id')));
+        
+        if (seqColIndex === -1) {
+            alert('无法找到"序号"列，请确保Sheet1表头包含"序号"列');
+            return;
+        }
+        
+        // 收集所有有序号的行
+        const dataRows = [];
+        const maxRow = sourceWorksheet.rowCount;
+        for (let rowNum = sourceDataStartRow; rowNum <= maxRow; rowNum++) {
+            const row = sourceWorksheet.getRow(rowNum);
+            if (!row) continue;
+            
+            const seqCell = row.getCell(seqColIndex + 1);
+            if (!seqCell) continue;
+            
+            let seqValue = seqCell.value;
+            if (typeof seqValue === 'object' && seqValue !== null) {
+                if (seqValue.text) seqValue = seqValue.text;
+                else if (seqValue.result) seqValue = seqValue.result;
+                else seqValue = String(seqValue);
+            }
+            
+            // 检查序号列是否为数字（1, 2, 3...）
+            const seqNum = parseInt(seqValue);
+            if (!isNaN(seqNum) && seqNum > 0) {
+                dataRows.push({ rowNum, seqNum });
+            }
+        }
+        
+        console.log('源数据起始行:', sourceDataStartRow);
+        console.log('序号列索引:', seqColIndex);
+        console.log('数据行:', dataRows);
+        console.log('映射配置:', config);
+        
+        if (dataRows.length === 0) {
+            alert('Sheet1 中没有找到有序号的数据行');
+            return;
+        }
+        
+        // 使用原始工作簿，添加新工作表
+        const workbook = mapWorkbook;
+        
+        // 为 Sheet1 的每一行数据创建一个新表（以 Sheet2 为模板）
+        for (let i = 0; i < dataRows.length; i++) {
+            const { rowNum } = dataRows[i];
+            const sourceRow = sourceWorksheet.getRow(rowNum);
+            
+            // 检查源行是否存在
+            if (!sourceRow) {
+                console.log(`源行 ${rowNum} 不存在，跳过`);
+                continue;
+            }
+            
+            // 新表名称为序号（1, 2, 3...）
+            const newSheetName = String(i + 1);
+            
+            // 检查是否已存在同名工作表
+            if (workbook.getWorksheet(newSheetName)) {
+                workbook.removeWorksheet(newSheetName);
+            }
+            
+            // 复制 Sheet2 作为模板
+            const newWorksheet = await copyWorksheet(targetWorksheet, workbook, newSheetName);
+            
+            // 填充当前系统时间到"时间："字段右边
+            fillCurrentTime(newWorksheet);
+            
+            // 填充数据到对应位置
+            config.forEach((map, mapIndex) => {
+                try {
+                    // 检查 map 对象是否有效
+                    if (!map || typeof map.sourceCol !== 'number' || typeof map.targetRowNum !== 'number' || typeof map.targetValueCol !== 'number') {
+                        console.log(`映射配置 ${mapIndex} 无效，跳过`);
+                        return;
+                    }
+                    
+                    const sourceCell = sourceRow.getCell(map.sourceCol + 1);
+                    
+                    // 检查源单元格是否存在
+                    if (!sourceCell) {
+                        return;
+                    }
+                    
+                    // 获取源值
+                    let sourceValue = sourceCell.value;
+                    if (typeof sourceValue === 'object' && sourceValue !== null) {
+                        if (sourceValue.text) sourceValue = sourceValue.text;
+                        else if (sourceValue.result) sourceValue = sourceValue.result;
+                        else if (sourceValue.richText) {
+                            sourceValue = sourceValue.richText.map(part => part.text).join('');
+                        } else {
+                            sourceValue = String(sourceValue);
+                        }
+                    }
+                    
+                    // 格式化日期为 yyyy-mm-dd
+                    sourceValue = formatDateValue(sourceValue);
+                    
+                    // 写入新表的对应位置
+                    const targetRow = newWorksheet.getRow(map.targetRowNum);
+                    if (targetRow) {
+                        const targetCell = targetRow.getCell(map.targetValueCol + 1);
+                        targetCell.value = sourceValue;
+                    }
+                } catch (e) {
+                    console.log(`填充数据失败 (map ${mapIndex}):`, e);
+                }
+            });
+        }
+        
+        // 保存文件（保留原始工作表）
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = '字段映射结果.xlsx';
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        // 显示成功消息
+        document.getElementById('map-result').textContent = `✅ 映射完成！共生成 ${dataRows.length} 张新表`;
+        document.getElementById('map-result').style.display = 'block';
+        
+    } catch (err) {
+        console.error('映射错误:', err);
+        alert('映射失败: ' + err.message);
+    }
+}
+
+// 复制工作表（完整复制，包括样式和合并单元格）
+async function copyWorksheet(sourceWorksheet, targetWorkbook, newName) {
+    // 创建新工作表
+    const newWorksheet = targetWorkbook.addWorksheet(newName);
+    
+    // 获取工作表的行数和列数
+    const rowCount = sourceWorksheet.rowCount || 0;
+    const columnCount = sourceWorksheet.columnCount || 0;
+    
+    console.log(`复制工作表 ${newName}: ${rowCount} 行, ${columnCount} 列`);
+    
+    // 首先复制所有单元格的值和样式
+    for (let rowNumber = 1; rowNumber <= rowCount; rowNumber++) {
+        const sourceRow = sourceWorksheet.getRow(rowNumber);
+        if (!sourceRow) continue;
+        
+        const newRow = newWorksheet.getRow(rowNumber);
+        
+        // 复制行高
+        if (sourceRow.height) {
+            newRow.height = sourceRow.height;
+        }
+        
+        // 复制行样式
+        if (sourceRow.style) {
+            try {
+                newRow.style = JSON.parse(JSON.stringify(sourceRow.style));
+            } catch (e) {
+                // 忽略样式复制错误
+            }
+        }
+        
+        // 遍历该行的所有单元格
+        sourceRow.eachCell({ includeEmpty: true }, (sourceCell, colNumber) => {
+            const newCell = newRow.getCell(colNumber);
+            
+            // 复制值
+            if (sourceCell.value !== undefined && sourceCell.value !== null) {
+                newCell.value = sourceCell.value;
+            }
+            
+            // 复制样式
+            if (sourceCell.style) {
+                try {
+                    newCell.style = JSON.parse(JSON.stringify(sourceCell.style));
+                } catch (e) {
+                    // 忽略样式复制错误
+                }
+            }
+            
+            // 复制其他属性
+            if (sourceCell.numFmt) newCell.numFmt = sourceCell.numFmt;
+            if (sourceCell.font) {
+                try {
+                    newCell.font = JSON.parse(JSON.stringify(sourceCell.font));
+                } catch (e) {}
+            }
+            if (sourceCell.alignment) {
+                try {
+                    newCell.alignment = JSON.parse(JSON.stringify(sourceCell.alignment));
+                } catch (e) {}
+            }
+            if (sourceCell.border) {
+                try {
+                    newCell.border = JSON.parse(JSON.stringify(sourceCell.border));
+                } catch (e) {}
+            }
+            if (sourceCell.fill) {
+                try {
+                    newCell.fill = JSON.parse(JSON.stringify(sourceCell.fill));
+                } catch (e) {}
+            }
+        });
+    }
+    
+    // 复制列宽
+    try {
+        if (sourceWorksheet.columns && Array.isArray(sourceWorksheet.columns)) {
+            sourceWorksheet.columns.forEach((col, index) => {
+                if (col && col.width) {
+                    const newCol = newWorksheet.getColumn(index + 1);
+                    if (newCol) {
+                        newCol.width = col.width;
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.log('列宽复制失败:', e);
+    }
+    
+    // 复制合并单元格
+    try {
+        if (sourceWorksheet._merges && typeof sourceWorksheet._merges === 'object') {
+            Object.keys(sourceWorksheet._merges).forEach(mergeKey => {
+                const merge = sourceWorksheet._merges[mergeKey];
+                if (merge && merge.left && merge.top && merge.right && merge.bottom) {
+                    const startCell = newWorksheet.getCell(merge.top, merge.left);
+                    const endCell = newWorksheet.getCell(merge.bottom, merge.right);
+                    if (startCell && endCell) {
+                        newWorksheet.mergeCells(merge.top, merge.left, merge.bottom, merge.right);
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.log('合并单元格复制失败:', e);
+    }
+    
+    // 复制工作表属性
+    try {
+        if (sourceWorksheet.properties) {
+            newWorksheet.properties = JSON.parse(JSON.stringify(sourceWorksheet.properties));
+        }
+    } catch (e) {
+        console.log('工作表属性复制失败:', e);
+    }
+    
+    return newWorksheet;
+}
+
+// 检查行是否有数据
+function hasRowData(row) {
+    if (!row) return false;
+    
+    let hasData = false;
+    row.eachCell({ includeEmpty: false }, (cell) => {
+        if (cell.value !== undefined && cell.value !== null && String(cell.value).trim() !== '') {
+            hasData = true;
+        }
+    });
+    
+    return hasData;
+}
+
+// 填充当前系统时间到"时间："字段右边
+function fillCurrentTime(worksheet) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const currentDate = `${year}-${month}-${day}`;
+    
+    // 遍历所有行和单元格查找"时间："字段
+    worksheet.eachRow((row, rowNumber) => {
+        row.eachCell((cell, colNumber) => {
+            let cellValue = cell.value;
+            if (typeof cellValue === 'object' && cellValue !== null) {
+                if (cellValue.text) cellValue = cellValue.text;
+                else if (cellValue.result) cellValue = cellValue.result;
+                else cellValue = String(cellValue);
+            }
+            
+            cellValue = String(cellValue || '').trim();
+            
+            // 检查是否为"时间："或"时间"字段
+            if (cellValue === '时间：' || cellValue === '时间' || cellValue === '时间:') {
+                // 在右边单元格填充当前日期
+                const timeCell = row.getCell(colNumber + 1);
+                if (timeCell) {
+                    timeCell.value = currentDate;
+                }
+            }
+        });
+    });
+}
+
+window.onload = function() {
+    console.log('ExcelJS 版本已加载 - 完全免费，支持格式保留');
+};
+</script>
+</body>
+</html>

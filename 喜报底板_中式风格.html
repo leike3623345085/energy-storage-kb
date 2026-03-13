@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喜报底板-中式风格</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #1a0505;
+            padding: 20px;
+        }
+
+        .certificate {
+            width: 800px;
+            min-height: 1100px;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(212, 175, 55, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                linear-gradient(145deg, #c41e3a 0%, #8b0000 30%, #600000 70%, #8b0000 100%);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 80px rgba(212, 175, 55, 0.25),
+                0 0 160px rgba(212, 175, 55, 0.1);
+        }
+
+        /* 外边框 */
+        .outer-border {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 3px solid #d4af37;
+            border-radius: 2px;
+        }
+
+        /* 内边框 */
+        .inner-border {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            right: 30px;
+            bottom: 30px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
+
+        /* 四角装饰 - 回纹 */
+        .corner-decoration {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+        }
+
+        .corner-tl { top: 25px; left: 25px; }
+        .corner-tr { top: 25px; right: 25px; transform: rotate(90deg); }
+        .corner-bl { bottom: 25px; left: 25px; transform: rotate(-90deg); }
+        .corner-br { bottom: 25px; right: 25px; transform: rotate(180deg); }
+
+        .corner-decoration::before,
+        .corner-decoration::after {
+            content: '';
+            position: absolute;
+            border: 2px solid #d4af37;
+        }
+
+        .corner-decoration::before {
+            top: 0;
+            left: 0;
+            width: 60px;
+            height: 60px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration::after {
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        /* 顶部装饰条 */
+        .top-decoration {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .top-line {
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+        }
+
+        .top-symbol {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #d4af37;
+            transform: rotate(45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .top-symbol::before {
+            content: '福';
+            transform: rotate(-45deg);
+            color: #d4af37;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* 祥云装饰 */
+        .cloud {
+            position: absolute;
+            opacity: 0.12;
+        }
+
+        .cloud-1 {
+            top: 120px;
+            left: -80px;
+            width: 400px;
+            height: 200px;
+            background: radial-gradient(ellipse at center, #d4af37 0%, transparent 70%);
+            filter: blur(30px);
+        }
+
+        .cloud-2 {
+            top: 180px;
+            right: -60px;
+            width: 350px;
+            height: 180px;
+            background: radial-gradient(ellipse at center, #d4af37 0%, transparent 70%);
+            filter: blur(35px);
+        }
+
+        .cloud-3 {
+            bottom: 200px;
+            left: -40px;
+            width: 380px;
+            height: 190px;
+            background: radial-gradient(ellipse at center, #d4af37 0%, transparent 70%);
+            filter: blur(32px);
+        }
+
+        .cloud-4 {
+            bottom: 120px;
+            right: -80px;
+            width: 420px;
+            height: 210px;
+            background: radial-gradient(ellipse at center, #d4af37 0%, transparent 70%);
+            filter: blur(28px);
+        }
+
+        /* 中心圆环装饰 */
+        .center-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 50%;
+        }
+
+        .center-ring::before {
+            content: '';
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            right: 50px;
+            bottom: 50px;
+            border: 1px solid rgba(212, 175, 55, 0.08);
+            border-radius: 50%;
+        }
+
+        /* 内容区 */
+        .content {
+            position: relative;
+            z-index: 10;
+            padding: 140px 80px 100px;
+            text-align: center;
+        }
+
+        /* 标题 */
+        .title {
+            font-size: 88px;
+            font-weight: 900;
+            color: #d4af37;
+            text-shadow: 
+                0 0 30px rgba(212, 175, 55, 0.6),
+                0 0 60px rgba(212, 175, 55, 0.3),
+                0 4px 10px rgba(0, 0, 0, 0.5);
+            letter-spacing: 30px;
+            margin-bottom: 20px;
+            font-family: "SimHei", "Microsoft YaHei", serif;
+            position: relative;
+        }
+
+        /* 标题两侧装饰 */
+        .title::before,
+        .title::after {
+            content: '❖';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #d4af37;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+        }
+
+        .title::before { left: 80px; }
+        .title::after { right: 80px; }
+
+        /* 副标题 */
+        .subtitle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .subtitle-line {
+            width: 120px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+        }
+
+        .subtitle-dot {
+            width: 8px;
+            height: 8px;
+            background: #d4af37;
+            transform: rotate(45deg);
+        }
+
+        /* 主内容框 */
+        .main-box {
+            min-height: 450px;
+            background: rgba(139, 0, 0, 0.25);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 4px;
+            margin: 50px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+        }
+
+        /* 内容框四角 */
+        .main-box::before,
+        .main-box::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(212, 175, 55, 0.4);
+        }
+
+        .main-box::before {
+            top: -1px;
+            left: -1px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .main-box::after {
+            bottom: -1px;
+            right: -1px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .placeholder-text {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
+            letter-spacing: 4px;
+        }
+
+        /* 底部装饰 */
+        .footer {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .footer-pattern {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-line {
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+        }
+
+        .footer-icon {
+            color: #d4af37;
+            font-size: 20px;
+            opacity: 0.8;
+        }
+
+        .footer-text {
+            color: #d4af37;
+            font-size: 16px;
+            letter-spacing: 12px;
+            opacity: 0.9;
+        }
+
+        /* 漂浮粒子 */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: #d4af37;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        .particle:nth-child(1) { width: 3px; height: 3px; top: 15%; left: 25%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 4px; height: 4px; top: 25%; left: 75%; animation-delay: 1.5s; }
+        .particle:nth-child(3) { width: 2px; height: 2px; top: 35%; left: 15%; animation-delay: 3s; }
+        .particle:nth-child(4) { width: 5px; height: 5px; top: 45%; left: 85%; animation-delay: 4.5s; }
+        .particle:nth-child(5) { width: 3px; height: 3px; top: 55%; left: 10%; animation-delay: 6s; }
+        .particle:nth-child(6) { width: 4px; height: 4px; top: 65%; left: 90%; animation-delay: 7.5s; }
+        .particle:nth-child(7) { width: 2px; height: 2px; top: 75%; left: 20%; animation-delay: 9s; }
+        .particle:nth-child(8) { width: 3px; height: 3px; top: 85%; left: 80%; animation-delay: 2s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-30px) scale(1.3); opacity: 0.9; }
+        }
+
+        /* 提示 */
+        .tips {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #d4af37;
+            padding: 15px 20px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: 1px solid #d4af37;
+            line-height: 1.8;
+        }
+
+        @media print {
+            .tips { display: none; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body>
+    <div class="certificate">
+        <!-- 边框 -->
+        <div class="outer-border"></div>
+        <div class="inner-border"></div>
+
+        <!-- 四角回纹 -->
+        <div class="corner-decoration corner-tl"></div>
+        <div class="corner-decoration corner-tr"></div>
+        <div class="corner-decoration corner-bl"></div>
+        <div class="corner-decoration corner-br"></div>
+
+        <!-- 顶部装饰 -->
+        <div class="top-decoration">
+            <div class="top-line"></div>
+            <div class="top-symbol"></div>
+            <div class="top-line"></div>
+        </div>
+
+        <!-- 祥云 -->
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+        <div class="cloud cloud-4"></div>
+
+        <!-- 中心圆环 -->
+        <div class="center-ring"></div>
+
+        <!-- 粒子 -->
+        <div class="particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+
+        <!-- 内容 -->
+        <div class="content">
+            <h1 class="title">喜报</h1>
+            
+            <div class="subtitle">
+                <div class="subtitle-line"></div>
+                <div class="subtitle-dot"></div>
+                <div class="subtitle-line"></div>
+            </div>
+
+            <div class="main-box">
+                <span class="placeholder-text">恭贺新禧 · 万事如意</span>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="footer">
+            <div class="footer-pattern">
+                <div class="footer-line"></div>
+                <span class="footer-icon">❖</span>
+                <div class="footer-line"></div>
+            </div>
+            <span class="footer-text">吉祥如意 · 大展宏图</span>
+        </div>
+    </div>
+
+    <div class="tips">
+        💡 Ctrl+P 打印或保存PDF<br>
+        💡 F11 全屏后截图效果更佳<br>
+        💡 可直接编辑HTML中的文字内容
+    </div>
+</body>
+</html>

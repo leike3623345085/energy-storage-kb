@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>喜报模板 - 可编辑</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #8B0000 0%, #C41E3A 50%, #8B0000 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: "SimHei", "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+        
+        .xibao-container {
+            width: 700px;
+            background: linear-gradient(180deg, #DC143C 0%, #B22222 100%);
+            border: 8px solid #FFD700;
+            border-radius: 10px;
+            padding: 50px 60px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .xibao-container::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 3px solid #FFA500;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+        
+        /* 装饰花纹 */
+        .corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 3px solid #FFD700;
+        }
+        .corner-tl { top: 25px; left: 25px; border-right: none; border-bottom: none; }
+        .corner-tr { top: 25px; right: 25px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: 25px; left: 25px; border-right: none; border-top: none; }
+        .corner-br { bottom: 25px; right: 25px; border-left: none; border-top: none; }
+        
+        .title {
+            text-align: center;
+            font-size: 100px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+            letter-spacing: 30px;
+            padding-left: 30px;
+            outline: none;
+            border: 1px dashed transparent;
+            transition: border 0.3s;
+        }
+        
+        .title:hover, .title:focus {
+            border: 1px dashed #FFD700;
+        }
+        
+        .divider {
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            margin: 20px auto;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 32px;
+            color: #FFFFFF;
+            font-weight: bold;
+            margin-bottom: 10px;
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 5px;
+            transition: border 0.3s;
+        }
+        
+        .subtitle:hover, .subtitle:focus {
+            border: 1px dashed #FFD700;
+        }
+        
+        .rank {
+            text-align: center;
+            font-size: 56px;
+            color: #FFD700;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 5px;
+            transition: border 0.3s;
+        }
+        
+        .rank:hover, .rank:focus {
+            border: 1px dashed #FFD700;
+        }
+        
+        .change {
+            text-align: center;
+            font-size: 26px;
+            color: #FFE4B5;
+            margin-bottom: 30px;
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 5px;
+            transition: border 0.3s;
+        }
+        
+        .change:hover, .change:focus {
+            border: 1px dashed #FFD700;
+        }
+        
+        .content {
+            color: #FFFFFF;
+            font-size: 22px;
+            line-height: 2;
+            text-align: justify;
+            margin: 30px 0;
+        }
+        
+        .content p {
+            text-indent: 2em;
+            margin-bottom: 15px;
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 5px;
+            transition: border 0.3s;
+        }
+        
+        .content p:hover, .content p:focus {
+            border: 1px dashed #FFD700;
+        }
+        
+        .signature {
+            text-align: right;
+            color: #FFD700;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 40px;
+            line-height: 1.8;
+        }
+        
+        .signature .org, .signature .date {
+            outline: none;
+            border: 1px dashed transparent;
+            padding: 5px;
+            display: inline-block;
+            transition: border 0.3s;
+        }
+        
+        .signature .org:hover, .signature .org:focus,
+        .signature .date:hover, .signature .date:focus {
+            border: 1px dashed #FFD700;
+        }
+        
+        /* 编辑提示 */
+        .edit-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: #FFD700;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        
+        /* 打印按钮 */
+        .action-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: #FFD700;
+            color: #8B0000;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .btn:hover {
+            background: #FFA500;
+        }
+        
+        @media print {
+            body { background: #8B0000; }
+            .edit-hint, .action-buttons { display: none; }
+            .title, .subtitle, .rank, .change, .content p, .signature .org, .signature .date {
+                border: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="xibao-container">
+        <!-- 四角装饰 -->
+        <div class="corner corner-tl"></div>
+        <div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div>
+        <div class="corner corner-br"></div>
+        
+        <!-- 标题 -->
+        <h1 class="title" contenteditable="true">喜报</h1>
+        
+        <div class="divider"></div>
+        
+        <!-- 副标题 -->
+        <div class="subtitle" contenteditable="true">2025年度创新管理考核</div>
+        <div class="rank" contenteditable="true">全省第一名</div>
+        <div class="change" contenteditable="true">从去年的第21名跃居榜首，实现了跨越进阶！</div>
+        
+        <!-- 正文 -->
+        <div class="content">
+            <p contenteditable="true">捷报飞传，振奋人心！在2025年度创新管理考核中，我行以全省第一名的优异成绩，力拔头筹！从去年的第21名跃居榜首，我们实现了跨越进阶。这份荣光属于每一位员工，是全行同心协力、砥砺创新的最好见证。</p>
+            
+            <p contenteditable="true">衷心感谢各部门、各网点的通力配合，感谢每一位员工的献计献策。正是大家的群策群力，让创新的涓流汇聚成推动前行的澎湃动力，使创新真正落地生根、开花结果。</p>
+            
+            <p contenteditable="true">荣誉是肯定，更是期许。展望2026年，让我们继续浓厚创新氛围，昂扬拼搏斗志，深耕创意转化，赋能基层实践，再创崭新佳绩！</p>
+        </div>
+        
+        <!-- 落款 -->
+        <div class="signature">
+            <div class="org" contenteditable="true">中共中国建设银行成都新都支行委员会</div><br>
+            <div class="date" contenteditable="true">2026年3月</div>
+        </div>
+    </div>
+    
+    <!-- 编辑提示 -->
+    <div class="edit-hint">💡 提示：点击任意文字即可直接编辑</div>
+    
+    <!-- 操作按钮 -->
+    <div class="action-buttons">
+        <button class="btn" onclick="window.print()">🖨️ 打印/另存PDF</button>
+        <button class="btn" onclick="resetTemplate()">🔄 重置模板</button>
+    </div>
+    
+    <script>
+        // 重置模板
+        function resetTemplate() {
+            if (confirm('确定要重置为默认内容吗？所有修改将丢失。')) {
+                location.reload();
+            }
+        }
+        
+        // 自动保存到本地存储
+        document.querySelectorAll('[contenteditable]').forEach(el => {
+            el.addEventListener('blur', () => {
+                localStorage.setItem('xibao_' + el.className, el.innerText);
+            });
+        });
+    </script>
+</body>
+</html>

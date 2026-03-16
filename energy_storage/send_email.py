@@ -245,6 +245,7 @@ def main():
     parser.add_argument('--date', help='报告日期 (YYYYMMDD)')
     parser.add_argument('--test', action='store_true', help='发送测试邮件')
     parser.add_argument('--deep', action='store_true', help='发送深度分析报告')
+    parser.add_argument('--weekly', action='store_true', help='发送周报')
     
     args = parser.parse_args()
     

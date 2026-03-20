@@ -8,5 +8,45 @@
     "timestamp": "2026-03-19T20:01:14.595032",
     "query": "储能项目 独立储能 共享储能 虚拟电厂 电力现货市场 储能价格 储能产业链",
     "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-20T00:01:14.034267",
+    "query": "新型电力系统 储能 新能源并网 风光消纳 削峰填谷 钠离子电池 液流电池 固态电池 构网型储能 压缩空气储能 虚拟电厂 储能消防 电力现货市场",
+    "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-20T04:00:14.263779",
+    "query": "新型电力系统 储能 新能源并网 风光消纳 削峰填谷 钠离子电池 液流电池 固态电池 构网型储能 压缩空气储能 虚拟电厂 储能消防 电力现货市场",
+    "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-20T04:01:48.832996",
+    "query": "Tesla Fluence BESS grid storage long duration energy storage LDES compressed air vanadium flow battery grid forming Europe Germany UK energy storage market",
+    "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-20T08:02:21.216077",
+    "query": "新型电力系统 储能 新能源并网 风光消纳 削峰填谷 钠离子电池 液流电池 固态电池 构网型储能 压缩空气储能 虚拟电厂 储能消防 电力现货市场",
+    "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-20T20:03:17.947346",
+    "query": "国际储能市场 亚太 中东 拉美 2025 2026",
+    "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-20T20:03:17.947585",
+    "query": "大型独立储能项目 共享储能 投运 并网",
+    "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-20T20:03:17.947982",
+    "query": "储能电芯价格 储能系统价格 PCS价格 走势",
+    "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-20T20:03:17.948332",
+    "query": "虚拟电厂政策 电力现货市场 储能调度",
+    "status": "requested"
   }
 ]

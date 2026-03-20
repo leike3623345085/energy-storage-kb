@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-03-20T04:01:48",
+  "type": "深夜搜索",
+  "query": "Tesla Fluence BESS LDES compressed air vanadium flow battery grid forming Europe",
+  "results": [
+    {
+      "title": "Why long duration energy storage will be the heart of Europe's energy future",
+      "date": "2025-11-18",
+      "url": "https://ldescouncil.com/why-long-duration-energy-storage-will-be-the-heart-of-europes-energy-future/",
+      "summary": "LDES Council报告，欧洲LDES布局：英国AWS数据中心LDES应用、CERES电化学系统、挪威TechnipFMC海上氢能+LDES、德国Kraftblock热储能/VoltStorage铁流电池、奥地利CellCube液流电池、瑞典SENS地下抽蓄。"
+    },
+    {
+      "title": "Fluence's Innovative BESS for Energy Transition",
+      "date": "2026-02-11",
+      "url": "https://www.batterytechonline.com/stationary-batteries/fluence-s-innovative-bess-for-energy-transition",
+      "summary": "Fluence与Varco合作的英国Sizing John BESS项目：57MW/137.5MWh已投运（2.4小时时长），二期将扩容至142.5MW/348.5MWh并采用Gridstack Pro 5000和grid-forming技术。"
+    },
+    {
+      "title": "From hours to economics: Why BESS is a contender for long-duration energy storage",
+      "date": "2025-03-04",
+      "url": "https://www.energy-storage.news/from-hours-to-economics-why-bess-is-a-contender-for-long-duration-energy-storage-ldes/",
+      "summary": "远景能源分析：LDES Council预计2040年全球需8TW LDES，目前仅120GW。英国cap-and-floor机制、意大利MACSE拍卖、印度RTC招标、澳大利亚NSW 28GWh目标。BESS在6-8小时储能IRR已超抽水蓄能。"
+    },
+    {
+      "title": "Tesla top, Energy Dome the highest non-lithium firm in new LDES supplier ranking",
+      "date": "2026-01-29",
+      "url": "https://www.energy-storage.news/tesla-top-energy-dome-the-highest-non-lithium-firm-in-new-ldes-supplier-ranking/",
+      "summary": "LDES供应商排名：Tesla第一，Energy Dome非锂电最高排名。LDES定义为8小时以上储能。"
+    },
+    {
+      "title": "LDES Battery Cheaper Than Lithium Ion for Long Duration Energy Storage Solutions",
+      "date": "2025-06-17",
+      "url": "https://www.neexgent.com/article/ldes-battery-cheaper-than-lithium-ion.html",
+      "summary": "LDES vs锂电成本分析：铁空气/锌基/热储能/液流电池使用更丰富的材料，寿命10,000-20,000次循环，20年周期TCO更低。"
+    },
+    {
+      "title": "华为数字能源2024战略逐条解读",
+      "date": "2025-04-16",
+      "url": "http://mp.weixin.qq.com/s?__biz=Mzg3MDcwNzM2MA==&mid=2247506383",
+      "summary": "华为年报：构网型储能作为战略支点，VSG技术毫秒级惯量响应(<20ms)，2019年提前布局Grid Forming。长时储能布局全钒液流、钠离子、压缩空气。"
+    },
+    {
+      "title": "2026年7月成都长时储能展前瞻",
+      "date": "2026-02-19",
+      "url": "https://www.cne-expo.com/zhanhuidongtai/606.html",
+      "summary": "成都长时储能展前瞻：全钒液流2026年底中国累计装机预计突破1.5GW；非补燃式压缩空气储能效率70%+；300MW级盐穴压缩空气储能已并网。"
+    },
+    {
+      "title": "Wood Mackenzie 2026年储能市场展望",
+      "date": "2026-02-01",
+      "url": "https://www.nengyuanjie.net/article/118994.html",
+      "summary": "WoodMac：2025年全球储能新增106GW创新高，欧洲增160%。2026年五大趋势：构网型技术规范、替代电池化学体系、数据中心储能。中国制造商将侧重海外扩张。"
+    }
+  ]
+}

@@ -48,5 +48,15 @@
     "timestamp": "2026-03-20T20:03:17.948332",
     "query": "虚拟电厂政策 电力现货市场 储能调度",
     "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-21T00:02:30.027063",
+    "query": "Tesla Fluence BESS grid storage long duration energy storage LDES compressed air vanadium flow battery grid forming Europe Germany UK energy storage market",
+    "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-21T04:00:21.522467",
+    "query": "新型电力系统 储能 新能源并网 风光消纳 削峰填谷 钠离子电池 液流电池 固态电池 构网型储能 压缩空气储能 虚拟电厂 储能消防 电力现货市场",
+    "status": "requested"
   }
 ]

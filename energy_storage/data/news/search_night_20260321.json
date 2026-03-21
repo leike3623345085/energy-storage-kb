@@ -1,0 +1,44 @@
+{
+  "search_time": "2026-03-21T04:01:00+08:00",
+  "period": "深夜",
+  "query": "Tesla Fluence BESS grid storage long duration energy storage LDES compressed air vanadium flow battery grid forming Europe Germany UK",
+  "total_results": 8,
+  "findings": [
+    {
+      "category": "Fluence动态",
+      "items": [
+        "Fluence与Varco Energy合作推出英国Sizing John BESS项目，57MW/137.5MWh，2.4小时时长为英国运营中电池项目最长之一",
+        "Phase 2将在2026年底前商业运营，采用Gridstack Pro 5000，整合先进的grid-forming构网型技术",
+        "项目将扩展至142.5MW/348.5MWh，成为英国最大BESS之一",
+        "Fluence 2025年Q4营收增长154%至4.75亿美元，但净亏损扩大至6260万美元，利润率减半",
+        "Fluence在德国和美国排名第二大BESS供应商，Smartstack解决方案获2025年度产品奖"
+      ]
+    },
+    {
+      "category": "欧洲储能市场",
+      "items": [
+        "德国2024年安装100套大型储能系统(≥1MWh)，新增2.3GWh容量，可再生能源占比达55%",
+        "德国太阳能行业协会预测2026年前将再增7GWh大型储能",
+        "德国累计储能容量超1.9GWh，已申请并网容量超160GW",
+        "大型储能到2030年可创造120亿欧元经济价值，减少9GW燃气电厂需求，节省620万吨CO₂"
+      ]
+    },
+    {
+      "category": "长时储能LDES技术",
+      "items": [
+        "ResearchAndMarkets发布《2025-2046年长时储能市场概览报告》，覆盖泵蓄、压缩空气、液流电池等9大技术",
+        "压缩空气储能(CAES)重点关注：Hydrostor(加拿大)、Storelectric(英国)、Corre Energy(荷兰)等10家公司",
+        "液流电池(RFB)45家公司对比分析，钒液流、全铁液流等技术路线竞争",
+        "固态重力储能(SGES)、液态空气储能(LAES)、热储能(ETES)等新兴技术进展"
+      ]
+    },
+    {
+      "category": "构网型储能Grid-forming",
+      "items": [
+        "Fluence Gridstack Pro 5000集成grid-forming技术，主动调节电压和频率",
+        "AGL首席电网工程师表示：两年前市场对构网型逆变器如何运作缺乏理解，现在正快速普及",
+        "构网型技术成为欧洲大型储能项目标配，英国Sizing John Phase 2将部署该技术"
+      ]
+    }
+  ]
+}

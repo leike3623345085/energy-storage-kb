@@ -1,0 +1,1 @@
+{"timestamp": "2026-03-21T23:15:35.670512", "error_type": "data_insufficient", "code": "E001", "message": "爬虫数据不足: 5 < 20", "context": {"date": "2026-03-21", "attempt": 1}, "auto_fixed": true, "fix_action": "retry_crawler", "fix_result": "failed: "}

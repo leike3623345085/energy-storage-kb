@@ -1,0 +1,37 @@
+{
+  "component": "sync",
+  "description": "数据同步组件修复手册",
+  "common_issues": [
+    {
+      "symptom": "飞书同步失败",
+      "causes": [
+        "API Token 过期",
+        "网络连接问题",
+        "数据格式错误"
+      ],
+      "fixes": [
+        "检查 Token 有效性",
+        "重试同步",
+        "验证数据格式"
+      ]
+    },
+    {
+      "symptom": "IMA同步失败",
+      "causes": [
+        "认证失效",
+        "文件夹不存在",
+        "内容过大"
+      ],
+      "fixes": [
+        "重新认证",
+        "检查文件夹配置",
+        "分批上传"
+      ]
+    }
+  ],
+  "commands": {
+    "sync_feishu": "cd /root/.openclaw/workspace/energy_storage && python3 sync_batch.py",
+    "sync_ima": "cd /root/.openclaw/workspace/energy_storage && python3 sync_ima.py",
+    "check_tokens": "echo '检查配置文件中的 Token 有效性'"
+  }
+}

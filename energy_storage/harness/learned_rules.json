@@ -1,0 +1,15 @@
+{
+  "82635ca3": {
+    "error_type": "data_insufficient",
+    "code": "E001",
+    "count": 1,
+    "first_seen": "2026-03-21T23:15:35.670512",
+    "contexts": [
+      {
+        "date": "2026-03-21",
+        "attempt": 1
+      }
+    ],
+    "last_seen": "2026-03-21T23:15:35.670512"
+  }
+}

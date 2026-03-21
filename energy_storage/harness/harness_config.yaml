@@ -1,0 +1,198 @@
+# Harness Engineering for Energy Storage Monitoring System
+# 储能监控系统的驾驭工程架构
+
+version: "1.0"
+description: "基于 OpenAI Harness Engineering 的储能监控系统 AI 工作流架构"
+
+# ==================== 核心理念 ====================
+philosophy:
+  principle: "人类掌舵，智能体执行"
+  english: "Humans steer. Agents execute."
+  autonomy_formula: "自主权 = f(背压)"  # 约束和反馈越完善，自主权越大
+
+# ==================== 三层架构 ====================
+layers:
+  prompt_engineering:
+    level: 1
+    year: 2024
+    focus: "怎么跟AI说话"
+    scope: "单次交互"
+    
+  context_engineering:
+    level: 2
+    year: 2025
+    focus: "给AI看什么"
+    scope: "上下文窗口"
+    
+  harness_engineering:
+    level: 3
+    year: 2026
+    focus: "怎么让AI可靠工作"
+    scope: "整个Agent系统生命周期"
+
+# ==================== 五大核心组件 ====================
+components:
+  
+  # 1. 应用可读性 - 让Agent能"看见"系统状态
+  application_legibility:
+    enabled: true
+    description: "Agent能够读取系统日志、指标、数据状态"
+    capabilities:
+      - read_logs: "读取爬虫日志、同步日志"
+      - check_metrics: "检查数据量、成功率"
+      - validate_data: "验证数据完整性"
+    
+  # 2. 渐进式披露 - 分层上下文
+  progressive_disclosure:
+    enabled: true
+    description: "根据任务复杂度加载不同层级的上下文"
+    levels:
+      simple:
+        trigger: "单日报生成"
+        context: "当日数据 + 基础模板"
+      complex:
+        trigger: "周报生成"
+        context: "7天数据 + 历史对比 + 趋势分析"
+      diagnostic:
+        trigger: "异常处理"
+        context: "日志 + 错误历史 + 修复方案库"
+    
+  # 3. 确定性约束 - 架构护栏
+  deterministic_constraints:
+    enabled: true
+    description: "硬性规则，Agent不可违背"
+    rules:
+      data_quality:
+        min_crawler_items: 20
+        min_news_items: 10
+        stock_data_required: true
+      format_validation:
+        required_sections:
+          - "市场动态"
+          - "技术进展"
+          - "政策动态"
+          - "行情数据"
+      safety:
+        max_retries: 3
+        timeout_seconds: 300
+        
+  # 4. 反馈循环 - 自动修复
+  feedback_loop:
+    enabled: true
+    description: "错误自动检测、分类、修复、记录"
+    stages:
+      detect: "识别错误类型"
+      classify: "归类到已知错误库"
+      repair: "尝试自动修复"
+      record: "更新约束规则防止再犯"
+      
+  # 5. 垃圾回收 - 技术债清理
+  garbage_collection:
+    enabled: true
+    description: "自动清理临时文件、过期数据、重复内容"
+    schedule: "daily"
+    tasks:
+      - clean_temp_files
+      - deduplicate_records
+      - archive_old_reports
+
+# ==================== 工作流定义 ====================
+workflows:
+  
+  daily_report:
+    name: "日报生成工作流"
+    steps:
+      - step: pre_flight_check
+        component: guardrails
+        description: "数据质量检查"
+        
+      - step: load_context
+        component: progressive_disclosure
+        description: "加载当日数据上下文"
+        
+      - step: generate_report
+        component: agent_executor
+        description: "Agent生成报告"
+        
+      - step: validate_output
+        component: guardrails
+        description: "输出格式验证"
+        
+      - step: deliver
+        component: delivery
+        description: "邮件发送"
+        
+      - step: feedback
+        component: feedback_loop
+        description: "记录执行结果"
+    
+  crawler_monitor:
+    name: "爬虫监控工作流"
+    steps:
+      - step: check_health
+        component: application_legibility
+        description: "检查爬虫健康状态"
+        
+      - step: diagnose
+        component: progressive_disclosure
+        description: "如失败，加载诊断上下文"
+        
+      - step: repair
+        component: feedback_loop
+        description: "自动修复或通知人工"
+        
+  self_healing:
+    name: "自愈系统工作流"
+    steps:
+      - step: scan
+        component: application_legibility
+        description: "扫描系统状态"
+        
+      - step: detect_anomaly
+        component: guardrails
+        description: "异常检测"
+        
+      - step: classify_issue
+        component: feedback_loop
+        description: "问题分类"
+        
+      - step: auto_repair
+        component: feedback_loop
+        description: "自动修复"
+        
+      - step: update_rules
+        component: deterministic_constraints
+        description: "更新约束规则"
+
+# ==================== 错误类型库 ====================
+error_library:
+  data_insufficient:
+    code: "E001"
+    description: "数据量不足"
+    auto_fix: true
+    fix_action: "retry_crawler"
+    
+  format_invalid:
+    code: "E002"
+    description: "输出格式不符合要求"
+    auto_fix: true
+    fix_action: "regenerate_with_template"
+    
+  delivery_failed:
+    code: "E003"
+    description: "邮件发送失败"
+    auto_fix: true
+    fix_action: "retry_with_backoff"
+    
+  sync_failed:
+    code: "E004"
+    description: "飞书/IMA同步失败"
+    auto_fix: false
+    fix_action: "notify_human"
+
+# ==================== 性能指标 ====================
+metrics:
+  target_success_rate: 0.95
+  max_latency_seconds: 300
+  auto_fix_rate: 0.80
+  human_intervention_rate: 0.05

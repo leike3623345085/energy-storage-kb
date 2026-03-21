@@ -1,0 +1,37 @@
+{
+  "component": "crawler",
+  "description": "爬虫组件修复手册",
+  "common_issues": [
+    {
+      "symptom": "数据量不足",
+      "causes": [
+        "网站反爬机制升级",
+        "网络连接超时",
+        "目标网站结构变化"
+      ],
+      "fixes": [
+        "增加请求间隔时间",
+        "更换 User-Agent",
+        "更新 XPath/CSS 选择器"
+      ]
+    },
+    {
+      "symptom": "爬虫崩溃",
+      "causes": [
+        "内存不足",
+        "异常未捕获",
+        "依赖库版本冲突"
+      ],
+      "fixes": [
+        "重启爬虫进程",
+        "检查日志定位错误",
+        "更新依赖库"
+      ]
+    }
+  ],
+  "commands": {
+    "restart": "cd /root/.openclaw/workspace/energy_storage && python3 crawler_multi.py",
+    "check_status": "ps aux | grep crawler",
+    "view_logs": "tail -100 /root/.openclaw/workspace/energy_storage/logs/crawler.log"
+  }
+}

@@ -266,6 +266,46 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 - **2026-03-11**：建立自愈系统 → 发现问题自动修复 → 已验证
 - **2026-03-11**：确立原则 — 遇到问题直接执行最优方案，不反复询问
 
+---
+
+## 🏗️ Harness Engineering 架构规范（2026-03-21 确立）
+
+### 核心原则
+**所有工作流都必须复用 Harness Engineering 架构**
+
+> "人类掌舵，智能体执行" — Humans steer. Agents execute.
+
+### 新建工作流的强制要求
+
+当用户要求创建新的工作流时，必须：
+
+1. **复用 harness/ 组件**
+   ```python
+   sys.path.insert(0, str(Path(__file__).parent / 'harness'))
+   from agent_runner import AgentRunner
+   ```
+
+2. **包含完整的 Harness 流程**
+   - Guardrails 飞行前检查
+   - Progressive Disclosure 上下文加载
+   - Agent 执行
+   - Guardrails 输出验证
+   - Feedback Loop 结果记录
+
+3. **禁止直接裸调 AI**
+   - ❌ 禁止：直接调用 kimi_search 而不经过 Harness
+   - ❌ 禁止：忽略错误处理
+   - ❌ 禁止：不使用分层上下文
+
+### 工作流模板位置
+- `energy_storage/harness/README.md` - 架构文档
+- `energy_storage/harness/harness_config.yaml` - 配置参考
+- `energy_storage/generate_report_harness.py` - 日报示例
+- `energy_storage/self_healing_harness.py` - 自愈示例
+
+### 用户确认
+此规范已由用户确认：**"以后的所有工作流都需要复用 Harness 的架构"**
+
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.

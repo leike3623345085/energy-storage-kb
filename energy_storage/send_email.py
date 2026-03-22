@@ -136,7 +136,7 @@ def send_daily_report(report_date=None):
     html_content = markdown_to_html(report_content)
     
     # 邮件主题
-    subject = f"【储能日报】{datetime.now().strftime('%Y年%m月%d日')} 行业动态"
+    subject = f"【KIMICLAW|储能日报】{datetime.now().strftime('%Y年%m月%d日')} 行业动态"
     
     # 发送邮件
     return send_email(subject, html_content, str(report_file))
@@ -202,8 +202,9 @@ def markdown_to_html(md_content):
         {html}
         <hr>
         <p style="color: #999; font-size: 12px;">
-            本邮件由 OpenClaw 储能监控系统自动生成<br>
-            发送时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+            <b>🤖 KIMICLAW 储能监控系统</b> 自动生成<br>
+            发送时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}<br>
+            <span style="color: #1a73e8;">KIMICLAW</span> | 智能行业监控助手
         </p>
     </body>
     </html>
@@ -232,7 +233,7 @@ def send_deep_analysis(report_date=None):
     html_content = markdown_to_html(report_content)
     
     # 邮件主题
-    subject = f"【储能深度分析】{datetime.now().strftime('%Y年%m月%d日')} 行业研究报告"
+    subject = f"【KIMICLAW|储能深度分析】{datetime.now().strftime('%Y年%m月%d日')} 行业研究报告"
     
     # 发送邮件
     return send_email(subject, html_content, str(report_file))
@@ -251,7 +252,7 @@ def main():
     
     if args.test:
         # 发送测试邮件
-        subject = "【测试】储能监控系统邮件推送测试"
+        subject = "【KIMICLAW|测试】储能监控系统邮件推送测试"
         content = """
         <h2>邮件推送测试</h2>
         <p>如果您收到这封邮件，说明储能监控系统的邮件推送功能已配置成功！</p>

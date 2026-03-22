@@ -25,6 +25,9 @@ def send_text(content, mentioned_list=None):
         content: 消息内容
         mentioned_list: @用户列表，如 ["@all"] 或 ["UserID1"]
     """
+    # 添加 KIMICLAW 标识
+    content = f"🤖【KIMICLAW】\n{content}"
+    
     data = {
         "msgtype": "text",
         "text": {
@@ -40,6 +43,10 @@ def send_markdown(content):
     发送Markdown消息
     支持格式：标题、加粗、链接、颜色等
     """
+    # 添加 KIMICLAW 标识
+    header = "> 🤖 **KIMICLAW** | 智能行业监控助手\n\n---\n\n"
+    content = header + content
+    
     data = {
         "msgtype": "markdown",
         "markdown": {
@@ -90,7 +97,7 @@ def send_file(filepath):
     file_size = os.path.getsize(filepath)
     
     # 企业微信机器人不支持直接发送文件，发送提示信息
-    content = f"📄 分析报告已生成\n\n文件名: {filename}\n大小: {file_size/1024:.1f} KB\n\n请查看邮件获取完整报告。"
+    content = f"📄 分析报告已生成\n\n文件名: {filename}\n大小: {file_size/1024:.1f} KB\n\n请查看邮件获取完整报告。\n\n---\n🤖 KIMICLAW | 智能行业监控助手"
     
     return send_text(content)
 

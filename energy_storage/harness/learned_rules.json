@@ -2,7 +2,7 @@
   "82635ca3": {
     "error_type": "data_insufficient",
     "code": "E001",
-    "count": 5,
+    "count": 6,
     "first_seen": "2026-03-21T23:15:35.670512",
     "contexts": [
       {
@@ -24,9 +24,13 @@
       {
         "date": "2026-03-22",
         "check": "pre_flight"
+      },
+      {
+        "date": "2026-03-22",
+        "check": "pre_flight"
       }
     ],
-    "last_seen": "2026-03-22T18:22:13.941576"
+    "last_seen": "2026-03-22T18:36:28.334365"
   },
   "e2cd04da": {
     "error_type": "format_invalid",

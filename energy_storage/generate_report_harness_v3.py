@@ -297,6 +297,96 @@ def generate_industry_chain_section(news_list: List[Dict]) -> str:
     return section + "\n"
 
 
+def load_today_news(date_str: str) -> List[Dict]:
+    """
+    加载当天新闻 - 支持多数据源
+    1. 首先尝试从 news.jsonl 读取
+    2. 如果数据不足，从 crawler/ 目录读取
+    3. 同时读取搜索数据（如果存在）
+    """
+    today_news = []
+    
+    # 数据源1: news.jsonl
+    if NEWS_FILE.exists():
+        with open(NEWS_FILE, 'r', encoding='utf-8') as f:
+            for line in f:
+                try:
+                    item = json.loads(line.strip())
+                    item_date = item.get('timestamp', '')[:10]
+                    if item_date == date_str:
+                        today_news.append(item)
+                except:
+                    continue
+    
+    print(f"  📂 news.jsonl: {len(today_news)} 条")
+    
+    # 数据源2: crawler/ 目录（如果数据不足）
+    if len(today_news) < 10:
+        crawler_dir = DATA_DIR / "crawler"
+        if crawler_dir.exists():
+            # 查找当天的爬虫数据文件
+            crawler_files = sorted(crawler_dir.glob(f"crawler_{date_str.replace('-', '')}_*.json"), reverse=True)
+            
+            for crawler_file in crawler_files[:3]:  # 最多取3个文件
+                try:
+                    with open(crawler_file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        crawler_news = data.get('data', [])
+                        
+                        # 转换格式以兼容
+                        for item in crawler_news:
+                            today_news.append({
+                                'title': item.get('title', ''),
+                                'url': item.get('url', ''),
+                                'source': item.get('source', '未知'),
+                                'timestamp': item.get('pub_date') or item.get('fetched_at', date_str),
+                                'summary': item.get('title', '')  # 爬虫没有摘要，用标题代替
+                            })
+                        
+                        print(f"  📂 {crawler_file.name}: {len(crawler_news)} 条")
+                except Exception as e:
+                    print(f"  ⚠️ 读取失败 {crawler_file.name}: {e}")
+    
+    # 数据源3: 搜索数据（search_*.json）
+    search_dir = DATA_DIR / "news"
+    if search_dir.exists():
+        search_files = sorted(search_dir.glob(f"search_*_{date_str}.json"), reverse=True)
+        
+        for search_file in search_files[:2]:  # 最多取2个文件
+            try:
+                with open(search_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    categories = data.get('categories', {})
+                    
+                    for cat_name, cat_data in categories.items():
+                        highlights = cat_data.get('highlights', [])
+                        for item in highlights:
+                            today_news.append({
+                                'title': item.get('title', ''),
+                                'url': item.get('url', ''),
+                                'source': '搜索-' + cat_name,
+                                'timestamp': item.get('date', date_str),
+                                'summary': item.get('summary', '')
+                            })
+                    
+                    total_highlights = sum(len(c.get('highlights', [])) for c in categories.values())
+                    print(f"  📂 {search_file.name}: {total_highlights} 条")
+            except Exception as e:
+                print(f"  ⚠️ 读取失败 {search_file.name}: {e}")
+    
+    # 去重
+    seen_urls = set()
+    unique_news = []
+    for item in today_news:
+        url = item.get('url', '')
+        if url and url not in seen_urls:
+            seen_urls.add(url)
+            unique_news.append(item)
+    
+    print(f"  ✅ 去重后: {len(unique_news)} 条")
+    return unique_news
+
+
 def generate_daily_report_harness(date=None, use_harness=True, fact_check=True, use_analysis=True):
     """
     生成每日报告 - Harness 架构版 v3
@@ -318,18 +408,8 @@ def generate_daily_report_harness(date=None, use_harness=True, fact_check=True, 
     print(f"报告日期: {date_str}")
     print("=" * 60)
     
-    # 加载当天新闻
-    today_news = []
-    if NEWS_FILE.exists():
-        with open(NEWS_FILE, 'r', encoding='utf-8') as f:
-            for line in f:
-                try:
-                    item = json.loads(line.strip())
-                    item_date = item.get('timestamp', '')[:10]
-                    if item_date == date_str:
-                        today_news.append(item)
-                except:
-                    continue
+    # 加载当天新闻 - 支持多数据源
+    today_news = load_today_news(date_str)
     
     if use_harness:
         runner = AgentRunner()

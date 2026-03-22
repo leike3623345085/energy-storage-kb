@@ -2,7 +2,7 @@
   "82635ca3": {
     "error_type": "data_insufficient",
     "code": "E001",
-    "count": 2,
+    "count": 5,
     "first_seen": "2026-03-21T23:15:35.670512",
     "contexts": [
       {
@@ -12,14 +12,26 @@
       {
         "date": "2026-03-22",
         "check": "pre_flight"
+      },
+      {
+        "date": "2026-03-22",
+        "check": "pre_flight"
+      },
+      {
+        "date": "2026-03-22",
+        "check": "pre_flight"
+      },
+      {
+        "date": "2026-03-22",
+        "check": "pre_flight"
       }
     ],
-    "last_seen": "2026-03-22T04:11:21.747530"
+    "last_seen": "2026-03-22T18:22:13.941576"
   },
   "e2cd04da": {
     "error_type": "format_invalid",
     "code": "E002",
-    "count": 8,
+    "count": 10,
     "first_seen": "2026-03-22T00:07:00.718208",
     "contexts": [
       {
@@ -53,8 +65,16 @@
       {
         "date": "20260322",
         "component": "report"
+      },
+      {
+        "date": "20260322",
+        "component": "report"
+      },
+      {
+        "date": "20260322",
+        "component": "report"
       }
     ],
-    "last_seen": "2026-03-22T08:03:07.487438"
+    "last_seen": "2026-03-22T18:20:11.021214"
   }
 }

@@ -11,11 +11,42 @@ import ssl
 import time
 import random
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
 
-# 创建SSL上下文
+# 时间过滤配置 - 只保留7天内的数据
+MAX_AGE_DAYS = 7
+
+def parse_date_from_url(url: str) -> datetime:
+    """从URL解析日期"""
+    # 匹配 /news/20260322/ 格式
+    match = re.search(r'/news/(\d{4})(\d{2})(\d{2})/', url)
+    if match:
+        year, month, day = match.groups()
+        try:
+            return datetime(int(year), int(month), int(day))
+        except:
+            pass
+    
+    # 匹配 /2024-12/ART-12345-001.html 格式
+    match = re.search(r'/(\d{4})-(\d{2})/', url)
+    if match:
+        year, month = match.groups()
+        # 默认为当月1号
+        try:
+            return datetime(int(year), int(month), 1)
+        except:
+            pass
+    
+    return None
+
+def is_within_days(date: datetime, days: int = MAX_AGE_DAYS) -> bool:
+    """检查日期是否在指定天数内"""
+    if date is None:
+        return True  # 无法解析日期的默认保留
+    cutoff = datetime.now() - timedelta(days=days)
+    return date >= cutoff
 ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
@@ -85,10 +116,18 @@ class BJXScraper(WebScraper):
         for link, title in re.findall(pattern, html):
             title = title.strip()
             if len(title) > 10 and '储能' in title:
+                url = urljoin(self.base_url, link)
+                pub_date = parse_date_from_url(url)
+                
+                # 只保留7天内的数据
+                if not is_within_days(pub_date, MAX_AGE_DAYS):
+                    continue
+                
                 news.append({
                     "title": title,
-                    "url": urljoin(self.base_url, link),
+                    "url": url,
                     "source": self.name,
+                    "pub_date": pub_date.isoformat() if pub_date else None,
                     "fetched_at": datetime.now().isoformat()
                 })
         return news[:20]
@@ -128,10 +167,18 @@ class OFweekScraper(WebScraper):
         for link, title in re.findall(pattern, html):
             title = title.strip()
             if len(title) > 10:
+                url = urljoin(self.base_url, link)
+                pub_date = parse_date_from_url(url)
+                
+                # 只保留7天内的数据
+                if not is_within_days(pub_date, MAX_AGE_DAYS):
+                    continue
+                
                 news.append({
                     "title": title,
-                    "url": urljoin(self.base_url, link),
+                    "url": url,
                     "source": self.name,
+                    "pub_date": pub_date.isoformat() if pub_date else None,
                     "fetched_at": datetime.now().isoformat()
                 })
         return news[:20]
@@ -145,6 +192,7 @@ def main():
     print("=" * 60)
     print("储能行业网站爬虫 - 修复版")
     print(f"运行时间: {datetime.now()}")
+    print(f"时间过滤: 只保留 {MAX_AGE_DAYS} 天内的数据")
     print("=" * 60)
     
     all_news = []
@@ -171,22 +219,27 @@ def main():
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump({
                 "fetch_time": datetime.now().isoformat(),
+                "filter_config": {
+                    "max_age_days": MAX_AGE_DAYS,
+                    "cutoff_date": (datetime.now() - timedelta(days=MAX_AGE_DAYS)).strftime("%Y-%m-%d")
+                },
                 "total_count": len(all_news),
                 "sources": list(set(n["source"] for n in all_news)),
                 "data": all_news
             }, f, ensure_ascii=False, indent=2)
         
         print(f"\n{'='*60}")
-        print(f"✅ 完成! 总计: {len(all_news)} 条")
+        print(f"✅ 完成! 总计: {len(all_news)} 条 (已过滤7天外数据)")
         print(f"   来源: {', '.join(set(n['source'] for n in all_news))}")
         print(f"   保存: {filepath}")
         
         print(f"\n📰 最新5条:")
         for i, item in enumerate(all_news[:5], 1):
-            print(f"   {i}. [{item['source']}] {item['title'][:45]}...")
+            pub_date = item.get('pub_date', '未知')[:10] if item.get('pub_date') else '未知'
+            print(f"   {i}. [{item['source']}] [{pub_date}] {item['title'][:40]}...")
         return True
     else:
-        print("\n⚠️ 未获取到数据")
+        print("\n⚠️ 未获取到数据 (可能7天内无新内容)")
         return False
 
 

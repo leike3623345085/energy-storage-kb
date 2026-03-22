@@ -146,7 +146,10 @@ if __name__ == "__main__":
     
     if len(sys.argv) > 1 and sys.argv[1] == "--check":
         # 纯检查模式，用于定时任务
-        auto_check()
+        if auto_check():
+            sys.exit(0)
+        else:
+            sys.exit(1)
     else:
         # 执行前检查模式
         if not pre_exec_check():

@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""
+使用内部 API 创建定时任务
+"""
+import requests
+import json
+import os
+
+# 读取 gateway token
+token_file = os.path.expanduser("~/.openclaw/.gateway-token")
+with open(token_file) as f:
+    token = f.read().strip()
+
+job_config = {
+    "name": "储能网站爬虫-多站点V2",
+    "schedule": {
+        "kind": "cron",
+        "expr": "0 */4 * * *",
+        "tz": "Asia/Shanghai"
+    },
+    "sessionTarget": "isolated",
+    "payload": {
+        "kind": "agentTurn",
+        "message": "【储能网站爬虫】执行多站点爬虫（V2稳定版）\n\ncd /root/.openclaw/workspace/energy_storage && timeout 300 python3 crawler_multi_v2.py\n\n检查数据量：\nls -lh /root/.openclaw/workspace/energy_storage/data/crawler/*.json | tail -3",
+        "model": "kimi-coding/k2p5",
+        "timeoutSeconds": 360
+    },
+    "delivery": {
+        "mode": "announce",
+        "channel": "kimi-claw",
+        "to": "main"
+    }
+}
+
+# 调用 gateway API
+url = "http://localhost:8080/api/cron/add"
+headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+response = requests.post(url, headers=headers, json=job_config, timeout=30)
+
+print(f"Status: {response.status_code}")
+print(f"Response: {response.text}")

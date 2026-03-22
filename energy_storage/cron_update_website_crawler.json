@@ -1,0 +1,13 @@
+{
+  "payload": {
+    "kind": "agentTurn",
+    "message": "【储能网站爬虫】执行多站点爬虫（V2稳定版）\n\ncd /root/.openclaw/workspace/energy_storage && timeout 300 python3 crawler_multi_v2.py\n\n检查数据量：\nls -lh /root/.openclaw/workspace/energy_storage/data/crawler/*.json | tail -3",
+    "model": "kimi-coding/k2p5",
+    "timeoutSeconds": 360
+  },
+  "delivery": {
+    "mode": "announce",
+    "channel": "kimi-claw",
+    "to": "main"
+  }
+}

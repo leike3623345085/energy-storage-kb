@@ -78,5 +78,10 @@
     "timestamp": "2026-03-21T20:02:26.900601",
     "query": "储能项目 独立储能 共享储能 虚拟电厂 电力现货市场 储能价格 储能产业链",
     "status": "requested"
+  },
+  {
+    "timestamp": "2026-03-22T04:04:16.846276",
+    "query": "Tesla Fluence BESS grid storage long duration energy storage LDES compressed air vanadium flow battery grid forming Europe Germany UK energy storage market",
+    "status": "requested"
   }
 ]

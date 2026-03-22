@@ -163,6 +163,37 @@ workflows:
       - step: update_rules
         component: deterministic_constraints
         description: "更新约束规则"
+        
+  ai_tech_monitor:
+    name: "AI技术监控工作流"
+    steps:
+      - step: check_frequency
+        component: guardrails
+        description: "检查搜索频率（24小时内不重复）"
+        
+      - step: load_existing_knowledge
+        component: progressive_disclosure
+        description: "加载历史建议和当前工作流"
+        
+      - step: search_ai_tech
+        component: agent_executor
+        description: "搜索最新AI技术"
+        
+      - step: analyze_optimization
+        component: agent_executor
+        description: "分析对现有流程的优化潜力"
+        
+      - step: generate_report
+        component: agent_executor
+        description: "生成技术监控报告"
+        
+      - step: save_suggestions
+        component: feedback_loop
+        description: "保存优化建议到知识库"
+        
+      - step: update_last_search
+        component: feedback_loop
+        description: "更新上次搜索时间"
 
 # ==================== 错误类型库 ====================
 error_library:
@@ -189,6 +220,53 @@ error_library:
     description: "飞书/IMA同步失败"
     auto_fix: false
     fix_action: "notify_human"
+    
+  search_frequency_limit:
+    code: "E006"
+    description: "搜索频率限制（24小时内已搜索）"
+    auto_fix: false
+    fix_action: "skip_and_notify"
+    
+  analysis_failed:
+    code: "E007"
+    description: "AI技术分析失败"
+    auto_fix: true
+    fix_action: "retry_with_simplified_query"
+
+# ==================== AI技术监控配置 ====================
+ai_tech_monitor:
+  search_interval_hours: 24
+  topics:
+    llm_advancement:
+      name: "大语言模型进展"
+      keywords:
+        - "LLM 大语言模型 最新进展"
+        - "GPT-5 Claude-4 Gemini 新模型"
+        - "多模态 AI 视觉语言模型"
+    agent_engineering:
+      name: "Agent工程实践"
+      keywords:
+        - "AI Agent Engineering 最佳实践"
+        - "Multi-Agent 多智能体系统"
+        - "Agent Orchestration 编排"
+    dev_tools:
+      name: "AI开发工具"
+      keywords:
+        - "AI Coding 编程助手 Cursor"
+        - "Claude Code Devin 自主编程"
+        - "Vibe Coding 氛围编程"
+    system_design:
+      name: "AI系统设计"
+      keywords:
+        - "RAG 检索增强生成 优化"
+        - "向量数据库 语义搜索"
+        - "AI 系统设计 架构模式"
+    monitoring_observability:
+      name: "AI可观测性"
+      keywords:
+        - "AI 可观测性 Observability"
+        - "LLM 监控 评估指标"
+        - "AI 安全 对齐 护栏"
 
 # ==================== 性能指标 ====================
 metrics:

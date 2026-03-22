@@ -25,6 +25,9 @@ def main():
     news_dir = DATA_DIR / "news"
     if news_dir.exists():
         for f in news_dir.glob("*.json"):
+            # 跳过搜索历史日志文件
+            if f.name == "search_history.json":
+                continue
             files.append(("search", f))
     
     # 找出新文件（最多5个）

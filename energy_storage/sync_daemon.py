@@ -243,6 +243,9 @@ def scan_new_files():
     news_dir = DATA_DIR / "news"
     if news_dir.exists():
         for f in news_dir.glob("*.json"):
+            # 跳过搜索历史日志文件
+            if f.name == "search_history.json":
+                continue
             new_files.append(("search", f))
     
     return new_files

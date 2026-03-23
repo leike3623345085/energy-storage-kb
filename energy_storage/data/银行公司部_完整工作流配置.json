@@ -1,0 +1,422 @@
+{
+  "workflow": {
+    "name": "银行公司部行业分析系统",
+    "version": "1.0",
+    "description": "整合客户准入、贷后监控、政策专题分析的完整信贷生命周期工作流",
+    "created_at": "2026-03-23"
+  },
+  "global_variables": {
+    "industry": {
+      "type": "string",
+      "description": "行业名称",
+      "required": true
+    },
+    "trigger_type": {
+      "type": "string",
+      "enum": ["new_client", "routine_monitor", "policy_event", "risk_alert"],
+      "description": "触发类型",
+      "required": true
+    },
+    "client_list": {
+      "type": "array",
+      "description": "存量客户清单",
+      "default": [],
+      "schema": {
+        "name": "string",
+        "exposure": "number",
+        "industry": "string",
+        "entry_date": "string",
+        "credit_rating": "string",
+        "risk_tier": "string"
+      }
+    },
+    "policy_event": {
+      "type": "string",
+      "description": "政策/事件描述",
+      "default": ""
+    },
+    "search_results": {
+      "type": "array",
+      "description": "可信搜索结果",
+      "default": []
+    },
+    "analysis_result": {
+      "type": "object",
+      "description": "分析结果",
+      "default": {}
+    },
+    "database": {
+      "type": "object",
+      "description": "数据库连接",
+      "default": {
+        "white_list": [],
+        "monitoring_list": [],
+        "event_archive": []
+      }
+    }
+  },
+
+  "nodes": [
+    {
+      "id": "start",
+      "type": "start",
+      "name": "启动业务流程",
+      "config": {
+        "inputs": [
+          {
+            "variable": "industry",
+            "label": "行业名称",
+            "component": "input",
+            "required": true,
+            "placeholder": "如：储能、光伏、新能源汽车"
+          },
+          {
+            "variable": "trigger_type",
+            "label": "触发类型",
+            "component": "select",
+            "options": [
+              {"label": "新客户准入", "value": "new_client"},
+              {"label": "定期贷后监控", "value": "routine_monitor"},
+              {"label": "政策事件分析", "value": "policy_event"},
+              {"label": "风险预警", "value": "risk_alert"}
+            ],
+            "required": true
+          },
+          {
+            "variable": "policy_event",
+            "label": "政策/事件描述",
+            "component": "textarea",
+            "required": false,
+            "show_when": "trigger_type == 'policy_event'",
+            "placeholder": "如：《新型储能管理办法》出台"
+          }
+        ]
+      }
+    },
+
+    {
+      "id": "load_client_data",
+      "type": "variable_data_storage",
+      "name": "加载存量客户数据",
+      "config": {
+        "operation": "query",
+        "condition": "industry == {{industry}}",
+        "output_variable": "client_list",
+        "default_value": []
+      },
+      "next": ["branch_by_trigger"]
+    },
+
+    {
+      "id": "branch_by_trigger",
+      "type": "business_flow_branch",
+      "name": "根据触发类型分支",
+      "config": {
+        "branches": [
+          {
+            "condition": "trigger_type == 'new_client'",
+            "target": "search_industry",
+            "label": "新客户准入"
+          },
+          {
+            "condition": "trigger_type == 'routine_monitor' || trigger_type == 'risk_alert'",
+            "target": "check_client_count",
+            "label": "贷后监控"
+          },
+          {
+            "condition": "trigger_type == 'policy_event'",
+            "target": "search_policy_impact",
+            "label": "政策事件"
+          }
+        ]
+      }
+    },
+
+    {
+      "id": "search_industry",
+      "type": "trusted_search",
+      "name": "可信搜索-行业信息",
+      "config": {
+        "keywords": "{{industry}} 行业 最新政策 市场规模 龙头企业 融资需求 2024 2025",
+        "time_range": "3months",
+        "sources": ["政府官网", "行业协会", "权威媒体", "券商研报"],
+        "output_variable": "search_results"
+      },
+      "next": ["version_a_analysis"]
+    },
+
+    {
+      "id": "version_a_analysis",
+      "type": "llm",
+      "name": "版本A-客户准入评估",
+      "config": {
+        "model": "finance_large_model",
+        "temperature": 0.3,
+        "max_tokens": 4000,
+        "system_prompt": "你是某国有大型银行公司部资深客户经理，拥有10年对公业务经验。",
+        "user_prompt": "【任务目标】\n评估{{industry}}行业的客户准入价值，识别目标客户，制定营销策略。\n\n【输入信息】\n行业名称：{{industry}}\n搜索资料：{{search_results}}\n\n【分析框架】\n1. 行业信贷政策定位（积极/适度/审慎/退出）\n2. 行业风险画像（信贷视角：周期性、政策敏感性、技术替代、价格波动）\n3. 产业链融资机会分析（上中下游）\n4. 目标客户筛选（白名单，最多5家，含准入评级A/B/C）\n5. 信贷产品匹配（流贷/票据/保理/债承等）\n6. 风险提示与授信建议\n\n【输出格式】\n返回JSON格式，包含：credit_policy、risk_profile、value_chain_opportunities、target_clients、product_mix、credit_advice",
+        "output_format": "json",
+        "output_variable": "analysis_result"
+      },
+      "next": ["save_to_white_list", "send_report_a"]
+    },
+
+    {
+      "id": "save_to_white_list",
+      "type": "variable_data_storage",
+      "name": "保存客户白名单",
+      "config": {
+        "operation": "insert",
+        "table": "white_list",
+        "data": "{{analysis_result.target_clients}}",
+        "metadata": {
+          "industry": "{{industry}}",
+          "analysis_date": "{{current_date}}",
+          "credit_classification": "{{analysis_result.credit_policy.classification}}"
+        }
+      },
+      "next": []
+    },
+
+    {
+      "id": "check_client_count",
+      "type": "condition",
+      "name": "检查是否有存量客户",
+      "config": {
+        "condition": "client_list.length > 0",
+        "true_target": "search_monitoring",
+        "false_target": "no_client_alert"
+      }
+    },
+
+    {
+      "id": "no_client_alert",
+      "type": "send_message",
+      "name": "提示无存量客户",
+      "config": {
+        "message": "该行业暂无存量授信客户，请先运行客户准入流程。",
+        "channel": "user"
+      },
+      "next": ["end"]
+    },
+
+    {
+      "id": "search_monitoring",
+      "type": "trusted_search",
+      "name": "可信搜索-行业动态",
+      "config": {
+        "keywords": "{{industry}} 行业 PMI 开工率 产能利用率 产品价格 政策变化 2024 2025",
+        "time_range": "1month",
+        "output_variable": "search_results"
+      },
+      "next": ["version_b_analysis"]
+    },
+
+    {
+      "id": "version_b_analysis",
+      "type": "llm",
+      "name": "版本B-贷后风险监控",
+      "config": {
+        "model": "finance_large_model",
+        "temperature": 0.2,
+        "max_tokens": 4000,
+        "system_prompt": "你是某国有大型银行公司部风险经理，拥有10年贷后管理经验。",
+        "user_prompt": "【任务目标】\n对{{industry}}行业的存量授信客户进行风险排查，识别预警信号，提出贷后管理建议。\n\n【输入信息】\n行业名称：{{industry}}\n存量客户清单：{{client_list}}\n搜索资料：{{search_results}}\n\n【分析框架】\n1. 行业景气度监测（PMI/开工率/产能利用率/价格走势）\n2. 区域风险分析\n3. 客户风险分层（红色预警/橙色关注/绿色正常）\n4. 重点客户排查清单（逐户分析，建议：压降/增保/续作/退出）\n5. 贷后管理建议（检查频率/财务监控/担保管理/预警处置）\n\n【风险分层标准】\n- 红色：行业下行+高杠杆/产品连续下跌/核心客户信用风险/环保限产\n- 橙色：景气波动+份额下滑/应收延长/存货积压/担保物下跌\n- 绿色：景气稳定+经营正常+财务健康\n\n【输出格式】\n返回JSON格式，包含：industry_outlook、risk_classification（red/orange/green数组）、post_loan_advice",
+        "output_format": "json",
+        "output_variable": "analysis_result"
+      },
+      "next": ["update_monitoring_list", "check_risk_threshold"]
+    },
+
+    {
+      "id": "update_monitoring_list",
+      "type": "variable_data_storage",
+      "name": "更新监控台账",
+      "config": {
+        "operation": "update",
+        "table": "monitoring_list",
+        "match_field": "name",
+        "data": "{{analysis_result.risk_classification}}",
+        "metadata": {
+          "industry": "{{industry}}",
+          "monitor_date": "{{current_date}}"
+        }
+      },
+      "next": []
+    },
+
+    {
+      "id": "check_risk_threshold",
+      "type": "condition",
+      "name": "检查是否触发专题研究",
+      "config": {
+        "condition": "analysis_result.risk_classification.red.length > 0 || analysis_result.risk_classification.orange.length >= 3",
+        "true_target": "trigger_version_c_from_risk",
+        "false_target": "send_report_b"
+      }
+    },
+
+    {
+      "id": "trigger_version_c_from_risk",
+      "type": "variable_data_processing",
+      "name": "准备专题研究输入",
+      "config": {
+        "operation": "set",
+        "variable": "policy_event",
+        "value": "行业风险预警：{{industry}}行业出现{{analysis_result.risk_classification.red.length}}户红色预警，{{analysis_result.risk_classification.orange.length}}户橙色关注"
+      },
+      "next": ["search_policy_impact"]
+    },
+
+    {
+      "id": "search_policy_impact",
+      "type": "trusted_search",
+      "name": "可信搜索-政策影响",
+      "config": {
+        "keywords": "{{industry}} {{policy_event}} 影响 政策解读 行业应对 2024 2025",
+        "time_range": "3months",
+        "output_variable": "search_results"
+      },
+      "next": ["version_c_analysis"]
+    },
+
+    {
+      "id": "version_c_analysis",
+      "type": "llm",
+      "name": "版本C-政策事件专题",
+      "config": {
+        "model": "finance_large_model",
+        "temperature": 0.2,
+        "max_tokens": 4000,
+        "system_prompt": "你是某国有大型银行公司部资深风险经理，擅长政策解读和风险应对。",
+        "user_prompt": "【任务目标】\n分析{{policy_event}}对{{industry}}行业的影响，评估对存量授信客户的风险传导，提出应对策略。\n\n【输入信息】\n政策/事件：{{policy_event}}\n行业：{{industry}}\n存量客户：{{client_list}}\n搜索资料：{{search_results}}\n\n【分析框架】\n1. 政策/事件解读（背景、核心条款、执行力度、过渡安排）\n2. 对行业的直接影响（成本/需求/产能/时间节奏）\n3. 对银行信贷资产的影响（风险敞口、新增机会、担保物价值、集中度风险）\n4. 应对策略（存量客户处置、新增业务方向、产品调整、风险对冲）\n\n【输出格式】\n返回JSON格式，包含：policy_summary、direct_impact、credit_impact、strategy（含existing/new_business/product_innovation/risk_hedging）",
+        "output_format": "json",
+        "output_variable": "analysis_result"
+      },
+      "next": ["save_event_archive", "update_credit_policy", "send_report_c"]
+    },
+
+    {
+      "id": "save_event_archive",
+      "type": "variable_data_storage",
+      "name": "保存事件档案",
+      "config": {
+        "operation": "insert",
+        "table": "event_archive",
+        "data": {
+          "event": "{{policy_event}}",
+          "industry": "{{industry}}",
+          "analysis": "{{analysis_result}}",
+          "date": "{{current_date}}"
+        }
+      },
+      "next": []
+    },
+
+    {
+      "id": "update_credit_policy",
+      "type": "variable_data_storage",
+      "name": "更新信贷政策",
+      "config": {
+        "operation": "update",
+        "table": "industry_policy",
+        "match_field": "industry",
+        "data": {
+          "classification": "根据strategy调整",
+          "last_updated": "{{current_date}}",
+          "trigger_count": "+1"
+        }
+      },
+      "next": []
+    },
+
+    {
+      "id": "send_report_a",
+      "type": "send_email",
+      "name": "发送客户准入报告",
+      "config": {
+        "to": "{{user_email}}",
+        "subject": "【客户准入】{{industry}}行业评估报告 - {{current_date}}",
+        "template": "report_a_template",
+        "data": "{{analysis_result}}"
+      },
+      "next": ["end"]
+    },
+
+    {
+      "id": "send_report_b",
+      "type": "send_email",
+      "name": "发送贷后监控报告",
+      "config": {
+        "to": "{{user_email}}",
+        "subject": "【贷后监控】{{industry}}行业风险报告 - {{current_date}}",
+        "template": "report_b_template",
+        "data": "{{analysis_result}}"
+      },
+      "next": ["end"]
+    },
+
+    {
+      "id": "send_report_c",
+      "type": "send_email",
+      "name": "发送政策专题报告",
+      "config": {
+        "to": "{{user_email}}",
+        "subject": "【政策专题】{{policy_event}}影响分析 - {{current_date}}",
+        "template": "report_c_template",
+        "data": "{{analysis_result}}"
+      },
+      "next": ["end"]
+    },
+
+    {
+      "id": "end",
+      "type": "end",
+      "name": "结束"
+    }
+  ],
+
+  "triggers": [
+    {
+      "id": "quarterly_monitor",
+      "name": "季度贷后监控",
+      "type": "cron",
+      "schedule": "0 9 1 1,4,7,10 *",
+      "timezone": "Asia/Shanghai",
+      "action": {
+        "node": "start",
+        "inputs": {
+          "trigger_type": "routine_monitor"
+        }
+      }
+    },
+    {
+      "id": "daily_policy_check",
+      "name": "每日政策监控",
+      "type": "cron",
+      "schedule": "0 8 * * *",
+      "timezone": "Asia/Shanghai",
+      "action": {
+        "node": "start",
+        "inputs": {
+          "trigger_type": "policy_event"
+        }
+      }
+    }
+  ],
+
+  "templates": {
+    "report_a": {
+      "subject": "【客户准入】{{industry}}行业评估报告",
+      "body": "见邮件正文模板文档"
+    },
+    "report_b": {
+      "subject": "【贷后监控】{{industry}}行业风险报告",
+      "body": "见邮件正文模板文档"
+    },
+    "report_c": {
+      "subject": "【政策专题】{{policy_event}}影响分析",
+      "body": "见邮件正文模板文档"
+    }
+  }
+}

@@ -2,7 +2,7 @@
   "82635ca3": {
     "error_type": "data_insufficient",
     "code": "E001",
-    "count": 6,
+    "count": 8,
     "first_seen": "2026-03-21T23:15:35.670512",
     "contexts": [
       {
@@ -28,57 +28,65 @@
       {
         "date": "2026-03-22",
         "check": "pre_flight"
+      },
+      {
+        "date": "20260323",
+        "component": "crawler"
+      },
+      {
+        "date": "2026-03-23",
+        "check": "pre_flight"
       }
     ],
-    "last_seen": "2026-03-22T18:36:28.334365"
+    "last_seen": "2026-03-23T18:02:29.511999"
   },
   "e2cd04da": {
     "error_type": "format_invalid",
     "code": "E002",
-    "count": 10,
+    "count": 23,
     "first_seen": "2026-03-22T00:07:00.718208",
     "contexts": [
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       },
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       },
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       },
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       },
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       },
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       },
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       },
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       },
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       },
       {
-        "date": "20260322",
+        "date": "20260323",
         "component": "report"
       }
     ],
-    "last_seen": "2026-03-22T18:20:11.021214"
+    "last_seen": "2026-03-23T18:20:04.837778"
   }
 }

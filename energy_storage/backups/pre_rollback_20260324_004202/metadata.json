@@ -1,0 +1,10 @@
+{
+  "version_tag": "pre_rollback_20260324_004202",
+  "timestamp": "20260324_004202",
+  "files": [
+    "crawler_multi_v2.py",
+    "run_crawler_safe.py",
+    "validation_suite.py"
+  ],
+  "reason": "auto_backup_before_deploy"
+}

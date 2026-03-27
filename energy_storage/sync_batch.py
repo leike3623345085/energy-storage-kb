@@ -10,7 +10,7 @@ import sys
 import json
 import time
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # 飞书配置
@@ -29,6 +29,7 @@ FEISHU_CONFIG = {
 # 记录上限配置
 MAX_RECORDS = 18000  # 保留空间，避免达到 20000 上限
 DELETE_BATCH_SIZE = 500  # 每次删除数量
+
 
 class FeishuSync:
     def __init__(self):
@@ -91,13 +92,10 @@ class FeishuSync:
         if not token:
             return 0
         
-        # 获取最旧的记录（按时间升序排序）
+        # 获取最旧的记录
         url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['bitable_app_token']}/tables/{table_id}/records"
         headers = {"Authorization": f"Bearer {token}"}
-        params = {
-            "page_size": min(count, 500),
-            "sort": json.dumps([{"field_name": "时间", "order": "asc"}])
-        }
+        params = {"page_size": min(count, 500)}
         
         try:
             resp = requests.get(url, headers=headers, params=params, timeout=10)
@@ -138,15 +136,28 @@ class FeishuSync:
         # 每次最多 500 条
         for i in range(0, len(records), 500):
             batch = records[i:i+500]
-            data = {"records": [{"fields": r} for r in batch]}
+            
+            # 飞书 API 要求的格式: {"records": [{"fields": {...}}, ...]}
+            records_payload = []
+            for r in batch:
+                records_payload.append({"fields": r})
+            
+            data = {"records": records_payload}
             
             try:
                 resp = requests.post(url, headers=headers, json=data, timeout=30)
                 result = resp.json()
+                
                 if result.get("code") == 0:
                     added += len(batch)
                 else:
                     print(f"⚠️ 添加记录失败: {result.get('msg')}")
+                    if result.get('error', {}).get('field_violations'):
+                        for v in result['error']['field_violations']:
+                            print(f"   字段错误: {v['field']} - {v['description']}")
+                    # 打印第一条记录帮助调试
+                    if batch:
+                        print(f"   示例记录: {json.dumps(batch[0], ensure_ascii=False)[:200]}")
             except Exception as e:
                 print(f"⚠️ 添加记录错误: {e}")
         
@@ -161,12 +172,13 @@ def find_data_files(base_dir="/root/.openclaw/workspace/energy_storage/data"):
         return []
     
     files = []
-    # 查找爬虫数据
+    # 查找爬虫数据 (.log 和 .json)
     crawler_dir = data_path / "crawler"
     if crawler_dir.exists():
         files.extend(sorted(crawler_dir.glob("*.json"), reverse=True))
+        files.extend(sorted(crawler_dir.glob("*.log"), reverse=True))
     
-    # 查找搜索结果
+    # 查找搜索结果 (.json)
     news_dir = data_path / "news"
     if news_dir.exists():
         files.extend(sorted(news_dir.glob("*.json"), reverse=True))
@@ -174,58 +186,77 @@ def find_data_files(base_dir="/root/.openclaw/workspace/energy_storage/data"):
     return sorted(files, key=lambda x: x.stat().st_mtime, reverse=True)
 
 
-def load_and_transform_crawler(file_path):
-    """加载爬虫数据并转换为 Bitable 格式"""
+def load_and_transform_crawler(file_path, start_time_ms):
+    """加载爬虫数据并转换为 Bitable 格式 - 使用字段名而非 field_id"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
         records = []
-        timestamp = data.get("timestamp", "")
-        source = data.get("source", "unknown")
-        articles = data.get("articles", [])
+        source = data.get("source", "储能产业网")
+        articles = data.get("data", [])
         
-        for article in articles:
+        # 使用传入的起始时间戳，每条记录递增 1 秒（1000ms）
+        for idx, article in enumerate(articles):
+            unique_time_ms = start_time_ms + (idx * 1000)
+            
+            # URL 处理：空链接时跳过 URL 字段
+            link = article.get("link", "").strip()
+            
+            # 使用字段名（中文）而不是 field_id
+            # DateTime 字段使用毫秒时间戳
             record = {
-                "标题": article.get("title", "")[:2000],  # 限制长度
-                "链接": {"text": "查看原文", "link": article.get("link", "")},
-                "来源": source,
-                "时间": timestamp,
-                "摘要": article.get("summary", "")[:2000]
+                "时间": unique_time_ms,  # 时间 (DateTime)
+                "来源": source if source and source != "unknown" else "储能产业网",  # 来源
+                "标题": article.get("title", "")[:1000],  # 标题
+                "内容": article.get("summary", "")[:2000] if article.get("summary") else "-",  # 内容
+                "网站": source if source and source != "unknown" else "储能产业网"  # 网站
             }
+            
+            # 只在有有效链接时添加 URL 字段（飞书 URL 字段不能为空）
+            if link and link.startswith("http"):
+                record["URL"] = {"text": "查看原文", "link": link}
+            
             records.append(record)
         
-        return records
+        return records, start_time_ms + (len(articles) * 1000)  # 返回下一个可用的时间戳
     except Exception as e:
         print(f"⚠️ 加载文件失败 {file_path}: {e}")
-        return []
+        return [], start_time_ms
 
 
-def load_and_transform_news(file_path):
+def load_and_transform_news(file_path, start_time_ms):
     """加载搜索数据并转换为 Bitable 格式"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
         records = []
-        timestamp = data.get("timestamp", "")
         query = data.get("query", "")
         results = data.get("results", [])
         
-        for result in results:
+        # 使用传入的起始时间戳，每条记录递增 1 秒（1000ms）
+        for idx, result in enumerate(results):
+            unique_time_ms = start_time_ms + (idx * 1000)
+            
             record = {
-                "标题": result.get("title", "")[:2000],
-                "链接": {"text": "查看原文", "link": result.get("url", "")},
-                "搜索词": query,
-                "时间": timestamp,
-                "摘要": result.get("snippet", "")[:2000]
+                "时间": unique_time_ms,  # DateTime 字段用毫秒时间戳
+                "类型": query,
+                "标题": result.get("title", "")[:1000],
+                "摘要": result.get("snippet", "")[:2000] if result.get("snippet") else "-",
             }
+            
+            # URL 处理
+            link = result.get("url", "").strip()
+            if link and link.startswith("http"):
+                record["URL"] = {"text": "查看原文", "link": link}
+            
             records.append(record)
         
-        return records
+        return records, start_time_ms + (len(results) * 1000)
     except Exception as e:
         print(f"⚠️ 加载文件失败 {file_path}: {e}")
-        return []
+        return [], start_time_ms
 
 
 def sync_files(max_files=5):
@@ -251,16 +282,20 @@ def sync_files(max_files=5):
     synced_count = 0
     total_records = 0
     
+    # 使用当前时间戳作为起始点，确保不与现有记录冲突
+    current_time_ms = int(time.time() * 1000)
+    next_time_ms = current_time_ms
+    
     # 处理前 max_files 个文件
     for i, file_path in enumerate(files[:max_files], 1):
         print(f"\n📄 [{i}/{max_files}] {file_path.name}")
         
         # 根据文件类型选择处理方式
         if "crawler" in str(file_path):
-            records = load_and_transform_crawler(file_path)
+            records, next_time_ms = load_and_transform_crawler(file_path, next_time_ms)
             table_id = FEISHU_CONFIG["tables"]["crawler"]
         else:
-            records = load_and_transform_news(file_path)
+            records, next_time_ms = load_and_transform_news(file_path, next_time_ms)
             table_id = FEISHU_CONFIG["tables"]["search"]
         
         if not records:

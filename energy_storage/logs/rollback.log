@@ -1,0 +1,1 @@
+{"timestamp": "2026-03-24T00:42:02.327641", "action": "rollback", "from_backup": "pre_deploy", "current_backed_up": "pre_rollback_20260324_004202", "restored_files": ["crawler_multi_v2.py", "run_crawler_safe.py", "validation_suite.py"]}

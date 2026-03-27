@@ -1,0 +1,10 @@
+{
+  "version_tag": "pre_deploy",
+  "timestamp": "20260324_004259",
+  "files": [
+    "crawler_multi_v2.py",
+    "run_crawler_safe.py",
+    "validation_suite.py"
+  ],
+  "reason": "auto_backup_before_deploy"
+}

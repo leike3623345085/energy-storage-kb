@@ -9348,5 +9348,15 @@
     "date": "20260323",
     "chunk_index": 20,
     "total_chunks": 21
+  },
+  {
+    "chunk_id": "report_20260327_chunk_0",
+    "doc_id": "report_20260327",
+    "title": "储能行业日报_20260327",
+    "content": "# 储能行业日报 - 2026-03-27\n## 📊 概览\n- 报告日期: 2026-03-27\n- 资讯数量: 0 条\n- 生成时间: 18:10\n- 生成模式: Harness v3 + 研报分析\n## 📋 详细资讯\n---\n*报告由 OpenClaw 自动生成*\n*基于 Harness Engineering + research_analysis SKILL*\n*数据来源: 公开网络资讯*\n*置信度评分: 100/100*",
+    "type": "日报",
+    "date": "20260327",
+    "chunk_index": 0,
+    "total_chunks": 1
   }
 ]

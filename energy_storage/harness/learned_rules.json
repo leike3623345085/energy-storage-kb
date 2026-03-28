@@ -2,21 +2,9 @@
   "82635ca3": {
     "error_type": "data_insufficient",
     "code": "E001",
-    "count": 12,
+    "count": 15,
     "first_seen": "2026-03-21T23:15:35.670512",
     "contexts": [
-      {
-        "date": "2026-03-22",
-        "check": "pre_flight"
-      },
-      {
-        "date": "2026-03-22",
-        "check": "pre_flight"
-      },
-      {
-        "date": "2026-03-22",
-        "check": "pre_flight"
-      },
       {
         "date": "2026-03-22",
         "check": "pre_flight"
@@ -44,45 +32,29 @@
       {
         "date": "20260327",
         "component": "crawler"
+      },
+      {
+        "date": "2026-03-28",
+        "check": "pre_flight"
+      },
+      {
+        "date": "2026-03-28",
+        "check": "pre_flight"
+      },
+      {
+        "date": "2026-03-28",
+        "check": "pre_flight"
       }
     ],
-    "last_seen": "2026-03-27T20:05:07.940378"
+    "last_seen": "2026-03-28T18:33:36.361179"
   },
   "e2cd04da": {
     "error_type": "format_invalid",
     "code": "E002",
-    "count": 27,
+    "count": 34,
     "first_seen": "2026-03-22T00:07:00.718208",
     "contexts": [
       {
-        "date": "20260323",
-        "component": "report"
-      },
-      {
-        "date": "20260323",
-        "component": "report"
-      },
-      {
-        "date": "20260323",
-        "component": "report"
-      },
-      {
-        "date": "20260323",
-        "component": "report"
-      },
-      {
-        "date": "20260323",
-        "component": "report"
-      },
-      {
-        "date": "20260323",
-        "component": "report"
-      },
-      {
-        "date": "20260324",
-        "component": "report"
-      },
-      {
         "date": "20260324",
         "component": "report"
       },
@@ -92,9 +64,37 @@
       },
       {
         "date": "20260327",
+        "component": "report"
+      },
+      {
+        "date": "20260328",
+        "component": "report"
+      },
+      {
+        "date": "20260328",
+        "component": "report"
+      },
+      {
+        "date": "20260328",
+        "component": "report"
+      },
+      {
+        "date": "20260328",
+        "component": "report"
+      },
+      {
+        "date": "20260328",
+        "component": "report"
+      },
+      {
+        "date": "20260328",
+        "component": "report"
+      },
+      {
+        "date": "20260328",
         "component": "report"
       }
     ],
-    "last_seen": "2026-03-27T20:05:10.486509"
+    "last_seen": "2026-03-28T18:20:08.081364"
   }
 }

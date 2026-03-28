@@ -6,3 +6,6 @@
 {"date": "2026-03-23", "timestamp": "2026-03-23T18:02:42.442660", "score": 100, "issues_count": 0, "passed": true}
 {"date": "2026-03-27", "timestamp": "2026-03-27T18:05:22.718907", "score": 100, "issues_count": 0, "passed": true}
 {"date": "2026-03-27", "timestamp": "2026-03-27T18:10:14.879958", "score": 100, "issues_count": 0, "passed": true}
+{"date": "2026-03-28", "timestamp": "2026-03-28T18:05:21.830022", "score": 90, "issues_count": 1, "passed": true}
+{"date": "2026-03-28", "timestamp": "2026-03-28T18:10:21.732414", "score": 90, "issues_count": 1, "passed": true}
+{"date": "2026-03-28", "timestamp": "2026-03-28T18:33:39.394561", "score": 90, "issues_count": 1, "passed": true}

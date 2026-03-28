@@ -1,0 +1,38 @@
+# 储能任务调度优化 - 错峰配置
+# 原问题：多个任务整点同时触发，触发频率限制
+# 优化：15分钟间隔错开，降低并发峰值
+
+# ============================================
+# 数据采集类（纯脚本，不调用AI）
+# ============================================
+# 网站爬虫 - 纯Python抓取，不调用AI
+10 * * * *  cd /root/.openclaw/workspace && python3 energy_storage/crawler_v2.py >> logs/crawler.log 2>&1
+
+# API数据监控 - 纯API调用，不调用AI  
+25 * * * *  cd /root/.openclaw/workspace && python3 energy_storage/api_monitor.py >> logs/api_monitor.log 2>&1
+
+# ============================================
+# AI分析类（需要调用Kimi，严格控制频率）
+# ============================================
+# 资讯搜索+分析 - 每4小时一次（降低50%频率）
+# 原：每小时一次 | 现：每4小时一次
+0 */4 * * * cd /root/.openclaw/workspace && python3 energy_storage/news_search.py --analyze >> logs/news.log 2>&1
+
+# 储能日报生成 - 每天2次（早8点、晚6点）
+# 原：每小时检查 | 现：固定时间生成
+0 8,18 * * * cd /root/.openclaw/workspace && python3 energy_storage/daily_report_harness.py >> logs/daily.log 2>&1
+
+# 深度分析 - 每天1次（晚7点）
+0 19 * * * cd /root/.openclaw/workspace && python3 energy_storage/deep_analysis_harness.py >> logs/deep.log 2>&1
+
+# 自愈监控 - 每6小时一次
+0 */6 * * * cd /root/.openclaw/workspace && python3 energy_storage/self_heal_harness.py >> logs/heal.log 2>&1
+
+# AI技术监控 - 每天1次（上午9点）
+0 9 * * * cd /root/.openclaw/workspace && python3 energy_storage/ai_tech_monitor.py >> logs/ai_tech.log 2>&1
+
+# ============================================
+# 数据同步类（飞书Bitable，不调用AI）
+# ============================================
+# 批量同步 - 每2小时一次
+0 */2 * * * cd /root/.openclaw/workspace && python3 energy_storage/sync_batch.py --limit=5 >> logs/sync.log 2>&1

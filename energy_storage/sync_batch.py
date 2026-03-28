@@ -27,8 +27,8 @@ FEISHU_CONFIG = {
 }
 
 # 记录上限配置
-MAX_RECORDS = 18000  # 保留空间，避免达到 20000 上限
-DELETE_BATCH_SIZE = 500  # 每次删除数量
+MAX_RECORDS = 20000
+WARNING_THRESHOLD = 19500
 
 
 class FeishuSync:
@@ -86,39 +86,63 @@ class FeishuSync:
             print(f"⚠️ 获取记录数错误: {e}")
             return 0
     
-    def delete_oldest_records(self, table_id, count):
-        """删除最旧的记录"""
+    def delete_oldest_records_simple(self, table_id, count):
+        """简单删除最早的记录 - 限制最多删除50条避免超时"""
         token = self.get_access_token()
         if not token:
             return 0
         
-        # 获取最旧的记录
-        url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['bitable_app_token']}/tables/{table_id}/records"
         headers = {"Authorization": f"Bearer {token}"}
-        params = {"page_size": min(count, 500)}
+        deleted = 0
+        url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['bitable_app_token']}/tables/{table_id}/records"
         
-        try:
-            resp = requests.get(url, headers=headers, params=params, timeout=10)
-            result = resp.json()
-            if result.get("code") != 0:
-                print(f"⚠️ 获取记录失败: {result.get('msg')}")
-                return 0
+        # 限制最多删除50条
+        count = min(count, 50)
+        max_iterations = 5  # 最多5轮
+        iteration = 0
+        
+        while deleted < count and iteration < max_iterations:
+            iteration += 1
+            batch_size = min(10, count - deleted)  # 每批10条
             
-            records = result.get("data", {}).get("items", [])
-            deleted = 0
-            
-            for record in records:
-                record_id = record.get("record_id")
-                if record_id:
-                    del_url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['bitable_app_token']}/tables/{table_id}/records/{record_id}"
-                    del_resp = requests.delete(del_url, headers=headers, timeout=5)
-                    if del_resp.json().get("code") == 0:
-                        deleted += 1
-            
-            return deleted
-        except Exception as e:
-            print(f"⚠️ 删除记录错误: {e}")
-            return 0
+            try:
+                resp = requests.get(url, headers=headers, params={"page_size": batch_size}, timeout=10)
+                result = resp.json()
+                if result.get("code") != 0:
+                    print(f"      ⚠️ 获取记录失败: {result.get('msg', '未知错误')}")
+                    break
+                
+                items = result.get("data", {}).get("items", [])
+                if not items:
+                    print(f"      ℹ️ 没有更多记录可删除")
+                    break
+                
+                batch_deleted = 0
+                for record in items:
+                    record_id = record.get("record_id")
+                    if record_id:
+                        del_url = f"{url}/{record_id}"
+                        try:
+                            del_resp = requests.delete(del_url, headers=headers, timeout=5)
+                            del_result = del_resp.json()
+                            if del_result.get("code") == 0:
+                                deleted += 1
+                                batch_deleted += 1
+                            else:
+                                print(f"      ⚠️ 删除单条失败: {del_result.get('msg', '未知错误')}")
+                        except Exception as del_e:
+                            print(f"      ⚠️ 删除单条异常: {del_e}")
+                
+                print(f"      📍 第{iteration}轮删除 {batch_deleted} 条")
+                
+                if batch_deleted == 0:
+                    break
+                    
+            except Exception as e:
+                print(f"      ⚠️ 删除错误: {e}")
+                break
+        
+        return deleted
     
     def add_records(self, table_id, records):
         """批量添加记录"""
@@ -126,22 +150,16 @@ class FeishuSync:
         if not token or not records:
             return 0
         
-        url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['bitable_app_token']}/tables/{table_id}/records"
+        url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{FEISHU_CONFIG['bitable_app_token']}/tables/{table_id}/records/batch_create"
         headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
         }
         
         added = 0
-        # 每次最多 500 条
         for i in range(0, len(records), 500):
             batch = records[i:i+500]
-            
-            # 飞书 API 要求的格式: {"records": [{"fields": {...}}, ...]}
-            records_payload = []
-            for r in batch:
-                records_payload.append({"fields": r})
-            
+            records_payload = [{"fields": r} for r in batch]
             data = {"records": records_payload}
             
             try:
@@ -151,15 +169,12 @@ class FeishuSync:
                 if result.get("code") == 0:
                     added += len(batch)
                 else:
-                    print(f"⚠️ 添加记录失败: {result.get('msg')}")
-                    if result.get('error', {}).get('field_violations'):
-                        for v in result['error']['field_violations']:
-                            print(f"   字段错误: {v['field']} - {v['description']}")
-                    # 打印第一条记录帮助调试
-                    if batch:
-                        print(f"   示例记录: {json.dumps(batch[0], ensure_ascii=False)[:200]}")
+                    print(f"   ⚠️ 添加失败: {result.get('msg')}")
+                    if "limit" in result.get('msg', '').lower() or "exceed" in result.get('msg', '').lower():
+                        print(f"   ⚠️ 达到记录上限，停止添加")
+                        break
             except Exception as e:
-                print(f"⚠️ 添加记录错误: {e}")
+                print(f"   ⚠️ 添加错误: {e}")
         
         return added
 
@@ -168,17 +183,13 @@ def find_data_files(base_dir="/root/.openclaw/workspace/energy_storage/data"):
     """查找所有数据文件"""
     data_path = Path(base_dir)
     if not data_path.exists():
-        print(f"❌ 数据目录不存在: {base_dir}")
         return []
     
     files = []
-    # 查找爬虫数据 (.log 和 .json)
     crawler_dir = data_path / "crawler"
     if crawler_dir.exists():
         files.extend(sorted(crawler_dir.glob("*.json"), reverse=True))
-        files.extend(sorted(crawler_dir.glob("*.log"), reverse=True))
     
-    # 查找搜索结果 (.json)
     news_dir = data_path / "news"
     if news_dir.exists():
         files.extend(sorted(news_dir.glob("*.json"), reverse=True))
@@ -187,7 +198,7 @@ def find_data_files(base_dir="/root/.openclaw/workspace/energy_storage/data"):
 
 
 def load_and_transform_crawler(file_path, start_time_ms):
-    """加载爬虫数据并转换为 Bitable 格式 - 使用字段名而非 field_id"""
+    """加载爬虫数据并转换为 Bitable 格式"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -196,32 +207,26 @@ def load_and_transform_crawler(file_path, start_time_ms):
         source = data.get("source", "储能产业网")
         articles = data.get("data", [])
         
-        # 使用传入的起始时间戳，每条记录递增 1 秒（1000ms）
         for idx, article in enumerate(articles):
-            unique_time_ms = start_time_ms + (idx * 1000)
-            
-            # URL 处理：空链接时跳过 URL 字段
+            unique_time_ms = start_time_ms + (idx * 100)
             link = article.get("link", "").strip()
             
-            # 使用字段名（中文）而不是 field_id
-            # DateTime 字段使用毫秒时间戳
             record = {
-                "时间": unique_time_ms,  # 时间 (DateTime)
-                "来源": source if source and source != "unknown" else "储能产业网",  # 来源
-                "标题": article.get("title", "")[:1000],  # 标题
-                "内容": article.get("summary", "")[:2000] if article.get("summary") else "-",  # 内容
-                "网站": source if source and source != "unknown" else "储能产业网"  # 网站
+                "时间": unique_time_ms,
+                "来源": source if source and source != "unknown" else "储能产业网",
+                "标题": article.get("title", "")[:1000],
+                "内容": article.get("summary", "")[:2000] if article.get("summary") else "-",
+                "网站": source if source and source != "unknown" else "储能产业网"
             }
             
-            # 只在有有效链接时添加 URL 字段（飞书 URL 字段不能为空）
             if link and link.startswith("http"):
                 record["URL"] = {"text": "查看原文", "link": link}
             
             records.append(record)
         
-        return records, start_time_ms + (len(articles) * 1000)  # 返回下一个可用的时间戳
+        return records, start_time_ms + (len(articles) * 100)
     except Exception as e:
-        print(f"⚠️ 加载文件失败 {file_path}: {e}")
+        print(f"   ⚠️ 加载失败: {e}")
         return [], start_time_ms
 
 
@@ -235,44 +240,43 @@ def load_and_transform_news(file_path, start_time_ms):
         query = data.get("query", "")
         results = data.get("results", [])
         
-        # 使用传入的起始时间戳，每条记录递增 1 秒（1000ms）
         for idx, result in enumerate(results):
-            unique_time_ms = start_time_ms + (idx * 1000)
+            unique_time_ms = start_time_ms + (idx * 100)
             
             record = {
-                "时间": unique_time_ms,  # DateTime 字段用毫秒时间戳
+                "时间": unique_time_ms,
                 "类型": query,
                 "标题": result.get("title", "")[:1000],
                 "摘要": result.get("snippet", "")[:2000] if result.get("snippet") else "-",
             }
             
-            # URL 处理
             link = result.get("url", "").strip()
             if link and link.startswith("http"):
                 record["URL"] = {"text": "查看原文", "link": link}
             
             records.append(record)
         
-        return records, start_time_ms + (len(results) * 1000)
+        return records, start_time_ms + (len(results) * 100)
     except Exception as e:
-        print(f"⚠️ 加载文件失败 {file_path}: {e}")
+        print(f"   ⚠️ 加载失败: {e}")
         return [], start_time_ms
 
 
 def sync_files(max_files=5):
     """同步数据文件到飞书"""
-    print(f"🚀 开始同步（最多 {max_files} 个文件）")
+    print(f"🚀 储能数据飞书同步")
     print(f"⏰ {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    sys.stdout.flush()
     
-    # 查找数据文件
     files = find_data_files()
     if not files:
         print("⚠️ 未找到数据文件")
         return 0, 0
     
     print(f"📁 发现 {len(files)} 个数据文件")
+    sys.stdout.flush()
     
-    # 初始化飞书同步
     fs = FeishuSync()
     token = fs.get_access_token()
     if not token:
@@ -281,16 +285,14 @@ def sync_files(max_files=5):
     
     synced_count = 0
     total_records = 0
-    
-    # 使用当前时间戳作为起始点，确保不与现有记录冲突
+    skipped_count = 0
     current_time_ms = int(time.time() * 1000)
     next_time_ms = current_time_ms
     
-    # 处理前 max_files 个文件
     for i, file_path in enumerate(files[:max_files], 1):
         print(f"\n📄 [{i}/{max_files}] {file_path.name}")
+        sys.stdout.flush()
         
-        # 根据文件类型选择处理方式
         if "crawler" in str(file_path):
             records, next_time_ms = load_and_transform_crawler(file_path, next_time_ms)
             table_id = FEISHU_CONFIG["tables"]["crawler"]
@@ -302,28 +304,39 @@ def sync_files(max_files=5):
             print(f"   ⚠️ 无有效记录")
             continue
         
-        # 检查并清理空间
+        # 检查记录数
         current_count = fs.get_record_count(table_id)
+        print(f"   📊 当前 {current_count} 条记录")
+        sys.stdout.flush()
+        
+        # 如果接近上限，尝试删除少量旧记录
         if current_count + len(records) > MAX_RECORDS:
-            need_delete = current_count + len(records) - MAX_RECORDS + DELETE_BATCH_SIZE
-            print(f"   🧹 记录数接近上限 ({current_count}/{MAX_RECORDS})，删除 {need_delete} 条旧记录")
-            deleted = fs.delete_oldest_records(table_id, need_delete)
-            print(f"   ✅ 已删除 {deleted} 条旧记录")
+            print(f"   ⚠️ 达到记录上限 ({current_count}/{MAX_RECORDS})，跳过")
+            skipped_count += 1
+            continue
+        elif current_count + len(records) > WARNING_THRESHOLD:
+            # 只删除少量记录（最多50条）避免超时
+            need_delete = min(current_count + len(records) - WARNING_THRESHOLD + 50, 50)
+            print(f"   🧹 接近上限，删除 {need_delete} 条旧记录...")
+            sys.stdout.flush()
+            deleted = fs.delete_oldest_records_simple(table_id, need_delete)
+            print(f"   ✅ 已删除 {deleted} 条")
+            sys.stdout.flush()
         
         # 添加记录
         added = fs.add_records(table_id, records)
-        print(f"   ✅ 成功写入 {added}/{len(records)} 条记录")
+        print(f"   ✅ 写入 {added}/{len(records)} 条")
+        sys.stdout.flush()
         
         total_records += added
         synced_count += 1
-        
-        # 间隔，避免 API 限流
-        time.sleep(0.5)
+        time.sleep(0.3)
     
-    print(f"\n🎉 同步完成")
-    print(f"   文件数: {synced_count}/{max_files}")
-    print(f"   记录数: {total_records}")
-    print(f"   剩余: {len(files) - synced_count} 个文件待处理")
+    print(f"\n━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print(f"🎉 同步完成")
+    print(f"   成功: {synced_count}/{max_files} 个文件")
+    print(f"   跳过: {skipped_count} 个文件（达到上限）")
+    print(f"   记录: {total_records} 条")
     
     return synced_count, total_records
 

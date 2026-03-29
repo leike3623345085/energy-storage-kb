@@ -1,7 +1,7 @@
 请根据以下结构化任务描述生成内容：
 
 ```xml
-<task version="1.0" type="daily_report" generated_at="2026-03-29T22:48:31.350846">
+<task version="1.0" type="daily_report" generated_at="2026-03-29T22:48:52.567152">
   <objective priority="high">基于 196 条储能行业资讯，生成 2026-03-29 的行业日报</objective>
   <context>
     <data_sources count="196">

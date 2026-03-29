@@ -1,0 +1,59 @@
+请根据以下结构化任务描述生成内容：
+
+```xml
+<task version="1.0" type="daily_report" generated_at="2026-03-29T22:48:31.350846">
+  <objective priority="high">基于 196 条储能行业资讯，生成 2026-03-29 的行业日报</objective>
+  <context>
+    <data_sources count="196">
+      <source title="中电联发布2025年储能电站运行数据！" type="北极星储能网" />
+      <source title="河南储能重磅！给予50MW新能源配额！中央预算支持！" type="北极星储能网" />
+      <source title="国家电网：“十五五”将新建抽蓄装机超3000万千瓦" type="北极星储能网" />
+      <source title="储能电池包闪爆！“6·14”爆炸事故调查报告全文公布！" type="北极星储能网" />
+      <source title="四部门：加快大容量固态变压器SST应用！" type="北极星储能网" />
+    </data_sources>
+    <date>2026-03-29</date>
+    <metadata>
+      <total_items>196</total_items>
+      <sources>['中关村储能联盟', '储能中国网', '中国储能网', '北极星储能网']</sources>
+      <data_quality_score>95</data_quality_score>
+    </metadata>
+  </context>
+  <constraints>
+    <constraint name="format" required="true">markdown</constraint>
+    <constraint name="language" required="true">中文</constraint>
+    <constraint name="tone" required="true">专业、客观</constraint>
+    <constraint name="max_length" required="false">3000</constraint>
+    <constraint name="include_data_sources" required="true">true</constraint>
+  </constraints>
+  <output_format type="markdown">
+    <required_sections>
+      <section>📊 市场动态</section>
+      <section>⚡ 技术进展</section>
+      <section>📜 政策动态</section>
+      <section>📈 行情数据</section>
+      <section>🔥 今日热点</section>
+    </required_sections>
+    <style_guide>使用 emoji 增强可读性，每个要点控制在 100 字以内，关键数据加粗</style_guide>
+  </output_format>
+  <quality_criteria>
+    <fact_accuracy>
+      <required>true</required>
+      <min_score>0.9</min_score>
+    </fact_accuracy>
+    <data_completeness>
+      <required_sections>5</required_sections>
+      <tolerance>1</tolerance>
+    </data_completeness>
+    <source_citation>
+      <required>true</required>
+      <format>文末标注</format>
+    </source_citation>
+    <readability>
+      <target_audience>金融分析师</target_audience>
+      <level>专业</level>
+    </readability>
+  </quality_criteria>
+</task>
+```
+
+请严格按照 XML 中定义的约束条件和输出格式执行任务。

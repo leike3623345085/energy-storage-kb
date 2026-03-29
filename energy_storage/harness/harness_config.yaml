@@ -274,3 +274,69 @@ metrics:
   max_latency_seconds: 300
   auto_fix_rate: 0.80
   human_intervention_rate: 0.05
+
+# ==================== 漂移检测配置 ====================
+drift_detection:
+  enabled: true
+  enforce_mode: "strict"  # strict = 不可跳过，warn = 仅警告，off = 关闭
+  description: "检测 Agent 执行结果是否偏离预期目标 (HARNESS 第5步)"
+  threshold: 0.6  # 语义相似度阈值
+  check_interval: "every_step"  # every_step|end_only
+  
+  # 强制审查设置
+  mandatory:
+    all_tasks: true       # 所有任务强制检测
+    skip_allowed: false   # 不允许跳过
+    block_on_drift: true  # 检测到漂移时阻止任务继续
+  
+  # 检测维度
+  check_types:
+    - keyword
+    - semantic
+    - format
+  
+  # 关键词库
+  keyword_library:
+    daily_report:
+      required: ["储能", "行业", "新闻", "市场", "技术"]
+      optional: ["政策", "行情", "数据"]
+    crawler:
+      required: ["爬取", "成功", "条"]
+      optional: ["新增", "更新"]
+    analysis:
+      required: ["分析", "结论", "建议"]
+      optional: ["趋势", "影响", "风险"]
+  
+  # 漂移处理策略
+  on_drift:
+    high_confidence:      # > 0.8
+      action: "block_and_alert"
+      auto_retry: false
+      escalate_to_user: true
+      
+    medium_confidence:    # 0.6-0.8
+      action: "auto_retry"
+      auto_retry: true
+      max_retries: 2
+      prompt_addition: "请确保包含以下关键信息: {missing_keywords}"
+      
+    low_confidence:       # < 0.6
+      action: "log_and_continue"
+      auto_retry: false
+  
+  # 审计与告警
+  audit:
+    enabled: true
+    log_all_checks: true
+    log_file: "drift_audit.jsonl"
+    
+  alerting:
+    enabled: true
+    on_high_confidence_drift: true
+    channels: ["wechat", "log"]
+  
+  # 定时审查报告
+  daily_report:
+    enabled: true
+    time: "09:00"
+    drift_rate_threshold: 0.3  # 超过30%时告警

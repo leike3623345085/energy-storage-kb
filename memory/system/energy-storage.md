@@ -84,6 +84,22 @@ energy_storage/
 - **飞书 Bitable**：多维表格备份
 - **IMA 笔记**：报告同步
 
+## 通知渠道配置
+
+### 邮件推送
+- **收件邮箱**: 3623345085@qq.com
+- **发件邮箱**: lei547276643@qq.com
+- **配置文件**: `energy_storage/email_config.json`
+
+### 企业微信机器人
+- **Webhook**: `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=bad9dacb-9e31-423b-9480-d34ac0084ee9`
+- **使用方式**:
+```bash
+curl -X POST "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=bad9dacb-9e31-423b-9480-d34ac0084ee9" \
+  -H "Content-Type: application/json" \
+  -d '{"msgtype": "text", "text": {"content": "消息内容"}}'
+```
+
 ## 使用命令
 ```bash
 # 手动运行爬虫

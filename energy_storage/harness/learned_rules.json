@@ -2,21 +2,9 @@
   "82635ca3": {
     "error_type": "data_insufficient",
     "code": "E001",
-    "count": 15,
+    "count": 18,
     "first_seen": "2026-03-21T23:15:35.670512",
     "contexts": [
-      {
-        "date": "2026-03-22",
-        "check": "pre_flight"
-      },
-      {
-        "date": "20260323",
-        "component": "crawler"
-      },
-      {
-        "date": "2026-03-23",
-        "check": "pre_flight"
-      },
       {
         "date": "20260324",
         "component": "crawler"
@@ -44,29 +32,29 @@
       {
         "date": "2026-03-28",
         "check": "pre_flight"
+      },
+      {
+        "step": "pre_flight_check",
+        "workflow": "daily_report"
+      },
+      {
+        "date": "20260329",
+        "component": "crawler"
+      },
+      {
+        "date": "2026-03-29",
+        "check": "pre_flight"
       }
     ],
-    "last_seen": "2026-03-28T18:33:36.361179"
+    "last_seen": "2026-03-29T18:10:08.596968"
   },
   "e2cd04da": {
     "error_type": "format_invalid",
     "code": "E002",
-    "count": 34,
+    "count": 39,
     "first_seen": "2026-03-22T00:07:00.718208",
     "contexts": [
       {
-        "date": "20260324",
-        "component": "report"
-      },
-      {
-        "date": "20260327",
-        "component": "report"
-      },
-      {
-        "date": "20260327",
-        "component": "report"
-      },
-      {
         "date": "20260328",
         "component": "report"
       },
@@ -87,14 +75,56 @@
         "component": "report"
       },
       {
-        "date": "20260328",
+        "date": "20260329",
         "component": "report"
       },
       {
-        "date": "20260328",
+        "date": "20260329",
+        "component": "report"
+      },
+      {
+        "date": "20260329",
+        "component": "report"
+      },
+      {
+        "date": "20260329",
+        "component": "report"
+      },
+      {
+        "date": "20260329",
         "component": "report"
       }
     ],
-    "last_seen": "2026-03-28T18:20:08.081364"
+    "last_seen": "2026-03-29T18:20:05.768634"
+  },
+  "5ea2dadc": {
+    "error_type": "unknown",
+    "code": "E008",
+    "count": 3,
+    "first_seen": "2026-03-29T02:37:00.476290",
+    "contexts": [
+      {
+        "step": "test_step",
+        "workflow": "daily_report",
+        "drift_type": "keyword",
+        "confidence": 1.0,
+        "action": "block"
+      },
+      {
+        "step": "generate_report",
+        "workflow": "daily_report",
+        "drift_type": "keyword",
+        "confidence": 1.0,
+        "action": "block"
+      },
+      {
+        "step": "generate_report2",
+        "workflow": "daily_report",
+        "drift_type": "keyword",
+        "confidence": 1.0,
+        "action": "block"
+      }
+    ],
+    "last_seen": "2026-03-29T02:41:38.198261"
   }
 }

@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-03-29T22:48:52.592545",
+  "branch": "main",
+  "total_commits": 1,
+  "commits": [
+    {
+      "task_type": "generate",
+      "task_name": "储能日报生成",
+      "status": "✅",
+      "summary": "生成 2026-03-29 日报，包含 196 条资讯",
+      "details": [
+        "资讯数量: 196 条",
+        "分类统计: {'政策法规': 5, '市场动态': 20, '项目进展': 55, '技术创新': 23, '企业动态': 5, '国际市场': 3}",
+        "置信度: 95/100"
+      ],
+      "files_changed": [
+        "/root/.openclaw/workspace/energy_storage/data/reports/report_20260329.md",
+        "/root/.openclaw/workspace/energy_storage/data/reports/xml_prompt_20260329.xml"
+      ],
+      "metadata": {
+        "date": "2026-03-29",
+        "news_count": 196,
+        "categories": {
+          "政策法规": 5,
+          "市场动态": 20,
+          "项目进展": 55,
+          "技术创新": 23,
+          "企业动态": 5,
+          "国际市场": 3
+        }
+      },
+      "parent_tasks": []
+    }
+  ],
+  "stats": {
+    "total_commits": 1,
+    "by_type": {
+      "generate": 1
+    },
+    "by_status": {
+      "✅": 1
+    },
+    "timeline": [
+      {
+        "task": "储能日报生成",
+        "type": "generate",
+        "status": "✅"
+      }
+    ]
+  }
+}

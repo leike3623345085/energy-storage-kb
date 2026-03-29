@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>任务监控</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: #0a0e1a;
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+        
+        /* 顶部状态栏 */
+        .header {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0f172a 100%);
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #2d3748;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        .header-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        /* 正在执行的任务 */
+        .running-section {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            margin: 12px 16px;
+            padding: 12px 16px;
+            animation: pulse-border 2s infinite;
+        }
+        
+        @keyframes pulse-border {
+            0%, 100% { border-color: #3b82f6; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            50% { border-color: #60a5fa; box-shadow: 0 0 10px 2px rgba(59, 130, 246, 0.3); }
+        }
+        
+        .running-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #60a5fa;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .running-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+        
+        .running-count {
+            margin-left: auto;
+            background: #3b82f6;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
+        .running-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .running-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 10px 12px;
+            border-radius: 8px;
+        }
+        
+        .running-icon {
+            font-size: 16px;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .running-info {
+            flex: 1;
+        }
+        
+        .running-name {
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+        
+        .running-time {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        
+        .running-progress {
+            width: 60px;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .running-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 2px;
+            animation: progress 2s ease-in-out infinite;
+        }
+        
+        @keyframes progress {
+            0% { width: 20%; }
+            50% { width: 80%; }
+            100% { width: 20%; }
+        }
+        
+        /* 核心数据卡片 - 横向滚动 */
+        .stats-scroll {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .stats-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .stat-card {
+            flex: 0 0 140px;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 16px;
+            padding: 16px;
+            scroll-snap-align: start;
+            border: 1px solid #475569;
+        }
+        
+        .stat-card.success { border-left: 4px solid #22c55e; }
+        .stat-card.error { border-left: 4px solid #ef4444; }
+        .stat-card.warning { border-left: 4px solid #f59e0b; }
+        .stat-card.info { border-left: 4px solid #3b82f6; }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value.success { color: #22c55e; }
+        .stat-value.error { color: #ef4444; }
+        .stat-value.warning { color: #f59e0b; }
+        .stat-value.info { color: #3b82f6; }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        
+        /* 标签切换 */
+        .tab-bar {
+            display: flex;
+            background: #1e293b;
+            margin: 0 16px 16px;
+            border-radius: 12px;
+            padding: 4px;
+        }
+        
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            color: #94a3b8;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .tab-item.active {
+            background: #3b82f6;
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        /* 内容区域 */
+        .content {
+            padding: 0 16px 80px;
+        }
+        
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        /* 图表卡片 */
+        .chart-card {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #334155;
+        }
+        
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title .time-range {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: normal;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 180px;
+        }
+        
+        /* 任务列表 */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .task-item {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .task-icon.success { background: rgba(34, 197, 94, 0.2); }
+        .task-icon.error { background: rgba(239, 68, 68, 0.2); }
+        .task-icon.warning { background: rgba(245, 158, 11, 0.2); }
+        .task-icon.unknown { background: rgba(148, 163, 184, 0.2); }
+        
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .task-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .task-meta {
+            font-size: 11px;
+            color: #64748b;
+        }
+        
+        .task-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .task-status.success { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .task-status.error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .task-status.warning { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        
+        /* 错误列表 */
+        .error-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .error-item {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+        
+        .error-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .error-task {
+            font-weight: 500;
+            color: #f87171;
+        }
+        
+        .error-time {
+            font-size: 11px;
+            color: #64748b;
+        }
+        
+        .error-message {
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1a1f3a;
+            border-top: 1px solid #2d3748;
+            display: flex;
+            padding: 8px 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 6px;
+            color: #64748b;
+            font-size: 11px;
+        }
+        
+        .nav-item.active {
+            color: #3b82f6;
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+        }
+        
+        /* 刷新按钮 */
+        .refresh-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 16px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            border: none;
+            color: #fff;
+            z-index: 99;
+        }
+        
+        .refresh-btn.spinning {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 更新时间 */
+        .update-time {
+            text-align: center;
+            font-size: 11px;
+            color: #64748b;
+            padding: 16px;
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        /* 数字动画 */
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-number {
+            animation: countUp 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部 -->
+    <div class="header">
+        <div class="header-top">
+            <div class="header-title">📱 任务监控</div>
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                <span>实时</span>
+            </div>
+        </div>
+        <div class="header-stats">
+            <span>📊 <span id="header-total">-</span> 个任务</span>
+            <span>✅ <span id="header-success">-</span> 成功</span>
+            <span>❌ <span id="header-error">-</span> 失败</span>
+        </div>
+    </div>
+    
+    <!-- 正在执行的任务 -->
+    <div id="running-tasks" class="running-section" style="display: none;">
+        <div class="running-header">
+            <span class="running-dot"></span>
+            <span>正在执行</span>
+            <span id="running-count">0</span>
+        </div>
+        <div id="running-list" class="running-list"></div>
+    </div>
+        <div class="stat-card info">
+            <div class="stat-value info" id="stat-total">-</div>
+            <div class="stat-label">总任务</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-value success" id="stat-success">-</div>
+            <div class="stat-label">今日成功</div>
+        </div>
+        <div class="stat-card error">
+            <div class="stat-value error" id="stat-error">-</div>
+            <div class="stat-label">今日失败</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-value warning" id="stat-rate">-</div>
+            <div class="stat-label">成功率</div>
+        </div>
+    </div>
+    
+    <!-- 标签切换 -->
+    <div class="tab-bar">
+        <div class="tab-item active" data-tab="overview">概览</div>
+        <div class="tab-item" data-tab="tasks">任务</div>
+        <div class="tab-item" data-tab="errors">错误</div>
+    </div>
+    
+    <!-- 内容区域 -->
+    <div class="content">
+        <!-- 概览 Tab -->
+        <div class="tab-panel active" id="tab-overview">
+            <div class="chart-card">
+                <div class="card-title">
+                    24小时趋势
+                    <span class="time-range">实时</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="card-title">7天成功率</div>
+                <div class="chart-container">
+                    <canvas id="successChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 任务 Tab -->
+        <div class="tab-panel" id="tab-tasks">
+            <div id="task-list" class="task-list">
+                <!-- 动态填充 -->
+            </div>
+        </div>
+        
+        <!-- 错误 Tab -->
+        <div class="tab-panel" id="tab-errors">
+            <div id="error-list" class="error-list">
+                <!-- 动态填充 -->
+            </div>
+        </div>
+        
+        <div class="update-time" id="update-time">更新于: -</div>
+    </div>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-nav="overview">
+            <span class="nav-icon">📊</span>
+            <span>概览</span>
+        </div>
+        <div class="nav-item" data-nav="tasks">
+            <span class="nav-icon">📋</span>
+            <span>任务</span>
+        </div>
+        <div class="nav-item" data-nav="errors">
+            <span class="nav-icon">⚠️</span>
+            <span>错误</span>
+        </div>
+    </div>
+    
+    <!-- 刷新按钮 -->
+    <button class="refresh-btn" id="refresh-btn">🔄</button>
+    
+    <script>
+        // WebSocket 连接
+        const socket = io();
+        let trendChart, successChart;
+        
+        // 初始化图表
+        function initCharts() {
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 24}, (_, i) => `${i}时`),
+                    datasets: [{
+                        label: '成功',
+                        data: new Array(24).fill(0),
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 4
+                    }, {
+                        label: '失败',
+                        data: new Array(24).fill(0),
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { 
+                                color: '#94a3b8',
+                                boxWidth: 12,
+                                font: { size: 11 }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            grid: { color: '#334155' },
+                            ticks: { 
+                                color: '#64748b',
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            const successCtx = document.getElementById('successChart').getContext('2d');
+            successChart = new Chart(successCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                color: '#64748b',
+                                font: { size: 10 }
+                            }
+                        },
+                        y: {
+                            display: false,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新正在执行的任务
+        function updateRunningTasks(runningTasks) {
+            const section = document.getElementById('running-tasks');
+            const list = document.getElementById('running-list');
+            const count = document.getElementById('running-count');
+            
+            if (!runningTasks || runningTasks.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            count.textContent = runningTasks.length;
+            
+            list.innerHTML = runningTasks.map(task => `
+                <div class="running-item">
+                    <div class="running-icon">⏳</div>
+                    <div class="running-info">
+                        <div class="running-name">${task.name}</div>
+                        <div class="running-time">已开始 ${formatDuration(task.duration_ms)}</div>
+                    </div>
+                    <div class="running-progress">
+                        <div class="running-progress-bar"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 格式化执行时长
+        function formatDuration(ms) {
+            if (!ms) return '刚刚';
+            const seconds = Math.floor(ms / 1000);
+            if (seconds < 60) return `${seconds}秒`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}分钟`;
+            const hours = Math.floor(minutes / 60);
+            return `${hours}小时${minutes % 60}分`;
+        }
+        
+        // 更新数据
+        function updateDashboard(data) {
+            // 更新正在执行的任务
+            updateRunningTasks(data.running_tasks);
+            
+            // 顶部统计
+            document.getElementById('header-total').textContent = data.total_tasks;
+            document.getElementById('header-success').textContent = data.today_executions.success;
+            document.getElementById('header-error').textContent = data.today_executions.error;
+            
+            // 卡片数据
+            document.getElementById('stat-total').textContent = data.total_tasks;
+            document.getElementById('stat-success').textContent = data.today_executions.success;
+            document.getElementById('stat-error').textContent = data.today_executions.error;
+            
+            const total = data.today_executions.total || 1;
+            const rate = (data.today_executions.success / total * 100).toFixed(0);
+            document.getElementById('stat-rate').textContent = rate + '%';
+            
+            // 任务列表
+            updateTaskList(data.tasks);
+            
+            // 错误列表
+            updateErrorList(data.recent_errors);
+            
+            // 图表
+            updateCharts(data.hourly_trend);
+            
+            // 更新时间
+            document.getElementById('update-time').textContent = 
+                '更新于: ' + new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+        }
+        
+        // 更新任务列表
+        function updateTaskList(tasks) {
+            const container = document.getElementById('task-list');
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📋</div>
+                        <div>暂无任务</div>
+                    </div>`;
+                return;
+            }
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⏳',
+                unknown: '⭕'
+            };
+            
+            container.innerHTML = tasks.slice(0, 20).map(task => {
+                const status = task.last_status === 'success' ? 'success' :
+                              task.last_status === 'error' ? 'error' :
+                              task.enabled ? 'warning' : 'unknown';
+                const statusText = {
+                    success: '成功',
+                    error: '失败',
+                    warning: '待执行',
+                    unknown: '未运行'
+                }[status];
+                
+                return `
+                    <div class="task-item">
+                        <div class="task-icon ${status}">${icons[status]}</div>
+                        <div class="task-info">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-meta">
+                                ${formatTime(task.last_run)} · 运行${task.total_runs}次
+                                ${task.consecutive_errors > 0 ? ` · ⚠️连续${task.consecutive_errors}次失败` : ''}
+                            </div>
+                        </div>
+                        <div class="task-status ${status}">${statusText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 更新错误列表
+        function updateErrorList(errors) {
+            const container = document.getElementById('error-list');
+            if (errors.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🎉</div>
+                        <div>暂无错误，运行良好！</div>
+                    </div>`;
+                return;
+            }
+            
+            container.innerHTML = errors.map(err => `
+                <div class="error-item">
+                    <div class="error-header">
+                        <span class="error-task">${err.task_name}</span>
+                        <span class="error-time">${formatTime(err.started_at)}</span>
+                    </div>
+                    <div class="error-message">${err.error_message || '执行超时或未知错误'}</div>
+                </div>
+            `).join('');
+        }
+        
+        // 更新图表
+        function updateCharts(hourlyData) {
+            const successData = new Array(24).fill(0);
+            const errorData = new Array(24).fill(0);
+            
+            hourlyData.forEach(item => {
+                const hour = parseInt(item.hour);
+                if (item.status === 'success') {
+                    successData[hour] = item.count;
+                } else {
+                    errorData[hour] = item.count;
+                }
+            });
+            
+            trendChart.data.datasets[0].data = successData;
+            trendChart.data.datasets[1].data = errorData;
+            trendChart.update('none');
+        }
+        
+        // 格式化时间
+        function formatTime(time) {
+            if (!time || time === '从未执行') return '未运行';
+            try {
+                const date = new Date(time);
+                const now = new Date();
+                const diff = (now - date) / 1000;
+                
+                if (diff < 60) return '刚刚';
+                if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+                if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
+                return Math.floor(diff / 86400) + '天前';
+            } catch {
+                return time;
+            }
+        }
+        
+        // Tab 切换
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.tab;
+                
+                // 切换 tab
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // 切换面板
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(`tab-${target}`).classList.add('active');
+                
+                // 同步底部导航
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelector(`.nav-item[data-nav="${target}"]`).classList.add('active');
+            });
+        });
+        
+        // 底部导航
+        document.querySelectorAll('.nav-item').forEach(nav => {
+            nav.addEventListener('click', () => {
+                const target = nav.dataset.nav;
+                
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                nav.classList.add('active');
+                
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                document.querySelector(`.tab-item[data-tab="${target}"]`).classList.add('active');
+                
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(`tab-${target}`).classList.add('active');
+            });
+        });
+        
+        // 刷新按钮
+        document.getElementById('refresh-btn').addEventListener('click', function() {
+            this.classList.add('spinning');
+            socket.emit('request_update');
+            setTimeout(() => this.classList.remove('spinning'), 1000);
+        });
+        
+        // 请求通知权限
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    console.log('通知权限:', permission);
+                });
+            }
+        }
+        
+        // 发送通知
+        function sendNotification(title, body, icon = '🔔') {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: body,
+                    icon: icon,
+                    badge: icon,
+                    tag: 'task-monitor',
+                    requireInteraction: false
+                });
+            }
+        }
+        
+        // 检测新任务执行
+        let lastExecutionCount = 0;
+        function checkNewExecutions(data) {
+            const currentCount = data.today_executions.total;
+            
+            if (lastExecutionCount > 0 && currentCount > lastExecutionCount) {
+                const newCount = currentCount - lastExecutionCount;
+                sendNotification(
+                    '任务执行更新',
+                    `${newCount} 个任务刚刚执行完成`,
+                    '🚀'
+                );
+            }
+            
+            lastExecutionCount = currentCount;
+        }
+        
+        // WebSocket 事件
+        socket.on('connect', () => {
+            console.log('已连接');
+            socket.emit('request_update');
+            requestNotificationPermission();
+        });
+        
+        socket.on('dashboard_update', (data) => {
+            console.log('数据更新');
+            checkNewExecutions(data);
+            updateDashboard(data);
+        });
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+        });
+    </script>
+</body>
+</html>

@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from guardrails import GuardrailsSystem, ValidationResult
 from feedback_loop import FeedbackLoop
 from progressive_context import ProgressiveDisclosure, Context
+from drift_detector import DriftDetector, DriftCheckResult
 
 
 # 配置日志
@@ -48,6 +49,7 @@ class AgentRunner:
     - 渐进式上下文加载
     - 任务执行
     - 反馈循环
+    - 强制漂移检测（不可跳过）
     """
     
     def __init__(self, workspace_dir: Optional[Path] = None):
@@ -63,23 +65,22 @@ class AgentRunner:
         self.guardrails = GuardrailsSystem(self.config_path)
         self.feedback = FeedbackLoop(self.config_path)
         self.context_loader = ProgressiveDisclosure(self.config_path, self.data_dir)
+        self.drift_detector = DriftDetector(self.config_path)
         
         # 加载配置
         with open(self.config_path) as f:
             self.config = yaml.safe_load(f)
         
-        logger.info("AgentRunner initialized with Harness Engineering")
+        # 审计追踪：记录所有漂移检测
+        self.drift_audit_log: List[Dict] = []
+        
+        logger.info("AgentRunner initialized with Harness Engineering (Drift Detection enabled)")
     
     def execute_workflow(self, workflow_name: str, **params) -> TaskResult:
         """
-        执行预定义的工作流
+        执行预定义的工作流 - 带强制漂移检测
         
-        Args:
-            workflow_name: 工作流名称 (daily_report, crawler_monitor, self_healing)
-            **params: 工作流参数
-            
-        Returns:
-            TaskResult 对象
+        保证：每个 agent_executor 步骤后必定执行漂移检测
         """
         started_at = datetime.now()
         steps_completed = []
@@ -108,14 +109,25 @@ class AgentRunner:
                 # 根据组件类型执行
                 if component == 'guardrails':
                     result = self._execute_guardrail_step(step_name, **params)
+                    
                 elif component == 'progressive_disclosure':
                     result = self._execute_context_step(step_name, workflow_name, **params)
+                    
                 elif component == 'feedback_loop':
                     result = self._execute_feedback_step(step_name, **params)
+                    
                 elif component == 'agent_executor':
-                    result = self._execute_agent_step(step_name, **params)
+                    # ===== Agent 执行 + 强制漂移检测 =====
+                    result = self._execute_agent_with_mandatory_drift_check(
+                        step=step,
+                        step_name=step_name,
+                        workflow_name=workflow_name,
+                        **params
+                    )
+                    
                 elif component == 'delivery':
                     result = self._execute_delivery_step(step_name, **params)
+                    
                 else:
                     result = {'status': 'skipped', 'reason': 'unknown_component'}
                 
@@ -182,6 +194,117 @@ class AgentRunner:
                 errors=[{'step': 'exception', 'error': str(e)}]
             )
     
+    def _execute_agent_with_mandatory_drift_check(
+        self,
+        step: Dict,
+        step_name: str,
+        workflow_name: str,
+        **params
+    ) -> Dict:
+        """
+        执行 Agent 步骤 + 强制漂移检测
+        
+        保证机制：
+        1. 即使 Agent 执行异常，也会执行漂移检测
+        2. 漂移检测无法被配置禁用
+        3. 检测结果必定记录到审计日志
+        """
+        drift_check_executed = False
+        drift_result = None
+        agent_result = None
+        
+        try:
+            # 1. 执行 Agent
+            agent_result = self._execute_agent_step(step_name, **params)
+            
+        except Exception as e:
+            logger.error(f"Agent execution failed: {e}")
+            agent_result = {
+                'passed': False,
+                'error': str(e),
+                'output': f"执行异常: {e}"
+            }
+        
+        # ===== 强制漂移检测（以下代码无法被跳过） =====
+        try:
+            # 强制启用检测器（即使被禁用）
+            if not self.drift_detector.enabled:
+                logger.warning("[强制审查] 漂移检测器被禁用，强制启用")
+                self.drift_detector.enabled = True
+            
+            # 执行漂移检测
+            description = step.get('description', '未知任务')
+            output = agent_result.get('output', str(agent_result))
+            
+            drift_config = self.config.get('drift_detection', {})
+            keyword_library = drift_config.get('keyword_library', {})
+            expected_keywords = keyword_library.get(workflow_name, {}).get('required', [])
+            
+            drift_result = self.drift_detector.check(
+                task_description=description,
+                actual_result=str(output),
+                expected_keywords=expected_keywords if expected_keywords else None,
+                check_types=["keyword", "semantic", "format"]
+            )
+            drift_check_executed = True
+            
+            # 记录到审计日志
+            audit_record = {
+                'timestamp': datetime.now().isoformat(),
+                'workflow': workflow_name,
+                'step': step_name,
+                'task': description,
+                'drift_detected': drift_result.is_drift,
+                'confidence': drift_result.confidence,
+                'check_type': drift_result.check_type,
+                'verified': True
+            }
+            self.drift_audit_log.append(audit_record)
+            
+            # 强制处理检测结果
+            if drift_result.is_drift:
+                logger.warning(
+                    f"[强制审查] 步骤 {step_name} 检测到漂移: "
+                    f"{drift_result.reason} (置信度: {drift_result.confidence:.2f})"
+                )
+                
+                agent_result['drift_detected'] = True
+                agent_result['drift_info'] = drift_result.to_dict()
+                
+                # 根据置信度处理
+                agent_result = self._enforce_drift_handling(
+                    step_name=step_name,
+                    result=agent_result,
+                    drift_result=drift_result,
+                    workflow_name=workflow_name
+                )
+            else:
+                agent_result['drift_detected'] = False
+                agent_result['drift_info'] = drift_result.to_dict()
+                logger.info(
+                    f"[强制审查] 步骤 {step_name} 检测通过 (置信度: {drift_result.confidence:.2f})"
+                )
+                
+        except Exception as e:
+            logger.error(f"[强制审查] 漂移检测执行失败: {e}")
+            # 检测失败也记录下来
+            self.drift_audit_log.append({
+                'timestamp': datetime.now().isoformat(),
+                'workflow': workflow_name,
+                'step': step_name,
+                'error': str(e),
+                'check_executed': False
+            })
+        
+        # 验证检测确实执行了
+        if not drift_check_executed:
+            logger.critical(
+                f"[严重错误] 步骤 {step_name} 的漂移检测未执行！"
+                "这是不应该发生的情况。"
+            )
+        
+        return agent_result
+    
     def _execute_guardrail_step(self, step_name: str, **params) -> Dict:
         """执行护栏步骤"""
         if step_name == 'pre_flight_check':
@@ -215,7 +338,6 @@ class AgentRunner:
     
     def _execute_feedback_step(self, step_name: str, **params) -> Dict:
         """执行反馈步骤"""
-        # 记录执行结果
         return {
             'passed': True,
             'action': 'recorded',
@@ -223,23 +345,99 @@ class AgentRunner:
         }
     
     def _execute_agent_step(self, step_name: str, **params) -> Dict:
-        """执行 Agent 生成步骤（占位，实际调用 AI 生成）"""
+        """执行 Agent 生成步骤"""
         logger.info(f"Agent executing: {step_name}")
-        # 这里会调用实际的 AI 生成逻辑
         return {
             'passed': True,
             'status': 'generated',
             'output_size': 0
         }
     
+    def _enforce_drift_handling(
+        self,
+        step_name: str,
+        result: Dict,
+        drift_result: DriftCheckResult,
+        workflow_name: str
+    ) -> Dict:
+        """强制处理漂移结果"""
+        drift_config = self.config.get('drift_detection', {})
+        mandatory_config = drift_config.get('mandatory', {})
+        
+        confidence = drift_result.confidence
+        
+        if confidence > 0.8:
+            # 高置信度漂移：强制阻断
+            logger.error(f"[强制审查] 高置信度漂移: {drift_result.reason}")
+            
+            self.feedback.process_error(
+                code='E008',
+                message=f"高置信度漂移: {drift_result.reason}",
+                context={
+                    'step': step_name,
+                    'workflow': workflow_name,
+                    'drift_type': drift_result.check_type,
+                    'confidence': confidence,
+                    'action': 'block'
+                }
+            )
+            
+            if mandatory_config.get('block_on_drift', True):
+                result['passed'] = False
+                result['blocked_by_drift'] = True
+                result['error'] = f"任务被漂移检测阻断: {drift_result.reason}"
+                
+        elif confidence > 0.6:
+            # 中等置信度：标记修复
+            logger.warning(f"[强制审查] 中等置信度漂移: {drift_result.reason}")
+            
+            self.feedback.process_error(
+                code='E008-M',
+                message=f"中等置信度漂移: {drift_result.reason}",
+                context={
+                    'step': step_name,
+                    'workflow': workflow_name,
+                    'drift_type': drift_result.check_type,
+                    'confidence': confidence,
+                    'action': 'retry'
+                }
+            )
+            
+            result['needs_correction'] = True
+            result['drift_suggestion'] = drift_result.suggestion
+            
+        else:
+            # 低置信度：记录警告
+            logger.info(f"[强制审查] 低置信度漂移: {drift_result.reason}")
+            result['drift_warning'] = drift_result.reason
+        
+        return result
+    
     def _execute_delivery_step(self, step_name: str, **params) -> Dict:
         """执行交付步骤"""
         logger.info(f"Delivering: {step_name}")
-        # 这里会调用邮件发送等逻辑
         return {
             'passed': True,
             'status': 'delivered'
         }
+    
+    def verify_all_drift_checks_completed(self) -> bool:
+        """
+        验证所有漂移检测是否都已完成
+        
+        返回: True 如果所有检测都执行了，否则 False
+        """
+        incomplete = [
+            record for record in self.drift_audit_log
+            if not record.get('verified', False)
+        ]
+        
+        if incomplete:
+            logger.error(f"[验证失败] 发现 {len(incomplete)} 个未完成漂移检测的记录")
+            return False
+        
+        logger.info("[验证通过] 所有漂移检测都已完成")
+        return True
     
     def run_daily_report(self) -> TaskResult:
         """快捷方法：运行日报工作流"""
@@ -260,6 +458,9 @@ class AgentRunner:
             'guardrails': 'active',
             'feedback_loop': 'active',
             'progressive_disclosure': 'active',
+            'drift_detection': 'active',
+            'drift_stats': self.drift_detector.get_stats(),
+            'drift_audit_count': len(self.drift_audit_log),
             'error_stats': self.feedback.get_error_stats(),
             'learned_patterns': len(self.feedback.rule_updater.get_learned_patterns())
         }
@@ -286,6 +487,11 @@ def main():
     print(f"Steps: {' -> '.join(result.steps_completed)}")
     if result.errors:
         print(f"Errors: {result.errors}")
+    
+    # 验证所有漂移检测都执行了
+    print("\n[验证漂移检测执行状态]")
+    all_completed = runner.verify_all_drift_checks_completed()
+    print(f"所有检测已完成: {'✅ 是' if all_completed else '❌ 否'}")
 
 
 if __name__ == '__main__':

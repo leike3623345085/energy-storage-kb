@@ -37,4 +37,29 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 
 ---
 
+## 邮件发送规则
+
+### Word附件正确发送方式
+**问题**: 使用 `MIMEBase` 会导致QQ邮箱显示为BIN格式
+
+**正确代码**:
+```python
+from email.mime.application import MIMEApplication
+
+with open('file.docx', 'rb') as f:
+    attachment = MIMEApplication(f.read())
+    attachment.add_header('Content-Disposition', 'attachment', filename='file.docx')
+    attachment.add_header('Content-Type', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    msg.attach(attachment)
+```
+
+**错误代码**（已废弃）:
+```python
+from email.mime.base import MIMEBase  # ❌ 不要用这个
+attachment = MIMEBase('application', 'octet-stream')  # ❌ 会导致BIN格式
+```
+
+---
+
 Add whatever helps you do your job. This is your cheat sheet.

@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-03-29T23:11:29.740064",
+  "branch": "main",
+  "total_commits": 2,
+  "total_change_sets": 1,
+  "commits": [
+    {
+      "task_type": "crawl",
+      "task_name": "数据加载与合并 v2",
+      "status": "✅",
+      "summary": "并行加载 3 个数据源，合并后 196 条",
+      "commit_hash": "4a6f6b99",
+      "timestamp": "2026-03-29T23:11:29.696732",
+      "template": "standard"
+    },
+    {
+      "task_type": "generate",
+      "task_name": "储能日报生成 v2",
+      "status": "✅",
+      "summary": "生成 2026-03-29 日报，包含 196 条资讯",
+      "commit_hash": "14f2e9ec",
+      "timestamp": "2026-03-29T23:11:29.722284",
+      "template": "standard"
+    }
+  ],
+  "change_sets": [
+    {
+      "name": "日报生成_2026-03-29",
+      "description": "",
+      "commits": 2,
+      "duration": 0.048996,
+      "successful": true,
+      "rollback_point": "c7faf957dc643d5427d94f118d8ba559b0c81295"
+    }
+  ],
+  "stats": {
+    "total_commits": 2,
+    "by_type": {
+      "crawl": 1,
+      "generate": 1
+    },
+    "by_status": {
+      "✅": 2
+    },
+    "by_date": {
+      "2026-03-29": 2
+    },
+    "timeline": [
+      {
+        "time": "2026-03-29T23:11:29.696732",
+        "task": "数据加载与合并 v2",
+        "type": "crawl",
+        "status": "✅"
+      },
+      {
+        "time": "2026-03-29T23:11:29.722284",
+        "task": "储能日报生成 v2",
+        "type": "generate",
+        "status": "✅"
+      }
+    ]
+  }
+}

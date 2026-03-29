@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>储能行业智能监控系统 - 操作手册 v3.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', 'SimHei', sans-serif;
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 30px;
+            color: #333;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        h2 {
+            color: #34495e;
+            font-size: 18px;
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 12px;
+        }
+        
+        h3 {
+            color: #555;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 12px;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .cover {
+            text-align: center;
+            padding: 80px 0;
+        }
+        
+        .cover h1 {
+            border: none;
+            font-size: 32px;
+        }
+        
+        .cover p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .section {
+            page-break-before: always;
+        }
+        
+        .section:first-of-type {
+            page-break-before: avoid;
+        }
+        
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+        }
+        
+        .file-tree {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 封面 -->
+    <div class="cover">
+        <h1>储能行业智能监控系统</h1>
+        <h1 style="font-size: 24px; margin-top: -10px;">操作手册 v3.0</h1>
+        <p style="margin-top: 40px;">架构: Harness Engineering + OpenViking 记忆系统</p>
+        <p>日期: 2026年3月29日</p>
+    </div>
+
+    <!-- 第一章 -->
+    <div class="section">
+        <h2>一、系统概述</h2>
+        
+        <h3>1.1 系统定位</h3>
+        <p>"<strong>新型电力系统的稳定器</strong>" —— 24小时持续监控储能行业动态，自动生成分析报告。</p>
+        
+        <h3>1.2 核心能力</h3>
+        <ul>
+            <li><strong>数据采集</strong>：网站爬虫 + API监控 + 搜索聚合</li>
+            <li><strong>智能分析</strong>：MECE热点提炼 + SWOT速览 + 产业链动态</li>
+            <li><strong>自动报告</strong>：日报(18:05) + 深度分析(18:10) + 周报(周一9:00)</li>
+            <li><strong>多平台同步</strong>：邮件 + IMA笔记 + GitHub备份 + 向量知识库</li>
+            <li><strong>自愈系统</strong>：故障自动检测 → 分类 → 修复 → 学习</li>
+        </ul>
+    </div>
+
+    <!-- 第二章 -->
+    <div class="section">
+        <h2>二、核心架构</h2>
+        
+        <h3>2.1 Harness Engineering 三层架构</h3>
+        
+        <p><strong>【Guardrails 护栏】</strong></p>
+        <ul>
+            <li>数据量检查（爬虫≥20条，新闻≥10条）</li>
+            <li>格式验证（必须包含4个章节）</li>
+            <li>超时检查（日报≤600秒）</li>
+        </ul>
+        
+        <p><strong>【Progressive Disclosure 渐进披露】</strong></p>
+        <ul>
+            <li><strong>SIMPLE</strong>：当日数据（日报生成）</li>
+            <li><strong>COMPLEX</strong>：7天数据（深度分析）</li>
+            <li><strong>DIAGNOSTIC</strong>：日志+历史（故障排查）</li>
+        </ul>
+        
+        <p><strong>【Feedback Loop 反馈循环】</strong></p>
+        <ul>
+            <li>错误分类（E001数据不足，E002格式错误...）</li>
+            <li>自动修复（5种策略）</li>
+            <li>规则学习（更新 learned_rules.json）</li>
+        </ul>
+        
+        <h3>2.2 OpenViking 记忆系统（L0/L1/L2）</h3>
+        <ul>
+            <li><strong>L0 - 快速过滤</strong>：一句话摘要（~100 tokens）用于相关性判断</li>
+            <li><strong>L1 - 概览层</strong>：章节结构+关键点（~2000 tokens）用于规划决策</li>
+            <li><strong>L2 - 完整内容</strong>：原始文档按需加载</li>
+        </ul>
+    </div>
+
+    <!-- 第三章 -->
+    <div class="section">
+        <h2>三、定时任务清单</h2>
+        
+        <h3>3.1 数据采集类</h3>
+        <table>
+            <tr>
+                <th>任务</th>
+                <th>频率</th>
+                <th>时间</th>
+                <th>输出</th>
+            </tr>
+            <tr>
+                <td>网站爬虫</td>
+                <td>每4小时</td>
+                <td>00/04/08/12/16/20</td>
+                <td><code>crawler/*.json</code></td>
+            </tr>
+            <tr>
+                <td>API监控</td>
+                <td>每4小时</td>
+                <td>同上</td>
+                <td><code>api_data/*.json</code></td>
+            </tr>
+            <tr>
+                <td>早班搜索</td>
+                <td>每天2次</td>
+                <td>08:00 / 14:00</td>
+                <td><code>news/*.json</code></td>
+            </tr>
+            <tr>
+                <td>晚班搜索</td>
+                <td>每天1次</td>
+                <td>20:00</td>
+                <td><code>news/*.json</code></td>
+            </tr>
+        </table>
+        
+        <h3>3.2 18:00 密集时段任务</h3>
+        <table>
+            <tr>
+                <th>时间</th>
+                <th>任务</th>
+                <th>动作</th>
+            </tr>
+            <tr>
+                <td>18:05</td>
+                <td>日报生成</td>
+                <td>MECE → SWOT → 产业链 → 邮件发送</td>
+            </tr>
+            <tr>
+                <td>18:10</td>
+                <td>深度分析</td>
+                <td>7天数据 + 趋势分析 → 邮件发送</td>
+            </tr>
+            <tr>
+                <td>18:20</td>
+                <td>自愈检查</td>
+                <td>检查日报状态，失败则修复</td>
+            </tr>
+            <tr>
+                <td>18:35</td>
+                <td>邮件补发</td>
+                <td>如未发送则补发</td>
+            </tr>
+            <tr>
+                <td>18:50</td>
+                <td>最终检查</td>
+                <td>通知到 kimi-claw</td>
+            </tr>
+            <tr>
+                <td>19:00</td>
+                <td>深度分析后自愈</td>
+                <td>检查深度分析状态</td>
+            </tr>
+        </table>
+        
+        <h3>3.3 维护类任务</h3>
+        <ul>
+            <li><strong>IMA同步</strong>：每4小时（随爬虫同步）</li>
+            <li><strong>GitHub备份</strong>：每天 23:50</li>
+            <li><strong>数据清理</strong>：每天 02:00（保留7天数据）</li>
+            <li><strong>记忆索引构建</strong>：每天 09:30（重建L0/L1摘要）</li>
+            <li><strong>每周回顾</strong>：周日 10:00（提炼经验教训）</li>
+        </ul>
+    </div>
+
+    <!-- 第四章 -->
+    <div class="section">
+        <h2>四、数据流向</h2>
+        
+        <h3>第一步：数据源</h3>
+        <ul>
+            <li><strong>网站爬虫</strong>（4个站点）：北极星储能网、储能中国等</li>
+            <li><strong>API监控</strong>（新浪财经）：实时行情数据</li>
+            <li><strong>搜索聚合</strong>（Kimi搜索）：行业资讯</li>
+        </ul>
+        
+        <h3>第二步：数据处理</h3>
+        <ul>
+            <li>数据清洗与去重（平均392条/天）</li>
+            <li>HARNESS v3 智能分析引擎</li>
+        </ul>
+        
+        <h3>第三步：报告生成</h3>
+        <ul>
+            <li>日报 + 深度分析 + 周报</li>
+        </ul>
+        
+        <h3>第四步：多平台分发</h3>
+        <ul>
+            <li>邮件（QQ邮箱）</li>
+            <li>IMA笔记</li>
+            <li>向量知识库（检索增强）</li>
+            <li>GitHub备份</li>
+        </ul>
+    </div>
+
+    <!-- 第五章 -->
+    <div class="section">
+        <h2>五、故障处理</h2>
+        
+        <h3>5.1 错误代码表</h3>
+        <table>
+            <tr>
+                <th>代码</th>
+                <th>故障描述</th>
+                <th>自动修复策略</th>
+            </tr>
+            <tr>
+                <td><code>E001</code></td>
+                <td>爬虫数据不足(&lt;20条)</td>
+                <td>重试3次 → 调整阈值 → 通知</td>
+            </tr>
+            <tr>
+                <td><code>E002</code></td>
+                <td>报告格式错误</td>
+                <td>检查模板 → 重新生成</td>
+            </tr>
+            <tr>
+                <td><code>E003</code></td>
+                <td>邮件发送失败</td>
+                <td>重试 → 换备用SMTP → 通知</td>
+            </tr>
+            <tr>
+                <td><code>E004</code></td>
+                <td>AI服务过载</td>
+                <td>指数退避重试 → 记录规则</td>
+            </tr>
+            <tr>
+                <td><code>E005</code></td>
+                <td>超时(&gt;600秒)</td>
+                <td>增加超时 → 减少并发</td>
+            </tr>
+        </table>
+        
+        <h3>5.2 自愈触发流程</h3>
+        <div class="file-tree">
+日报未生成<br>
+  → 18:20 自愈检查 → 尝试修复 → 成功→结束<br>
+  → 失败 → 18:35 补发检查 → 尝试补发<br>
+  → 失败 → 18:50 最终检查 → 通知
+        </div>
+        
+        <h3>5.3 手动修复命令</h3>
+        <p>重新生成日报：</p>
+        <div class="file-tree">cd energy_storage && python3 generate_report_harness_v3.py</div>
+        
+        <p>重新发送邮件：</p>
+        <div class="file-tree">cd energy_storage && python3 send_email.py --date $(date +%Y%m%d)</div>
+        
+        <p>手动运行爬虫：</p>
+        <div class="file-tree">cd energy_storage && python3 crawler_multi.py</div>
+        
+        <p>运行自愈检查：</p>
+        <div class="file-tree">cd energy_storage && python3 self_healing_harness.py</div>
+    </div>
+
+    <!-- 第六章 -->
+    <div class="section">
+        <h2>六、常用操作</h2>
+        
+        <h3>6.1 查看系统状态</h3>
+        <div class="file-tree">
+openclaw cron list                           # 查看定时任务<br>
+cd memory && python3 context_loader.py       # 查看记忆摘要<br>
+cd memory && python3 summarizer.py search "关键词"  # 搜索记忆<br>
+cd memory && python3 retrieval_audit.py recent 10  # 查看检索审计
+        </div>
+        
+        <h3>6.2 关键配置文件</h3>
+        <ul>
+            <li><code>harness/harness_config.yaml</code> — 约束规则、阈值</li>
+            <li><code>email_config.json</code> — SMTP设置</li>
+            <li><code>crawler_config.yaml</code> — 站点、关键词</li>
+        </ul>
+        
+        <h3>6.3 关键文件位置</h3>
+        <div class="file-tree">
+energy_storage/<br>
+├── data/<br>
+│   ├── crawler/          # 爬虫数据<br>
+│   ├── api_data/         # API数据<br>
+│   ├── reports/          # 生成的报告<br>
+│   └── knowledge_base/   # 向量索引<br>
+├── harness/<br>
+│   ├── harness_config.yaml   # 约束规则<br>
+│   ├── error_log.jsonl       # 错误记录<br>
+│   └── learned_rules.json    # 学习到的规则<br>
+└── memory/<br>
+    ├── system/           # 项目文档（L1层）<br>
+    ├── lessons/          # 经验教训（L2层）<br>
+    └── index/            # L0/L1索引
+        </div>
+        
+        <h3>6.4 监控关键词</h3>
+        <p><strong>技术方向：</strong></p>
+        <ul>
+            <li>新型电力系统、储能、新能源并网、风光消纳、削峰填谷</li>
+            <li>钠离子电池、液流电池、固态电池、构网型储能、PCS</li>
+            <li>压缩空气储能、飞轮储能、虚拟电厂、VPP、源网荷储</li>
+        </ul>
+        <p><strong>市场方向：</strong></p>
+        <ul>
+            <li>储能项目、独立储能、共享储能、电力现货市场、容量电价</li>
+        </ul>
+    </div>
+
+    <div style="text-align: center; margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 12px;">
+        <p>储能行业智能监控系统 v3.0 | Harness Engineering + OpenViking</p>
+    </div>
+</body>
+</html>

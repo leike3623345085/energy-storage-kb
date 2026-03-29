@@ -1,0 +1,146 @@
+<task version="2.0" type="daily_report" generated_at="2026-03-29T23:11:29.717153" builder="XMLPromptBuilder-v2">
+  <objective priority="high">基于 196 条储能行业资讯，生成 2026-03-29 的行业日报<success_metrics>
+      <metric>信息覆盖率 &gt; 90%</metric>
+      <metric>关键数据准确率 = 100%</metric>
+      <metric>内容可读性评分 &gt; 80/100</metric>
+    </success_metrics>
+  </objective>
+  <context>
+    <content_analysis total_items="196" hot_items="6" avg_importance="52.7">
+      <category_distribution>
+        <category name="市场动态" count="61" percentage="31.1%" />
+        <category name="其他" count="55" percentage="28.1%" />
+        <category name="项目进展" count="32" percentage="16.3%" />
+        <category name="技术创新" count="22" percentage="11.2%" />
+        <category name="企业动态" count="8" percentage="4.1%" />
+        <category name="政策法规" count="7" percentage="3.6%" />
+        <category name="国际市场" count="4" percentage="2.0%" />
+        <category name="安全事故" count="2" percentage="1.0%" />
+      </category_distribution>
+      <sentiment_distribution>
+        <sentiment type="positive" count="14" />
+        <sentiment type="negative" count="4" />
+        <sentiment type="neutral" count="173" />
+      </sentiment_distribution>
+    </content_analysis>
+    <data_sources count="196">
+      <category name="市场动态" count="66">
+        <source title="河南储能重磅！给予50MW新能源配额！中央预算支持！" source_name="北极星储能网" importance="50" sentiment="positive" />
+        <source title="国家电网：“十五五”将新建抽蓄装机超3000万千瓦" source_name="北极星储能网" importance="70" sentiment="neutral" entities="国家电网" />
+        <source title="四部门：加快大容量固态变压器SST应用！" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="甘肃敦煌150MW/600MWh独立储能电站EPC总承包招标" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="总投资7亿元！200MW/800MWh独立储能电站项目落地新疆" source_name="北极星储能网" importance="65" sentiment="neutral" />
+      </category>
+      <category name="其他" count="55">
+        <source title="中电联发布2025年储能电站运行数据！" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="我国首个新型储能人工智能数据分析平台在广州正式投用" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="“算电协同”80%红线下，AIDC绿电直连“新战事”" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="储能测试故障致电网“跳闸”！供电缺口引发电网振荡！" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="纯电重卡，2026锂电增量“新战场”" source_name="北极星储能网" importance="50" sentiment="neutral" />
+      </category>
+      <category name="项目进展" count="32">
+        <source title="四川推动偏远山区农村供电高质化发展：推动储能系统顺利投运" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="储能项目22个！云南发布2026年重大项目清单和“重中之重”项目清单" source_name="北极星储能网" importance="65" sentiment="neutral" />
+        <source title="百亿资金落地！协鑫能科建德抽水蓄能电站项目获32年期银团贷款" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="华电武汉9MW/9.554MWh储能项目正式并网验收" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="河南最大电网侧储能电站投运在即：毫秒级响应，年减碳58万吨" source_name="北极星储能网" importance="50" sentiment="neutral" />
+      </category>
+      <category name="技术创新" count="22">
+        <source title="宁德时代电池包实验室通过大众权威认证，拿下全球首个全链路资质" source_name="北极星储能网" importance="70" sentiment="neutral" entities="宁德时代" />
+        <source title="中国电信已自研储能系统！前瞻布局浸没式液冷技术" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="黑马突袭！奇瑞携构网型技术、长时储能、虚拟电厂杀进能源圈！" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="马斯克进军2nm芯片研发制造！赋能智能驾驶和智能机器人发展！" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="合壹新能完成数亿元A+轮融资！用于固态电池产线建设" source_name="北极星储能网" importance="65" sentiment="neutral" />
+      </category>
+      <category name="企业动态" count="8">
+        <source title="中国企业2025年全球源网侧、工商业储能系统出货量排名！" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="三星SDI与韩国企业签订磷酸铁锂正极材料供应3年长协" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="两会储能建言：宁德时代/正泰/德力西/国轩……他们都说了什么？" source_name="北极星储能网" importance="70" sentiment="neutral" entities="宁德时代" />
+        <source title="中电联2025年H1储能数据：海博思创/宁德时代/科华/高特/德联分列TOP1" source_name="北极星储能网" importance="70" sentiment="neutral" entities="宁德时代" />
+        <source title="2025年签约新能源项目55个，总投资344亿，新型储能总规模59.6万千瓦，山东临沂能源工作会议召开" source_name="北极星储能网" importance="50" sentiment="neutral" />
+      </category>
+      <category name="政策法规" count="7">
+        <source title="明确新型储能/构网型技术 能源局2026年标准立项指南发布！" source_name="北极星储能网" importance="60" sentiment="neutral" />
+        <source title="内蒙古零碳产业园配套新能源规划：优先构建“风光储氢”“源网荷储”等多能互补系统" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="住房城乡建设部发布国家标准《电化学储能电站设计标准》" source_name="北极星储能网" importance="60" sentiment="neutral" />
+        <source title="《储能用浸没式冷却液性能测试方法》团体标准完成征求意见稿" source_name="北极星储能网" importance="60" sentiment="neutral" />
+        <source title="中电联：两项充换电站国家标准出台" source_name="北极星储能网" importance="60" sentiment="neutral" />
+      </category>
+      <category name="国际市场" count="4">
+        <source title="荒唐立法！美国拟禁用远程监控，封堵中国储能系统入场！" source_name="北极星储能网" importance="50" sentiment="neutral" />
+        <source title="2024CIES-第十四届中国国际储能大会暨展览会宣传片" source_name="中国储能网" importance="50" sentiment="neutral" />
+        <source title="2021第十一届中国国际储能大会视频" source_name="中国储能网" importance="50" sentiment="neutral" />
+        <source title="2020第十届中国国际储能大会视频" source_name="中国储能网" importance="50" sentiment="neutral" />
+      </category>
+      <category name="安全事故" count="2">
+        <source title="储能电池包闪爆！“6·14”爆炸事故调查报告全文公布！" source_name="北极星储能网" importance="50" sentiment="negative" />
+        <source title="上海发布新能源汽车充换电设施安全管理新规" source_name="北极星储能网" importance="50" sentiment="neutral" />
+      </category>
+    </data_sources>
+    <date>2026-03-29</date>
+    <metadata>
+      <total_items>196</total_items>
+      <sources>['储能中国网', '中国储能网', '北极星储能网', '中关村储能联盟']</sources>
+      <data_quality_score>95</data_quality_score>
+      <report_type>daily</report_type>
+      <target_audience>储能行业从业者、投资者、政策制定者</target_audience>
+    </metadata>
+  </context>
+  <constraints>
+    <constraint name="format" required="true" validator="regex:^markdown|html|pdf$">markdown</constraint>
+    <constraint name="language" required="true">中文</constraint>
+    <constraint name="tone" required="true">专业、客观、简洁</constraint>
+    <constraint name="max_length" required="false" validator="range:1000-10000">4000</constraint>
+    <constraint name="include_data_sources" required="true">true</constraint>
+    <constraint name="fact_check_required" required="true">true</constraint>
+  </constraints>
+  <output_format type="markdown">
+    <required_sections>
+      <section name="📊 市场动态" required="true" max_items="8" min_items="3" />
+      <section name="⚡ 技术进展" required="true" max_items="6" min_items="2" />
+      <section name="📜 政策动态" required="true" max_items="5" min_items="2" />
+      <section name="📈 行情数据" required="false" max_items="3" />
+      <section name="🔥 今日热点" required="true" max_items="5" min_items="3" />
+      <section name="📋 详细资讯" required="true" max_items="20" min_items="10" />
+    </required_sections>
+    <style_guide>使用 emoji 增强可读性
+每个要点控制在 100 字以内
+关键数据加粗 (**数据**)
+公司名称加粗 (**公司名**)
+添加原文链接引用
+使用表格展示对比数据</style_guide>
+  </output_format>
+  <quality_criteria>
+    <fact_accuracy>
+      <required>true</required>
+      <min_score>0.95</min_score>
+    </fact_accuracy>
+    <data_completeness>
+      <required_sections>5</required_sections>
+      <tolerance>1</tolerance>
+    </data_completeness>
+    <source_citation>
+      <required>true</required>
+      <format>文末标注</format>
+      <min_sources>3</min_sources>
+    </source_citation>
+    <readability>
+      <target_audience>专业</target_audience>
+      <level>高级</level>
+    </readability>
+    <originality>
+      <plagiarism_threshold>0%</plagiarism_threshold>
+      <paraphrase_required>true</paraphrase_required>
+    </originality>
+  </quality_criteria>
+  <examples>
+    <example>
+      <input>宁德时代发布新一代储能电池</input>
+      <output>**宁德时代**发布新一代储能电池，能量密度提升 **20%**，循环寿命超过 **12000 次**</output>
+    </example>
+    <example>
+      <input>菲律宾强制配建储能政策</input>
+      <output>**菲律宾**出台风光强制配建储能政策，配储比例不低于装机容量的 **20%**</output>
+    </example>
+  </examples>
+</task>

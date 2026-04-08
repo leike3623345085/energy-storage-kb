@@ -30,6 +30,39 @@
             border-right: 1px solid #2a2a4e;
             padding: 20px;
             overflow-y: auto;
+            transition: transform 0.3s;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            #container {
+                flex-direction: column;
+            }
+            
+            #sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 40vh;
+                border-right: none;
+                border-bottom: 1px solid #2a2a4e;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+            
+            .stats {
+                padding: 10px;
+            }
+            
+            .community-item {
+                padding: 6px;
+            }
+            
+            #graph {
+                height: 60vh;
+            }
         }
         
         h1 {
@@ -442,6 +475,32 @@
             d.fx = null;
             d.fy = null;
         }
+        
+        // 触摸支持
+        let touchStartDistance = 0;
+        let touchStartScale = 1;
+        
+        svg.on("touchstart", function(event) {
+            if (event.touches.length === 2) {
+                touchStartDistance = Math.hypot(
+                    event.touches[0].pageX - event.touches[1].pageX,
+                    event.touches[0].pageY - event.touches[1].pageY
+                );
+                touchStartScale = d3.zoomTransform(svg.node()).k;
+            }
+        });
+        
+        svg.on("touchmove", function(event) {
+            if (event.touches.length === 2) {
+                event.preventDefault();
+                const distance = Math.hypot(
+                    event.touches[0].pageX - event.touches[1].pageX,
+                    event.touches[0].pageY - event.touches[1].pageY
+                );
+                const scale = touchStartScale * (distance / touchStartDistance);
+                svg.call(zoom.transform, d3.zoomIdentity.scale(scale));
+            }
+        });
 
         // 控制按钮功能
         function resetZoom() {

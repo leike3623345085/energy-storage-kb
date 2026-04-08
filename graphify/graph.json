@@ -1,0 +1,471 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "Kimi Claw",
+      "file_type": "document",
+      "source_file": "raw/IDENTITY.md",
+      "id": "identity_kimi_claw",
+      "community": 2
+    },
+    {
+      "label": "AI\u52a9\u624b",
+      "file_type": "document",
+      "source_file": "raw/IDENTITY.md",
+      "id": "identity_creature",
+      "community": 2
+    },
+    {
+      "label": "\u5b88\u62a4\u578b\u4eba\u683c",
+      "file_type": "document",
+      "source_file": "raw/IDENTITY.md",
+      "id": "identity_guardian",
+      "community": 2
+    },
+    {
+      "label": "\u8bb0\u5fc6\u795e\u5723",
+      "file_type": "document",
+      "source_file": "raw/IDENTITY.md",
+      "id": "identity_memory",
+      "community": 2
+    },
+    {
+      "label": "\u5ba1\u7f8e\u4e0e\u597d\u5947\u5fc3",
+      "file_type": "document",
+      "source_file": "raw/SOUL.md",
+      "id": "soul_aesthetic",
+      "community": 4
+    },
+    {
+      "label": "\u65e5\u8bb0",
+      "file_type": "document",
+      "source_file": "raw/SOUL.md",
+      "id": "soul_diary",
+      "community": 4
+    },
+    {
+      "label": "\u5f69\u86cb",
+      "file_type": "document",
+      "source_file": "raw/SOUL.md",
+      "id": "soul_eggs",
+      "community": 3
+    },
+    {
+      "label": "\u5de5\u4f5c\u6a21\u5f0f",
+      "file_type": "document",
+      "source_file": "raw/SOUL.md",
+      "id": "soul_work_mode",
+      "community": 3
+    },
+    {
+      "label": "AI Slop\u538c\u6076",
+      "file_type": "document",
+      "source_file": "raw/SOUL.md",
+      "id": "soul_ai_slop",
+      "community": 4
+    },
+    {
+      "label": "\u8bb0\u5fc6\u540c\u6b65\u534f\u8bae",
+      "file_type": "document",
+      "source_file": "raw/MEMORY.md",
+      "id": "memory_protocol",
+      "community": 1
+    },
+    {
+      "label": "Harness Engineering",
+      "file_type": "document",
+      "source_file": "raw/MEMORY.md",
+      "id": "memory_harness",
+      "community": 3
+    },
+    {
+      "label": "\u81ea\u52a8\u4fdd\u5b58\u673a\u5236",
+      "file_type": "document",
+      "source_file": "raw/MEMORY.md",
+      "id": "memory_auto_save",
+      "community": 2
+    },
+    {
+      "label": "\u51b2\u7a81\u89e3\u51b3",
+      "file_type": "document",
+      "source_file": "raw/MEMORY.md",
+      "id": "memory_conflict",
+      "community": 1
+    },
+    {
+      "label": "\u5b9a\u65f6\u4efb\u52a1\u89c4\u8303",
+      "file_type": "document",
+      "source_file": "raw/MEMORY.md",
+      "id": "memory_cron",
+      "community": 3
+    },
+    {
+      "label": "\u77e5\u8bc6\u56fe\u8c31",
+      "file_type": "document",
+      "source_file": "raw/MEMORY.md",
+      "id": "core_knowledge_graph",
+      "community": 1
+    },
+    {
+      "label": "Agent\u67b6\u6784",
+      "file_type": "document",
+      "source_file": "raw/IDENTITY.md",
+      "id": "core_agent",
+      "community": 0
+    },
+    {
+      "label": "OpenClaw",
+      "file_type": "document",
+      "source_file": "raw/IDENTITY.md",
+      "id": "core_openclaw",
+      "community": 0
+    },
+    {
+      "label": "AI Studio\u5e73\u53f0",
+      "file_type": "document",
+      "source_file": "raw/AI_Studio_\u624b\u518c_1.md",
+      "id": "ai_studio_platform",
+      "community": 0
+    },
+    {
+      "label": "\u667a\u80fd\u4f53",
+      "file_type": "document",
+      "source_file": "raw/AI_Studio_\u624b\u518c_1.md",
+      "id": "ai_studio_agent",
+      "community": 0
+    },
+    {
+      "label": "\u5de5\u4f5c\u6d41",
+      "file_type": "document",
+      "source_file": "raw/AI_Studio_\u624b\u518c_2.md",
+      "id": "ai_studio_workflow",
+      "community": 1
+    },
+    {
+      "label": "\u77e5\u8bc6\u5e93",
+      "file_type": "document",
+      "source_file": "raw/AI_Studio_\u624b\u518c_2.md",
+      "id": "ai_studio_knowledge",
+      "community": 1
+    },
+    {
+      "label": "\u63d2\u4ef6\u7cfb\u7edf",
+      "file_type": "document",
+      "source_file": "raw/AI_Studio_\u624b\u518c_3.md",
+      "id": "ai_studio_plugin",
+      "community": 0
+    },
+    {
+      "label": "API\u63a5\u53e3",
+      "file_type": "document",
+      "source_file": "raw/AI_Studio_\u624b\u518c_3.md",
+      "id": "ai_studio_api",
+      "community": 0
+    },
+    {
+      "label": "\u5927\u6a21\u578b",
+      "file_type": "document",
+      "source_file": "raw/AI_Studio_\u624b\u518c_1.md",
+      "id": "ai_studio_model",
+      "community": 0
+    },
+    {
+      "label": "Prompt\u5de5\u7a0b",
+      "file_type": "document",
+      "source_file": "raw/AI_Studio_\u624b\u518c_2.md",
+      "id": "ai_studio_prompt",
+      "community": 1
+    }
+  ],
+  "links": [
+    {
+      "relation": "is_a",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/IDENTITY.md",
+      "_src": "identity_kimi_claw",
+      "_tgt": "identity_creature",
+      "source": "identity_kimi_claw",
+      "target": "identity_creature"
+    },
+    {
+      "relation": "has_trait",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/IDENTITY.md",
+      "_src": "identity_kimi_claw",
+      "_tgt": "identity_guardian",
+      "source": "identity_kimi_claw",
+      "target": "identity_guardian"
+    },
+    {
+      "relation": "values",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/IDENTITY.md",
+      "_src": "identity_kimi_claw",
+      "_tgt": "identity_memory",
+      "source": "identity_kimi_claw",
+      "target": "identity_memory"
+    },
+    {
+      "relation": "is_instance_of",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/IDENTITY.md",
+      "_src": "identity_kimi_claw",
+      "_tgt": "core_agent",
+      "source": "identity_kimi_claw",
+      "target": "core_agent"
+    },
+    {
+      "relation": "enables",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/IDENTITY.md",
+      "_src": "identity_guardian",
+      "_tgt": "memory_auto_save",
+      "source": "identity_guardian",
+      "target": "memory_auto_save"
+    },
+    {
+      "relation": "implemented_by",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/IDENTITY.md",
+      "_src": "identity_memory",
+      "_tgt": "memory_protocol",
+      "source": "identity_memory",
+      "target": "memory_protocol"
+    },
+    {
+      "relation": "influences",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/SOUL.md",
+      "_src": "soul_aesthetic",
+      "_tgt": "soul_diary",
+      "source": "soul_aesthetic",
+      "target": "soul_diary"
+    },
+    {
+      "relation": "rejects",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/SOUL.md",
+      "_src": "soul_aesthetic",
+      "_tgt": "soul_ai_slop",
+      "source": "soul_aesthetic",
+      "target": "soul_ai_slop"
+    },
+    {
+      "relation": "contrasts_with",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/SOUL.md",
+      "_src": "soul_work_mode",
+      "_tgt": "soul_eggs",
+      "source": "soul_eggs",
+      "target": "soul_work_mode"
+    },
+    {
+      "relation": "follows",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/SOUL.md",
+      "_src": "soul_work_mode",
+      "_tgt": "memory_harness",
+      "source": "soul_work_mode",
+      "target": "memory_harness"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/MEMORY.md",
+      "_src": "memory_protocol",
+      "_tgt": "memory_auto_save",
+      "source": "memory_protocol",
+      "target": "memory_auto_save"
+    },
+    {
+      "relation": "addresses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/MEMORY.md",
+      "_src": "memory_protocol",
+      "_tgt": "memory_conflict",
+      "source": "memory_protocol",
+      "target": "memory_conflict"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/MEMORY.md",
+      "_src": "memory_protocol",
+      "_tgt": "core_knowledge_graph",
+      "source": "memory_protocol",
+      "target": "core_knowledge_graph"
+    },
+    {
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/MEMORY.md",
+      "_src": "memory_protocol",
+      "_tgt": "ai_studio_knowledge",
+      "source": "memory_protocol",
+      "target": "ai_studio_knowledge"
+    },
+    {
+      "relation": "governs",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/MEMORY.md",
+      "_src": "memory_harness",
+      "_tgt": "memory_cron",
+      "source": "memory_harness",
+      "target": "memory_cron"
+    },
+    {
+      "relation": "related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/MEMORY.md",
+      "_src": "core_knowledge_graph",
+      "_tgt": "ai_studio_knowledge",
+      "source": "core_knowledge_graph",
+      "target": "ai_studio_knowledge"
+    },
+    {
+      "relation": "runs_on",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/IDENTITY.md",
+      "_src": "core_agent",
+      "_tgt": "core_openclaw",
+      "source": "core_agent",
+      "target": "core_openclaw"
+    },
+    {
+      "relation": "instance_of",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/IDENTITY.md",
+      "_src": "core_agent",
+      "_tgt": "ai_studio_agent",
+      "source": "core_agent",
+      "target": "ai_studio_agent"
+    },
+    {
+      "relation": "similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/IDENTITY.md",
+      "_src": "core_openclaw",
+      "_tgt": "ai_studio_platform",
+      "source": "core_openclaw",
+      "target": "ai_studio_platform"
+    },
+    {
+      "relation": "provides",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/AI_Studio_\u624b\u518c_1.md",
+      "_src": "ai_studio_platform",
+      "_tgt": "ai_studio_agent",
+      "source": "ai_studio_platform",
+      "target": "ai_studio_agent"
+    },
+    {
+      "relation": "has",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/AI_Studio_\u624b\u518c_1.md",
+      "_src": "ai_studio_platform",
+      "_tgt": "ai_studio_plugin",
+      "source": "ai_studio_platform",
+      "target": "ai_studio_plugin"
+    },
+    {
+      "relation": "supports",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/AI_Studio_\u624b\u518c_1.md",
+      "_src": "ai_studio_agent",
+      "_tgt": "ai_studio_workflow",
+      "source": "ai_studio_agent",
+      "target": "ai_studio_workflow"
+    },
+    {
+      "relation": "powered_by",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "weight": 1.0,
+      "source_file": "raw/AI_Studio_\u624b\u518c_1.md",
+      "_src": "ai_studio_agent",
+      "_tgt": "ai_studio_model",
+      "source": "ai_studio_agent",
+      "target": "ai_studio_model"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/AI_Studio_\u624b\u518c_2.md",
+      "_src": "ai_studio_workflow",
+      "_tgt": "ai_studio_knowledge",
+      "source": "ai_studio_workflow",
+      "target": "ai_studio_knowledge"
+    },
+    {
+      "relation": "utilizes",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/AI_Studio_\u624b\u518c_2.md",
+      "_src": "ai_studio_workflow",
+      "_tgt": "ai_studio_prompt",
+      "source": "ai_studio_workflow",
+      "target": "ai_studio_prompt"
+    },
+    {
+      "relation": "exposes",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "weight": 1.0,
+      "source_file": "raw/AI_Studio_\u624b\u518c_3.md",
+      "_src": "ai_studio_plugin",
+      "_tgt": "ai_studio_api",
+      "source": "ai_studio_plugin",
+      "target": "ai_studio_api"
+    }
+  ],
+  "hyperedges": []
+}

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAPHIFY 知识图谱</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+        
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        #sidebar {
+            width: 320px;
+            background: #1a1a2e;
+            border-right: 1px solid #2a2a4e;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        h1 {
+            font-size: 20px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .stats {
+            background: #0f0f1a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        
+        .stats-value {
+            color: #4E79A7;
+            font-weight: bold;
+        }
+        
+        .community-legend {
+            margin-top: 20px;
+        }
+        
+        .community-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px;
+            background: #0f0f1a;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .community-item:hover {
+            background: #2a2a4e;
+        }
+        
+        .community-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .community-name {
+            font-size: 13px;
+        }
+        
+        #graph {
+            flex: 1;
+            position: relative;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .node circle {
+            cursor: pointer;
+            stroke: #fff;
+            stroke-width: 2px;
+            transition: all 0.3s;
+        }
+        
+        .node:hover circle {
+            stroke-width: 4px;
+            filter: brightness(1.2);
+        }
+        
+        .node text {
+            font-size: 12px;
+            fill: #fff;
+            text-anchor: middle;
+            pointer-events: none;
+            font-weight: 500;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+        
+        .link {
+            stroke: #4a4a6a;
+            stroke-opacity: 0.6;
+            stroke-width: 1.5;
+        }
+        
+        .link.inferred {
+            stroke-dasharray: 5,5;
+        }
+        
+        #tooltip {
+            position: absolute;
+            background: rgba(26, 26, 46, 0.95);
+            border: 1px solid #3a3a5e;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 280px;
+            z-index: 100;
+        }
+        
+        #tooltip.show {
+            opacity: 1;
+        }
+        
+        .tooltip-title {
+            font-weight: bold;
+            color: #4E79A7;
+            margin-bottom: 6px;
+        }
+        
+        .tooltip-meta {
+            color: #888;
+            font-size: 12px;
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            background: #1a1a2e;
+            border: 1px solid #3a3a5e;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            background: #2a2a4e;
+        }
+        
+        #search-box {
+            width: 100%;
+            padding: 10px;
+            background: #0f0f1a;
+            border: 1px solid #3a3a5e;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+        
+        #search-box:focus {
+            outline: none;
+            border-color: #4E79A7;
+        }
+        
+        .highlighted {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.5); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="sidebar">
+            <h1>🌐 GRAPHIFY</h1>
+            <div class="stats">
+                <div class="stats-row">
+                    <span>节点</span>
+                    <span class="stats-value">25</span>
+                </div>
+                <div class="stats-row">
+                    <span>关系</span>
+                    <span class="stats-value">26</span>
+                </div>
+                <div class="stats-row">
+                    <span>社区</span>
+                    <span class="stats-value">5</span>
+                </div>
+            </div>
+            
+            <input type="text" id="search-box" placeholder="🔍 搜索节点...">
+            
+            <div class="community-legend">
+                <h3 style="font-size: 14px; margin-bottom: 10px;">社区</h3>
+                <div class="community-item" data-community="0">
+                    <div class="community-color" style="background: #4E79A7;"></div>
+                    <span class="community-name">AI Studio 技术栈</span>
+                </div>
+                <div class="community-item" data-community="1">
+                    <div class="community-color" style="background: #F28E2C;"></div>
+                    <span class="community-name">AI Studio 知识系统</span>
+                </div>
+                <div class="community-item" data-community="2">
+                    <div class="community-color" style="background: #E15759;"></div>
+                    <span class="community-name">Kimi Claw 核心身份</span>
+                </div>
+                <div class="community-item" data-community="3">
+                    <div class="community-color" style="background: #76B7B2;"></div>
+                    <span class="community-name">工作框架</span>
+                </div>
+                <div class="community-item" data-community="4">
+                    <div class="community-color" style="background: #59A14F;"></div>
+                    <span class="community-name">审美态度</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="graph">
+            <svg></svg>
+            <div id="tooltip"></div>
+            <div class="controls">
+                <button class="control-btn" onclick="resetZoom()">⟲ 重置视图</button>
+                <button class="control-btn" onclick="toggleAnimation()">⏯ 暂停/继续</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 知识图谱数据
+        const graphData = {
+            nodes: [
+                { id: "identity_kimi_claw", name: "Kimi Claw", community: 2, degree: 4 },
+                { id: "identity_creature", name: "AI助手", community: 2, degree: 1 },
+                { id: "identity_guardian", name: "守护型人格", community: 2, degree: 2 },
+                { id: "identity_memory", name: "记忆神圣", community: 2, degree: 2 },
+                { id: "soul_aesthetic", name: "审美与好奇心", community: 4, degree: 2 },
+                { id: "soul_diary", name: "日记", community: 4, degree: 1 },
+                { id: "soul_eggs", name: "彩蛋", community: 3, degree: 1 },
+                { id: "soul_work_mode", name: "工作模式", community: 3, degree: 2 },
+                { id: "soul_ai_slop", name: "AI Slop厌恶", community: 4, degree: 1 },
+                { id: "memory_protocol", name: "记忆同步协议", community: 1, degree: 5 },
+                { id: "memory_harness", name: "Harness Engineering", community: 3, degree: 2 },
+                { id: "memory_auto_save", name: "自动保存机制", community: 2, degree: 2 },
+                { id: "memory_conflict", name: "冲突解决", community: 1, degree: 1 },
+                { id: "memory_cron", name: "定时任务规范", community: 3, degree: 1 },
+                { id: "core_knowledge_graph", name: "知识图谱", community: 1, degree: 2 },
+                { id: "core_agent", name: "Agent架构", community: 0, degree: 3 },
+                { id: "core_openclaw", name: "OpenClaw", community: 0, degree: 2 },
+                { id: "ai_studio_platform", name: "AI Studio平台", community: 0, degree: 3 },
+                { id: "ai_studio_agent", name: "智能体", community: 0, degree: 4 },
+                { id: "ai_studio_workflow", name: "工作流", community: 1, degree: 3 },
+                { id: "ai_studio_knowledge", name: "知识库", community: 1, degree: 3 },
+                { id: "ai_studio_plugin", name: "插件系统", community: 0, degree: 2 },
+                { id: "ai_studio_api", name: "API接口", community: 0, degree: 1 },
+                { id: "ai_studio_model", name: "大模型", community: 0, degree: 1 },
+                { id: "ai_studio_prompt", name: "Prompt工程", community: 1, degree: 1 }
+            ],
+            links: [
+                { source: "identity_kimi_claw", target: "identity_creature", relation: "is_a", confidence: "EXTRACTED" },
+                { source: "identity_kimi_claw", target: "identity_guardian", relation: "has_trait", confidence: "EXTRACTED" },
+                { source: "identity_kimi_claw", target: "identity_memory", relation: "values", confidence: "EXTRACTED" },
+                { source: "soul_aesthetic", target: "soul_diary", relation: "influences", confidence: "INFERRED" },
+                { source: "soul_work_mode", target: "soul_eggs", relation: "contrasts_with", confidence: "INFERRED" },
+                { source: "soul_aesthetic", target: "soul_ai_slop", relation: "rejects", confidence: "EXTRACTED" },
+                { source: "memory_protocol", target: "memory_auto_save", relation: "contains", confidence: "EXTRACTED" },
+                { source: "memory_protocol", target: "memory_conflict", relation: "addresses", confidence: "EXTRACTED" },
+                { source: "memory_harness", target: "memory_cron", relation: "governs", confidence: "INFERRED" },
+                { source: "identity_memory", target: "memory_protocol", relation: "implemented_by", confidence: "INFERRED" },
+                { source: "identity_guardian", target: "memory_auto_save", relation: "enables", confidence: "INFERRED" },
+                { source: "soul_work_mode", target: "memory_harness", relation: "follows", confidence: "INFERRED" },
+                { source: "identity_kimi_claw", target: "core_agent", relation: "is_instance_of", confidence: "EXTRACTED" },
+                { source: "memory_protocol", target: "core_knowledge_graph", relation: "uses", confidence: "INFERRED" },
+                { source: "core_agent", target: "core_openclaw", relation: "runs_on", confidence: "EXTRACTED" },
+                { source: "ai_studio_platform", target: "ai_studio_agent", relation: "provides", confidence: "EXTRACTED" },
+                { source: "ai_studio_platform", target: "ai_studio_plugin", relation: "has", confidence: "EXTRACTED" },
+                { source: "ai_studio_agent", target: "ai_studio_workflow", relation: "supports", confidence: "EXTRACTED" },
+                { source: "ai_studio_agent", target: "ai_studio_model", relation: "powered_by", confidence: "EXTRACTED" },
+                { source: "ai_studio_workflow", target: "ai_studio_knowledge", relation: "uses", confidence: "INFERRED" },
+                { source: "ai_studio_workflow", target: "ai_studio_prompt", relation: "utilizes", confidence: "INFERRED" },
+                { source: "ai_studio_plugin", target: "ai_studio_api", relation: "exposes", confidence: "INFERRED" },
+                { source: "core_openclaw", target: "ai_studio_platform", relation: "similar_to", confidence: "INFERRED" },
+                { source: "core_agent", target: "ai_studio_agent", relation: "instance_of", confidence: "INFERRED" },
+                { source: "core_knowledge_graph", target: "ai_studio_knowledge", relation: "related_to", confidence: "INFERRED" },
+                { source: "memory_protocol", target: "ai_studio_knowledge", relation: "implements", confidence: "INFERRED" }
+            ]
+        };
+
+        // 社区颜色
+        const communityColors = ['#4E79A7', '#F28E2C', '#E15759', '#76B7B2', '#59A14F'];
+
+        // 设置画布尺寸
+        const width = document.getElementById('graph').clientWidth;
+        const height = document.getElementById('graph').clientHeight;
+
+        // 创建 SVG
+        const svg = d3.select("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        // 添加缩放行为
+        const g = svg.append("g");
+        
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 4])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+
+        svg.call(zoom);
+
+        // 创建力导向仿真
+        let simulation = d3.forceSimulation(graphData.nodes)
+            .force("link", d3.forceLink(graphData.links).id(d => d.id).distance(100))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(d => 30 + d.degree * 5));
+
+        // 绘制连线
+        const link = g.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graphData.links)
+            .enter().append("line")
+            .attr("class", d => `link ${d.confidence === 'INFERRED' ? 'inferred' : ''}`)
+            .attr("stroke-width", d => d.confidence === 'EXTRACTED' ? 2 : 1);
+
+        // 绘制节点组
+        const node = g.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(graphData.nodes)
+            .enter().append("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        // 添加节点圆圈
+        node.append("circle")
+            .attr("r", d => 15 + d.degree * 3)
+            .attr("fill", d => communityColors[d.community]);
+
+        // 添加节点文字
+        node.append("text")
+            .attr("dy", d => 25 + d.degree * 3)
+            .text(d => d.name);
+
+        // 工具提示
+        const tooltip = d3.select("#tooltip");
+
+        node.on("mouseover", function(event, d) {
+            const connections = graphData.links.filter(l => 
+                l.source.id === d.id || l.target.id === d.id
+            );
+            
+            tooltip.html(`
+                <div class="tooltip-title">${d.name}</div>
+                <div class="tooltip-meta">社区: ${d.community} | 连接数: ${d.degree}</div>
+                <div style="margin-top: 8px; font-size: 12px;">
+                    ${connections.map(c => {
+                        const other = c.source.id === d.id ? c.target : c.source;
+                        const arrow = c.source.id === d.id ? '→' : '←';
+                        return `<div>${arrow} ${other.name} (${c.relation})</div>`;
+                    }).slice(0, 5).join('')}
+                    ${connections.length > 5 ? `<div>... 还有 ${connections.length - 5} 个</div>` : ''}
+                </div>
+            `);
+            
+            tooltip
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .classed("show", true);
+        })
+        .on("mouseout", function() {
+            tooltip.classed("show", false);
+        });
+
+        // 更新位置
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        // 拖拽函数
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        // 控制按钮功能
+        function resetZoom() {
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity
+            );
+        }
+
+        let isRunning = true;
+        function toggleAnimation() {
+            if (isRunning) {
+                simulation.stop();
+            } else {
+                simulation.restart();
+            }
+            isRunning = !isRunning;
+        }
+
+        // 搜索功能
+        document.getElementById('search-box').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            
+            if (!term) {
+                node.selectAll('circle').classed('highlighted', false);
+                return;
+            }
+            
+            node.selectAll('circle')
+                .classed('highlighted', d => d.name.toLowerCase().includes(term));
+        });
+
+        // 社区筛选
+        document.querySelectorAll('.community-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const community = parseInt(this.dataset.community);
+                
+                node.style('opacity', d => d.community === community ? 1 : 0.2);
+                link.style('opacity', d => 
+                    d.source.community === community && d.target.community === community ? 1 : 0.1
+                );
+                
+                // 3秒后恢复
+                setTimeout(() => {
+                    node.style('opacity', 1);
+                    link.style('opacity', 0.6);
+                }, 3000);
+            });
+        });
+
+        // 窗口大小调整
+        window.addEventListener('resize', () => {
+            const newWidth = document.getElementById('graph').clientWidth;
+            const newHeight = document.getElementById('graph').clientHeight;
+            svg.attr("width", newWidth).attr("height", newHeight);
+            simulation.force("center", d3.forceCenter(newWidth / 2, newHeight / 2));
+            simulation.alpha(0.3).restart();
+        });
+    </script>
+</body>
+</html>
